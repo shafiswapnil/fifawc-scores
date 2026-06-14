@@ -144,6 +144,19 @@ for syntax validation. Full builds require Xcode.
 - **XcodeGen** for project generation (`project.yml` → `WCSCORES.xcodeproj`).
 - **Semver** for releases: `MARKETING_VERSION` in `project.yml` MUST match the git tag.
 
+### Swift 6 Concurrency Gotchas (MUST KNOW)
+
+- **`@Observable` + `didSet` self-assignment = infinite recursion / crash.**
+  Never write `self.property = newValue` inside a `didSet` of an `@Observable`
+  property. Use a private backing variable with a computed get/set instead.
+- **Actor-isolated calls need `await`.** Calling actor methods from
+  `@MainActor` or non-isolated context requires `await`. Use
+  `Task { await actor.method() }` in synchronous contexts like `didSet`.
+- **`.environment()` is a View modifier, not a Scene modifier.** Apply it
+  to child views inside `MenuBarExtra { } label: { }`, not to the scene itself.
+- **`PRODUCT_MODULE_NAME`** must be set explicitly when `PRODUCT_NAME`
+  differs from the import module name (tests `import WCSCORES`).
+
 ---
 
 ## Architecture Quick Reference

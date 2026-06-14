@@ -171,4 +171,45 @@ amazing!! thank you so so much! now i want few things:
 
 ---
 
+## Prompt 11
+
+continue from last, we still need to fix the ci/cd pipeline. every time i push it keeps failing. look at the last failures and fix them once and for all.
+
+**Actions taken:**
+
+After extensive debugging across multiple sessions (reproducing errors locally with Xcode 26.5), we found and fixed **4 compilation errors** + **2 project configuration issues**:
+
+1. **`MatchStore.swift` — `@Observable` + `didSet` infinite recursion.** Writing `self.pollInterval = max(60, pollInterval)` inside `didSet` caused the `@Observable`-synthesized setter to re-enter, creating infinite recursion and a stack overflow crash. **Fix:** Replaced with a private backing variable (`_pollInterval`) and a computed get/set with clamping logic.
+
+2. **`MatchStore.swift` — Actor-isolated call without `await`.** `fetchService.updateApiKey(apiKey)` inside `didSet` called an actor-isolated method without `await`. **Fix:** Wrapped in `Task { await fetchService.updateApiKey(apiKey) }`.
+
+3. **`MenuBarPanel.swift` — Preview missing required parameter.** `#Preview { MenuBarPanel() }` was missing the `checkForUpdates:` parameter. **Fix:** Changed to `MenuBarPanel(checkForUpdates: {})`.
+
+4. **`WCScoresApp.swift` — `.environment()` applied to Scene, not View.** `.environment(store)` and `.task { }` were chained on the `MenuBarExtra` Scene return. **Fix:** Moved inside the `MenuBarExtra { }` content closure, applied `.environment(store)` to both `MenuBarPanel` and `MenuBarLabel`.
+
+5. **`PollController.swift` — `TimeZone(secondsFromGMT:)` returns optional.** Needed force-unwrap (`!`) since `TimeZone(secondsFromGMT: 0)` is non-nil but Swift 6 strict concurrency flagged it. **Fix:** Added `!`.
+
+6. **`FetchService.swift` — `FetchError` not `Equatable`.** Tests used `XCTAssertEqual` on `FetchError` which required `Equatable` conformance. **Fix:** Added `Equatable` with manual `==` implementation.
+
+7. **`project.yml` — Missing `PRODUCT_MODULE_NAME`.** `PRODUCT_NAME: "WC Scores"` created module name `WC_Scores`, but tests import `WCSCORES`. **Fix:** Added `PRODUCT_MODULE_NAME: WCSCORES` to app target settings.
+
+8. **`project.yml` — Missing `TEST_HOST` override.** XcodeGen auto-generates `TEST_HOST` using the target name (`WCSCORES.app`), but `PRODUCT_NAME` makes it `WC Scores.app`. **Fix:** Explicitly set `TEST_HOST` to match the actual product name.
+
+9. **`project.yml` — Missing scheme definitions.** CI uses `-scheme WCScoreTests` but XcodeGen only creates one scheme by default. **Fix:** Added explicit `schemes:` section defining both `WCSCORES` (with test targets) and `WCScoreTests`.
+
+10. **`.github/workflows/ci.yml` — Test scheme mismatch.** CI used `-scheme WCScoreTests` which had the test host issue. **Fix:** Changed to `-scheme WCSCORES` which includes both app + test targets.
+
+**Result:** `BUILD SUCCEEDED` + `** TEST SUCCEEDED **` — all 52 tests pass with 0 failures.
+
+**Key Swift 6 gotchas documented:**
+
+- `@Observable` + `didSet` self-assignment = infinite recursion (use backing variable)
+- Actor-isolated calls need `await` (use `Task { }` in synchronous contexts)
+- `.environment()` is a View modifier, not Scene modifier
+- `PRODUCT_MODULE_NAME` must be explicit when `PRODUCT_NAME` differs from module name
+
+**Summary:** All compilation errors fixed. 52/52 tests pass. CI workflow updated. Swift 6 concurrency gotchas added to CLAUDE.md. Status.md updated with new decisions.
+
+---
+
 ## Prompt 101
