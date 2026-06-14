@@ -96,3 +96,28 @@ so to do this whole thing for this application:
 
 **Summary:** CLAUDE.md comprehensively rewritten as the universal agent prompt framework. Now includes: 9 mandatory agent behavior rules (read status.md, don't hallucinate, crosscheck, ask before decisions, update docs, commit per milestone, clean commits, energy/efficiency, never edit generated files), full architecture quick reference, build commands (including `swiftc -parse`), complete conventions, version/release rules, git history. Prompt framework IS CLAUDE.md — it gets injected as system context for every Copilot/agent session. Added prompt summaries to all 7 prompts in this file. Answer to Q7.3: condensed thread context is sufficient for new threads; raw prompt #6 adds "why" context for extra enthusiasm but isn't required.
 
+---
+
+## Prompt 8
+
+**User:** Start M15 (Sparkle auto-update). Read CLAUDE.md, status.md, prompts.md, and docs/plan.md first. Follow all rules.
+
+**Actions taken (M15: Auto-Update via Sparkle):**
+
+1. **project.yml** — Added `Sparkle` SPM package (from `2.6.0`), added dependency to WCSCORES target.
+2. **WCScoresApp.swift** — Imported `Sparkle`, added `SPUStandardUpdaterController` with `startingUpdater: true`. Passed `checkForUpdates` closure to `MenuBarPanel`.
+3. **MenuBarPanel.swift** — Added `let checkForUpdates: () -> Void` parameter. Added "Check for Updates…" button in the Settings tab (above app info, with `arrow.down.circle` icon).
+4. **Info.plist** — Added `SUFeedURL` pointing to `https://shafiswapnil.github.io/fifawc-scores/appcast.xml` (GitHub Pages-hosted appcast.xml).
+5. **docs/appcast.xml** — Created initial appcast skeleton with v1.0.0 entry. Length and Ed25519 signature placeholders to be filled when first release is built (M16/M17).
+6. **status.md** — Updated M15 status to ✅ Done. Updated current stage description.
+7. **CLAUDE.md** — Updated "Current status" line, updated architecture diagram to include Sparkle controller and "Check for Updates" button.
+8. **swiftc -parse** — All sources parse clean (no errors).
+
+**Key decisions:**
+
+- Sparkle feed: GitHub Pages-hosted `appcast.xml` (not raw GitHub Releases JSON — Sparkle needs XML appcast format).
+- `SUPublicEDKey` omitted for now — will be generated with Sparkle's `generate_keys` tool in M17 when first signed release is prepared.
+- `SPUStandardUpdaterController` created in `WCScoresApp.init()` — automatic background checks enabled by default (matching prayer-times-macos pattern).
+- No wrapper `UpdateService` class yet — direct controller usage is sufficient for v1. Can be extracted if complexity grows.
+
+**Summary:** M15 complete. Sparkle integrated via SPM. "Check for Updates…" button in Settings tab. Feed URL set to GitHub Pages. Appcast XML skeleton created. All files parse clean. Ready for commit.

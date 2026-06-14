@@ -5,7 +5,7 @@
 
 ## Current Stage
 
-**Phase 1 complete (M1–M14).** App features done. Phase 2 planned: auto-update via Sparkle + GitHub Actions CI/CD pipeline.
+**Phase 1 complete (M1–M14).** Phase 2 started: M15 (Sparkle auto-update) done. M16–M18 planned.
 
 ## Milestone Tracker
 
@@ -25,15 +25,20 @@
 | M12 | Full Schedule Tab           | ✅ Done | TBD     | Date picker, grouped matches, all tournament dates     |
 | M13 | TeamColors SRB Fix          | ✅ Done | TBD     | Removed duplicate "SRB" entry in TeamColors            |
 | M14 | README.md                   | ✅ Done | TBD     | Industry-standard README with install + architecture   |
-| M15 | Auto-Update via Sparkle      | ⬜ Plan | —       | SPM integration, "Check for Updates" in Settings       |
+| M15 | Auto-Update via Sparkle     | ✅ Done | TBD     | SPM integration, "Check for Updates" in Settings       |
 | M16 | GitHub Actions CI/CD        | ⬜ Plan | —       | Build, sign, notarize, publish on tag push             |
-| M17 | Version Management Script   | ⬜ Plan | —       | bump-version.sh, semver, tag ↔ project.yml sync       |
+| M17 | Version Management Script   | ⬜ Plan | —       | bump-version.sh, semver, tag ↔ project.yml sync        |
 | M18 | Test Suite                  | ⬜ Plan | —       | XCTest for FetchService, MatchStore, models            |
 
 ## Git History
 
 ```
-6efbe7c (HEAD) feat: add API key in Settings, Full Schedule tab, fix TeamColors, README
+fba5ed3 (HEAD) docs: update project docs for M15 completion
+8ac4aa9 feat: add Sparkle auto-update framework (M15)
+37acbca docs: add CLAUDE.md self-update rule to mandatory agent behavior rules
+6a3a719 docs: rewrite CLAUDE.md as universal agent prompt framework, add prompt summaries
+efa6db8 docs: plan Phase 2 — Sparkle auto-update, GitHub Actions CI/CD
+6efbe7c feat: add API key in Settings, Full Schedule tab, fix TeamColors, README
 0d5b386 chore: clean up Team.swift duplicate TLA keys (M10)
 2a19c7b feat(settings): add in-panel settings tab (M9)
 b310017 feat(ui): add MenuBarPanel with tabs, match cards, standings (M8)
@@ -46,25 +51,25 @@ bced77f feat(models): add core data models (M2)
 
 ## Key Decisions Log
 
-| Date       | Decision                                       | Rationale                                               |
-| ---------- | ---------------------------------------------- | ------------------------------------------------------- |
-| 2026-06-15 | football-data.org as primary API               | Free, reliable, live scores, WC support                 |
-| 2026-06-15 | Zero third-party dependencies                  | Tiny footprint, URLSession sufficient                   |
-| 2026-06-15 | 60s poll interval (configurable, min 60s)      | Balance between freshness and API limits                |
-| 2026-06-15 | Midnight auto-check when idle                  | No polling waste when no matches                        |
-| 2026-06-15 | Dynamic team colors                            | Cool, contextual theming                                |
-| 2026-06-15 | Simple goal animation first                    | Don't overcomplicate v1                                 |
-| 2026-06-15 | @MainActor for MatchStore + PollController     | Clean Swift 6 concurrency, no cross-iso                 |
-| 2026-06-15 | Standing model → GroupStanding + StandingEntry | Match football-data.org's table structure               |
-| 2026-06-15 | API key user-configurable in Settings          | Normal users shouldn't edit source code                 |
-| 2026-06-15 | API key stored in UserDefaults (@AppStorage)   | Matches existing pattern, good enough v1                |
-| 2026-06-15 | "No API key" error in header only              | Non-blocking onboarding, user finds Settings themselves |
-| 2026-06-15 | Full Schedule tab with date picker             | Spec required it, user chose to add now                 |
-| 2026-06-15 | FetchService.apiKey made mutable               | Allows runtime key updates from Settings                |
-| 2026-06-15 | Sparkle for auto-updates (not custom)           | Industry standard, handles version check + download + verify + replace |
-| 2026-06-15 | GitHub Releases as update feed                  | Free hosting, native GitHub API, no custom server needed |
-| 2026-06-15 | Tag-driven CI/CD pipeline                       | Automated build → sign → notarize → publish on tag push |
-| 2026-06-15 | Version consistency: tag = MARKETING_VERSION    | Prevents false "update available" after installing latest |
+| Date       | Decision                                       | Rationale                                                              |
+| ---------- | ---------------------------------------------- | ---------------------------------------------------------------------- |
+| 2026-06-15 | football-data.org as primary API               | Free, reliable, live scores, WC support                                |
+| 2026-06-15 | Zero third-party dependencies                  | Tiny footprint, URLSession sufficient                                  |
+| 2026-06-15 | 60s poll interval (configurable, min 60s)      | Balance between freshness and API limits                               |
+| 2026-06-15 | Midnight auto-check when idle                  | No polling waste when no matches                                       |
+| 2026-06-15 | Dynamic team colors                            | Cool, contextual theming                                               |
+| 2026-06-15 | Simple goal animation first                    | Don't overcomplicate v1                                                |
+| 2026-06-15 | @MainActor for MatchStore + PollController     | Clean Swift 6 concurrency, no cross-iso                                |
+| 2026-06-15 | Standing model → GroupStanding + StandingEntry | Match football-data.org's table structure                              |
+| 2026-06-15 | API key user-configurable in Settings          | Normal users shouldn't edit source code                                |
+| 2026-06-15 | API key stored in UserDefaults (@AppStorage)   | Matches existing pattern, good enough v1                               |
+| 2026-06-15 | "No API key" error in header only              | Non-blocking onboarding, user finds Settings themselves                |
+| 2026-06-15 | Full Schedule tab with date picker             | Spec required it, user chose to add now                                |
+| 2026-06-15 | FetchService.apiKey made mutable               | Allows runtime key updates from Settings                               |
+| 2026-06-15 | Sparkle for auto-updates (not custom)          | Industry standard, handles version check + download + verify + replace |
+| 2026-06-15 | GitHub Releases as update feed                 | Free hosting, native GitHub API, no custom server needed               |
+| 2026-06-15 | Tag-driven CI/CD pipeline                      | Automated build → sign → notarize → publish on tag push                |
+| 2026-06-15 | Version consistency: tag = MARKETING_VERSION   | Prevents false "update available" after installing latest              |
 
 ## Architecture Quick Reference
 
@@ -106,7 +111,7 @@ Sources/
 3. **Xcode Build**: Full build with Xcode (not just `swiftc -parse`) to catch runtime issues
 4. **Real-world testing**: Test with live tournament data when WC 2026 starts
 5. **Code signing**: Developer ID + notarization for distribution
-6. **Sparkle integration**: Add auto-update framework (M15)
+6. ~~**Sparkle integration**: Add auto-update framework (M15)~~ ✅ Done
 7. **GitHub Actions**: CI/CD pipeline for automated builds (M16)
 8. **Version management**: Script to bump version + create tags (M17)
 9. **Test suite**: Unit tests for core logic (M18)

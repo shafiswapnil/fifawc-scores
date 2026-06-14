@@ -12,7 +12,7 @@
 Cup 2026 match schedules, live scores, and goal animations. Menu bar agent
 (no Dock icon). All interaction happens in the menu bar — no main window.
 
-**Current status:** Phase 1 complete (M1–M14). Phase 2 planned (M15–M18).
+**Current status:** Phase 1 complete (M1–M14). M15 (Sparkle) done. M16–M18 planned.
 Read `status.md` for exact milestone state.
 
 ---
@@ -38,8 +38,8 @@ These are non-negotiable. The user has reinforced these across every session.
    - `docs/plan.md` (if new milestone added)
    - `docs/notes.md` (if new decision or idea)
    - `prompts.md` (log the prompt + summary)
-   After a **full phase** ends, also verify CLAUDE.md architecture section
-   still matches reality (new files, changed wiring, etc.).
+     After a **full phase** ends, also verify CLAUDE.md architecture section
+     still matches reality (new files, changed wiring, etc.).
 6. **Commit each milestone separately** with Conventional Commits format.
 7. **Keep commits clean.** One logical change per commit. Never mix
    feature code with doc updates in the same commit.
@@ -131,6 +131,7 @@ for syntax validation. Full builds require Xcode.
 
 ```
 WCScoresApp (@main)
+  ├─ SPUStandardUpdaterController (Sparkle) ← auto-update
   └─ @State store = MatchStore()  ← injected via .environment()
        ├─ FetchService (actor)     ← football-data.org API client
        ├─ PollController           ← task-based polling state machine
@@ -141,7 +142,8 @@ WCScoresApp (@main)
             └─ MenuBarPanel        ← 6 tabs: Today/Yesterday/Tomorrow/Schedule/Standings/Settings
                  ├─ MatchCard      ← team flags, score, status, group
                  ├─ GroupStandingCard ← group table with positions
-                 └─ SettingsView   ← API key field, poll slider, favorite team picker
+                 ├─ SettingsView   ← API key field, poll slider, favorite team picker
+                 └─ "Check for Updates…" button → Sparkle
 ```
 
 ---
