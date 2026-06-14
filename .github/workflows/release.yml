@@ -24,6 +24,10 @@ jobs:
           fi
           echo "VERSION=$TAG_VERSION" >> "$GITHUB_ENV"
 
+      # ── Install XcodeGen ──
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
       # ── Swift syntax check ──
       - name: Parse check
         run: |
