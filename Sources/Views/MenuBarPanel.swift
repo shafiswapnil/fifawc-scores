@@ -9,6 +9,7 @@ struct MenuBarPanel: View {
 
     @State private var selectedTab: PanelTab = .today
     @State private var fullScheduleStartDate: Date = Calendar.current.date(from: Calendar.current.dateComponents([.year, .month, .day], from: Date()))!
+    @State private var hasAppeared = false
 
     enum PanelTab: String, CaseIterable {
         case today = "Today"
@@ -32,6 +33,14 @@ struct MenuBarPanel: View {
         .padding(.horizontal, 10)
         .padding(.vertical, 12)
         .frame(width: 340)
+        .onAppear {
+            if !hasAppeared {
+                hasAppeared = true
+                if !store.hasApiKey {
+                    selectedTab = .settings
+                }
+            }
+        }
     }
 
     // MARK: - Header
@@ -71,32 +80,58 @@ struct MenuBarPanel: View {
     // MARK: - Tab Row
 
     private var tabRow: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 6) {
-                ForEach(PanelTab.allCases, id: \.self) { tab in
-                    Button {
-                        withAnimation(.easeInOut(duration: 0.15)) {
-                            selectedTab = tab
+        GeometryReader { geo in
+            let tabWidths: [CGFloat] = PanelTab.allCases.map { tab in
+                let text = tab.rawValue
+                let charWidth: CGFloat = 5.2   // approx char width at .caption.weight(.medium)
+                let padding: CGFloat = 20      // horizontal padding per button
+                return CGFloat(text.count) * charWidth + padding
+            }
+            let totalWidth = tabWidths.reduce(0, +) + CGFloat(PanelTab.allCases.count - 1) * 6
+            let needsScroll = totalWidth > geo.size.width
+
+            ZStack(alignment: .trailing) {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 6) {
+                        ForEach(PanelTab.allCases, id: \.self) { tab in
+                            Button {
+                                withAnimation(.easeInOut(duration: 0.15)) {
+                                    selectedTab = tab
+                                }
+                            } label: {
+                                Text(tab.rawValue)
+                                    .font(.caption.weight(.medium))
+                                    .padding(.horizontal, 10)
+                                    .padding(.vertical, 4)
+                                    .background(
+                                        Capsule()
+                                            .fill(selectedTab == tab
+                                                  ? Color.accentColor
+                                                  : Color.clear)
+                                    )
+                                    .foregroundStyle(selectedTab == tab ? .white : .secondary)
+                            }
+                            .buttonStyle(.plain)
                         }
-                    } label: {
-                        Text(tab.rawValue)
-                            .font(.caption.weight(.medium))
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 4)
-                            .background(
-                                Capsule()
-                                    .fill(selectedTab == tab
-                                          ? Color.accentColor
-                                          : Color.clear)
-                            )
-                            .foregroundStyle(selectedTab == tab ? .white : .secondary)
                     }
-                    .buttonStyle(.plain)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 6)
+                }
+
+                // Trailing fade gradient — tells the user there's more to scroll
+                if needsScroll {
+                    LinearGradient(
+                        colors: [Color.clear, Color(nsColor: .windowBackgroundColor)],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                    .frame(width: 28)
+                    .allowsHitTesting(false)
+                    .padding(.vertical, 6)
                 }
             }
-            .padding(.horizontal, 8)
-            .padding(.vertical, 6)
         }
+        .frame(height: 30)
     }
 
     // MARK: - Content
@@ -441,6 +476,20 @@ struct MenuBarPanel: View {
 
     private var footer: some View {
         VStack(spacing: 1) {
+            Button {
+                withAnimation(.easeInOut(duration: 0.15)) {
+                    selectedTab = .settings
+                }
+            } label: {
+                Label("Settings", systemImage: "gearshape")
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.vertical, 5)
+                    .padding(.horizontal, 8)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .menuRowHighlight()
+
             Button {
                 Task { await store.sync() }
             } label: {
