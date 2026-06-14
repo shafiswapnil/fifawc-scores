@@ -5,6 +5,8 @@ import SwiftUI
 struct MenuBarPanel: View {
     @Environment(MatchStore.self) private var store
 
+    let checkForUpdates: () -> Void
+
     @State private var selectedTab: PanelTab = .today
     @State private var fullScheduleStartDate: Date = Calendar.current.date(from: Calendar.current.dateComponents([.year, .month, .day], from: Date()))!
 
@@ -311,6 +313,24 @@ struct MenuBarPanel: View {
                     }
                 }
             }
+
+            Divider().opacity(0.3)
+
+            // Check for Updates
+            Button {
+                checkForUpdates()
+            } label: {
+                HStack {
+                    Image(systemName: "arrow.down.circle")
+                    Text("Check for Updates…")
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.vertical, 5)
+                .padding(.horizontal, 8)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .menuRowHighlight()
 
             Divider().opacity(0.3)
 

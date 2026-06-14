@@ -23,5 +23,8 @@
 	<!-- Menu bar agent: no Dock icon, no main window. -->
 	<key>LSUIElement</key>
 	<true/>
+	<!-- Sparkle auto-update: feed URL hosted on GitHub Pages (appcast.xml). -->
+	<key>SUFeedURL</key>
+	<string>https://shafiswapnil.github.io/fifawc-scores/appcast.xml</string>
 </dict>
 </plist>

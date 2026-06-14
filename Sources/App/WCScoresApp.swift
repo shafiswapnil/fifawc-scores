@@ -1,14 +1,26 @@
 import SwiftUI
+import Sparkle
 
 /// App entry point. A menu bar agent (no Dock icon, `LSUIElement` in Info.plist)
 /// with a `.window`-style `MenuBarExtra`.
 @main
 struct WCScoresApp: App {
     @State private var store = MatchStore()
+    private let updaterController: SPUStandardUpdaterController
+
+    init() {
+        // Sparkle: automatic background checks enabled by default.
+        // Feed URL is set via SUFeedURL in Info.plist → GitHub Releases API.
+        updaterController = SPUStandardUpdaterController(
+            startingUpdater: true,
+            updaterDelegate: nil,
+            userDriverDelegate: nil
+        )
+    }
 
     var body: some Scene {
         MenuBarExtra {
-            MenuBarPanel()
+            MenuBarPanel(checkForUpdates: { updaterController.checkForUpdates(nil) })
         } label: {
             MenuBarLabel()
         }
