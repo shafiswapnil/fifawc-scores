@@ -155,3 +155,20 @@ so to do this whole thing for this application:
 
 ## Prompt 10
 
+amazing!! thank you so so much! now i want few things:
+
+- update the README.md files if they require any new info. i think it does require new info! add this to agent rules too that: update README.md file after any big milestone we hit or anything serious that people who reading this README.md file requires knowledge of. (as they are installing, they should know. take inspiration from prayer-times-macos readme file again if required.)
+- i need another README file for myself! definately add it to .gitignore. because, this readme file will be for me, to maintain the whole repo. what i want on that readme is: as this application will be updated in future, to maintain or i saw you did some bump version scripts. i do not know anything about them. so make me understand there: why do i need xcode to be installed in my local machine, what happens if i push commits to github - whats the .github folder is doing and why, give me a github release template, how to make release on github (give me click to click and coding knowledge), when to use bump version, what does the bump version do and WHY, as i previously said i do not know the underhood process of how users get latest updates from github to their local machines - make understand, what are the test files - what they are doing, when this tests are going to happen - each time i push commits to github? or each time i release a version?. there are maybe more technical terms i do need to understand. make me understand. also update in the agent rules that update this personal README-PERSONAL doc for me each time we do something big, technically advnanced, or do a bigger milestones. this is help me a lot in my career and for the users i am building for.
+
+**Actions taken:**
+
+1. **README.md** — Full rewrite for Phase 2: added Install section with download link and Gatekeeper bypass instructions, updated badge row (release, downloads, macOS, Swift, Universal, license), added auto-update and "One dependency" info, updated Settings table with "Check for Updates", updated Architecture diagram (Tests/, scripts/, .github/), added Sparkle and CI/CD to Tech Stack, added Releasing section with `bump-version.sh` instructions.
+2. **README-PERSONAL.md** — Created comprehensive maintenance guide covering: why Xcode is needed, what `.github/` does, what tests are and when they run, how auto-update (Sparkle) works end-to-end, what bump-version.sh does and why, click-by-click release instructions, what appcast.xml is, what XcodeGen does, code signing/notarization explanation, common troubleshooting, and a glossary of all technical terms.
+3. **CLAUDE.md** — Added agent rules #6 (Update README.md after big milestones) and #7 (Update README-PERSONAL.md for big milestones).
+4. **.gitignore** — Added `README-PERSONAL.md` to prevent personal doc from being committed.
+
+**Summary:** Public README fully updated for Phase 2. Personal maintenance README created and gitignored. Agent rules #6 and #7 added to CLAUDE.md.
+
+---
+
+## Prompt 101
