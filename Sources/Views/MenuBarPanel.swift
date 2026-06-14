@@ -12,6 +12,7 @@ struct MenuBarPanel: View {
         case yesterday = "Yesterday"
         case tomorrow = "Tomorrow"
         case standings = "Standings"
+        case settings = "⚙️"
     }
 
     var body: some View {
@@ -107,6 +108,8 @@ struct MenuBarPanel: View {
             matchList(store.tomorrowMatches, emptyText: "No matches tomorrow")
         case .standings:
             standingsList
+        case .settings:
+            settingsView
         }
     }
 
@@ -194,6 +197,103 @@ struct MenuBarPanel: View {
             }
         }
         .padding(.horizontal, 8)
+    }
+
+    // MARK: - Settings
+
+    private var settingsView: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            // Poll interval
+            VStack(alignment: .leading, spacing: 4) {
+                HStack {
+                    Text("Live Poll Interval")
+                        .font(.caption.weight(.medium))
+                    Spacer()
+                    Text("\(Int(store.pollInterval))s")
+                        .font(.caption.monospacedDigit())
+                        .foregroundStyle(.secondary)
+                }
+                Slider(
+                    value: Binding(
+                        get: { store.pollInterval },
+                        set: { store.pollInterval = $0 }
+                    ),
+                    in: 60...300,
+                    step: 30
+                )
+                Text("Min 60s · Higher = less API usage")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+            }
+
+            Divider().opacity(0.3)
+
+            // Favorite team
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Favorite Team")
+                    .font(.caption.weight(.medium))
+
+                Text("Prioritized in menu bar when upcoming")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+
+                HStack(spacing: 6) {
+                    Button {
+                        store.favoriteTeam = nil
+                    } label: {
+                        Text("None")
+                            .font(.caption)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(
+                                Capsule()
+                                    .fill(store.favoriteTeam == nil
+                                          ? Color.accentColor
+                                          : Color.primary.opacity(0.08))
+                            )
+                            .foregroundStyle(store.favoriteTeam == nil ? .white : .secondary)
+                    }
+                    .buttonStyle(.plain)
+
+                    // Common favorites
+                    ForEach(["BRA", "ARG", "FRA", "GER", "ESP", "ENG"], id: \.self) { tla in
+                        Button {
+                            store.favoriteTeam = tla
+                        } label: {
+                            Text("\(TeamFlags.flags[tla] ?? "⚽") \(tla)")
+                                .font(.caption)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(
+                                    Capsule()
+                                        .fill(store.favoriteTeam == tla
+                                              ? Color.accentColor
+                                              : Color.primary.opacity(0.08))
+                                )
+                                .foregroundStyle(store.favoriteTeam == tla ? .white : .secondary)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+
+            Divider().opacity(0.3)
+
+            // App info
+            HStack {
+                Text("WC Scores v1.0")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+                Spacer()
+                if let lastFetch = store.lastFetchTime {
+                    Text("Updated \(lastFetch, style: .relative) ago")
+                        .font(.caption2)
+                        .foregroundStyle(.tertiary)
+                }
+            }
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 6)
     }
 
     // MARK: - Footer
