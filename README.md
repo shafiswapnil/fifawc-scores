@@ -50,6 +50,8 @@ Requirements: **macOS 14 Sonoma or later** · Universal (Apple Silicon + Intel).
 - **Auto-update** — Sparkle framework checks GitHub Releases for new versions
 - **Lightweight** — tiny RAM/CPU footprint, native SwiftUI, no Electron
 - **One dependency** — [Sparkle](https://github.com/sparkle-project/Sparkle) (~2MB), everything else is native
+- **Settings shortcut** — ⚙️ Settings button always accessible in the footer
+- **Website** — [shafiswapnil.github.io/fifawc-scores](https://shafiswapnil.github.io/fifawc-scores/)
 
 ## Getting an API Key
 
@@ -59,6 +61,10 @@ Requirements: **macOS 14 Sonoma or later** · Universal (Apple Silicon + Intel).
 4. Open FIFAWC Scores → ⚙️ Settings tab → paste your key
 
 > The free tier allows 10 requests per minute — more than enough for this app.
+
+## Website
+
+Visit the landing page: [shafiswapnil.github.io/fifawc-scores](https://shafiswapnil.github.io/fifawc-scores/)
 
 ## Install (Build from Source)
 
