@@ -154,18 +154,21 @@
 6. Replaces old `.app` with new one, restarts app
 
 **Version bug prevention:**
+
 - The "false update available" bug happens when:
   - Tag says `v1.1.0` but `MARKETING_VERSION` is still `1.0.0`
   - User downloads `v1.1.0`, replaces app, but old app was still running
   - Solution: always quit old app before replacing, bump version BEFORE tagging
 
 **CI/CD pipeline (GitHub Actions):**
+
 - Trigger: `git tag v1.1.0 && git push origin main --tags`
 - Runner: `macos-14` (Apple Silicon)
 - Steps: parse → build → archive → sign → notarize → staple → release
 - Secrets: Developer ID certificate + Apple notarization credentials
 
 **What the user sees (end-to-end flow):**
+
 1. Developer runs `./scripts/bump-version.sh 1.1.0`
 2. Script updates version, commits, tags
 3. Developer pushes: `git push origin main --tags`

@@ -125,6 +125,7 @@
   dependency (it's a framework, not a bloated library)
 
 **Version consistency is critical:**
+
 - `MARKETING_VERSION` in `project.yml` must match the git tag
   (e.g. tag `v1.1.0` → `MARKETING_VERSION: "1.1.0"`)
 - Sparkle compares `CFBundleShortVersionString` (from `MARKETING_VERSION`)
