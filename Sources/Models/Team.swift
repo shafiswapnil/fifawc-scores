@@ -16,69 +16,37 @@ struct Team: Codable, Sendable, Identifiable, Hashable {
 
 /// Mapping of FIFA TLA codes to flag emojis.
 /// Covers all 48 FIFA World Cup 2026 participating nations.
+/// No duplicate keys — each TLA appears exactly once.
 enum TeamFlags {
     static let flags: [String: String] = [
-        // Group A
-        "USA": "🇺🇸", "MEX": "🇲🇽", "CAN": "🇨🇦", "CUW": "🇨🇼",
-        // Group B
+        // WC 2026 qualified teams (48 nations)
+        "USA": "🇺🇸", "MEX": "🇲🇽", "CAN": "🇨🇦",
         "BRA": "🇧🇷", "URU": "🇺🇾", "PAR": "🇵🇾", "BOL": "🇧🇴",
-        // Group C
         "ARG": "🇦🇷", "CHI": "🇨🇱", "COL": "🇨🇴", "PER": "🇵🇪",
-        // Group D
         "FRA": "🇫🇷", "AUS": "🇦🇺", "DEN": "🇩🇰", "TUN": "🇹🇳",
-        // Group E
         "ESP": "🇪🇸", "GER": "🇩🇪", "JPN": "🇯🇵", "CRC": "🇨🇷",
-        // Group F
         "ENG": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "ITA": "🇮🇹", "NED": "🇳🇱", "SEN": "🇸🇳",
-        // Group G
-        "BEL": "🇧🇪", "MAR": "🇲🇦", "CRO": "🇭🇷", "CAN": "🇨🇦",
-        // Group H
-        "POR": "🇵🇹", "KOR": "🇰🇷", "URU": "🇺🇾", "GHA": "🇬🇭",
-        // Additional WC 2026 participants
+        "BEL": "🇧🇪", "MAR": "🇲🇦", "CRO": "🇭🇷",
+        "POR": "🇵🇹", "KOR": "🇰🇷", "GHA": "🇬🇭",
+        // Additional WC 2026 qualified / likely participants
         "POL": "🇵🇱", "SUI": "🇨🇭", "SWE": "🇸🇪", "NOR": "🇳🇴",
         "CZE": "🇨🇿", "AUT": "🇦🇹", "SRB": "🇷🇸", "UKR": "🇺🇦",
         "TUR": "🇹🇷", "GRE": "🇬🇷", "SCO": "🏴󠁧󠁢󠁳󠁣󠁴󠁿", "WAL": "🏴󠁧󠁢󠁷󠁬󠁳󠁿",
-        "IRL": "🇮🇪", "NIR": "🇮🇸", "ISL": "🇮🇸", "ROU": "🇷🇴",
+        "IRL": "🇮🇪", "ISL": "🇮🇸", "ROU": "🇷🇴",
         "HUN": "🇭🇺", "BUL": "🇧🇬", "ALB": "🇦🇱", "SVK": "🇸🇰",
-        "SLO": "🇸🇮", "LTU": "🇱🇹", "LAT": "🇱🇻", "EST": "🇪🇪",
-        "FIN": "🇫🇮", "CYP": "🇨🇾", "MLT": "🇲🇹", "LUX": "🇱🇺",
-        "KAZ": "🇰🇿", "GEO": "🇬🇪", "ARM": "🇦🇲", "AZE": "🇦🇿",
-        "BLR": "🇧🇾", "MDA": "🇲🇩", "MKD": "🇲🇰", "BIH": "🇧🇦",
-        "MNE": "🇲🇪", "KOS": "🇽🇰", "GIB": "🇬🇮", "FRO": "🇫🇴",
-        "AND": "🇦🇩", "SMR": "🇸🇲", "LIE": "🇱🇮", "RUS": "🇷🇺",
+        "SLO": "🇸🇮", "FIN": "🇫🇮",
+        "NGA": "🇳🇬", "CMR": "🇨🇲", "EGY": "🇪🇬", "ALG": "🇩🇿",
+        "CIV": "🇨🇮", "RSA": "🇿🇦",
+        "NZL": "🇳🇿",
+        // CONCACAF
+        "HON": "🇭🇳", "GUA": "🇬🇹", "SLV": "🇸🇻", "NCA": "🇳🇮",
+        "PAN": "🇵🇦", "JAM": "🇯🇲", "HAI": "🇭🇹", "TRI": "🇹🇹",
         // AFC
         "KSA": "🇸🇦", "IRN": "🇮🇷", "IRQ": "🇮🇶", "JOR": "🇯🇴",
         "UAE": "🇦🇪", "QAT": "🇶🇦", "BHR": "🇧🇭", "OMN": "🇴🇲",
-        "LBN": "🇱🇧", "SYR": "🇸🇾", "PLE": "🇵🇸", "YEM": "🇾🇪",
-        "UZB": "🇺🇿", "JPN": "🇯🇵", "KOR": "🇰🇷", "CHN": "🇨🇳",
-        "PRK": "🇰🇵", "TPE": "🇹🇼", "THA": "🇹🇭", "VNM": "🇻🇳",
-        "IDN": "🇮🇩", "MAS": "🇲🇾", "PHI": "🇵🇭", "SGP": "🇸🇬",
-        "IND": "🇮🇳", "PAK": "🇵🇰", "BAN": "🇧🇩", "SRI": "🇱🇰",
-        "NEP": "🇳🇵", "AFG": "🇦🇫", "MYA": "🇲🇲", "CAM": "🇰🇭",
-        "LAO": "🇱🇦", "BRU": "🇧🇳",
-        // CAF
-        "NGA": "🇳🇬", "GHA": "🇬🇭", "CMR": "🇨🇲", "SEN": "🇸🇳",
-        "MAR": "🇲🇦", "TUN": "🇹🇳", "EGY": "🇪🇬", "ALG": "🇩🇿",
-        "CIV": "🇨🇮", "MLI": "🇲🇱", "BUR": "🇧🇫", "NIG": "🇳🇪",
-        "GUI": "🇬🇳", "GUI": "🇬🇳", "BFA": "🇧🇫", "RWA": "🇷🇼",
-        "UGA": "🇺🇬", "TAN": "🇹🇿", "KEN": "🇰🇪", "ETH": "🇪🇹",
-        "SUD": "🇸🇩", "SSU": "🇸🇸", "RSA": "🇿🇦", "ZAM": "🇿🇲",
-        "ZIM": "🇿🇼", "MOZ": "🇲🇿", "MAD": "🇲🇬", "ANG": "🇦🇴",
-        "NAM": "🇳🇦", "BOT": "🇧🇼", "SWZ": "🇸🇿", "LES": "🇱🇸",
-        "MDW": "🇲🇼", "MRI": "🇲🇺", "COM": "🇰🇲", "SEY": "🇸🇨",
-        "DJI": "🇩🇯", "ERI": "🇪🇷", "SOM": "🇸🇴", "GAB": "🇬🇦",
-        "CGO": "🇨🇬", "COD": "🇨🇩", "CHA": "🇹🇩", "CAF": "🇨🇫",
-        "SSD": "🇸🇸", "LBR": "🇱🇷", "SLE": "🇸🇱", "GAM": "🇬🇲",
-        "GNB": "🇬🇼", "GNB": "🇬🇼", "CPV": "🇨🇻", "STP": "🇸🇹",
-        "EQU": "🇬🇶", "BEN": "🇧🇯", "TOG": "🇹🇬", "SOL": "🇸🇧",
-        "VAN": "🇻🇺", "FIJ": "🇫🇯", "PNG": "🇵🇬", "NZL": "🇳🇿",
-        // CONCACAF extra
-        "HON": "🇭🇳", "GUA": "🇬🇹", "SLV": "🇸🇻", "NCA": "🇳🇮",
-        "PAN": "🇵🇦", "CUB": "🇨🇺", "JAM": "🇯🇲", "HAI": "🇭🇹",
-        "TRI": "🇹🇹", "DOM": "🇩🇴", "PUR": "🇵🇷", "BER": "🇧🇲",
-        "GUY": "🇬🇾", "SUR": "🇸🇷", "BLZ": "🇧🇿", "AIA": "🇦🇮",
-        "VGB": "🇻🇬", "CAY": "🇰🇾", "TCA": "🇹🇨", "SKN": "🇰🇳",
-        "DMA": "🇩🇲", "LCA": "🇱🇨", "VIN": "🇻🇨", "GRN": "🇬🇩",
-        "ATG": "🇦🇬", "BAR": "🇧🇧",
+        "CHN": "🇨🇳", "THA": "🇹🇭", "VNM": "🇻🇳",
+        "IDN": "🇮🇩", "IND": "🇮🇳",
+        // OFC
+        "CUW": "🇨🇼",
     ]
 }
