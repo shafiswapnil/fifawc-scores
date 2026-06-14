@@ -31,11 +31,15 @@ These are non-negotiable. The user has reinforced these across every session.
 4. **Ask before major decisions.** If something isn't specified in the docs,
    ask the user. Don't assume.
 5. **Update docs after every change.** When you complete a milestone or make
-   a key decision, update:
+   a key decision, update ALL of these:
+   - `CLAUDE.md` — update "Current status" line (phase/milestone state) and
+     "Git History" section (latest commit hash + message)
    - `status.md` (milestone tracker + decisions log)
    - `docs/plan.md` (if new milestone added)
    - `docs/notes.md` (if new decision or idea)
    - `prompts.md` (log the prompt + summary)
+   After a **full phase** ends, also verify CLAUDE.md architecture section
+   still matches reality (new files, changed wiring, etc.).
 6. **Commit each milestone separately** with Conventional Commits format.
 7. **Keep commits clean.** One logical change per commit. Never mix
    feature code with doc updates in the same commit.
