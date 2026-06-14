@@ -28,13 +28,6 @@ jobs:
       - name: Install XcodeGen
         run: brew install xcodegen
 
-      # ── Swift syntax check ──
-      - name: Parse check
-        run: |
-          swiftc -parse Sources/**/*.swift \
-            -sdk /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk \
-            -target arm64-apple-macosx14.0
-
       # ── Generate & build ──
       - name: Generate Xcode project
         run: xcodegen generate
