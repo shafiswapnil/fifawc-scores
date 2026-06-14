@@ -33,7 +33,7 @@
 ## Key Decisions Log
 
 | Date       | Decision                                         | Rationale                                                                                    |
-| ---------- | ------------------------------------------------ | -------------------------------------------------------------------------------------------- |
+| ---------- | ------------------------------------------------ | -------------------------------------------------------------------------------------------- | --- | ---------- | ---------------------------- | ------------------------------------------------------------------------------- |
 | 2026-06-15 | football-data.org as primary API                 | Free, reliable, live scores, WC support                                                      |
 | 2026-06-15 | Zero third-party dependencies                    | Tiny footprint, URLSession sufficient                                                        |
 | 2026-06-15 | 60s poll interval (configurable, min 60s)        | Balance between freshness and API limits                                                     |
@@ -55,7 +55,11 @@
 | 2026-06-15 | Task wrapping for actor-isolated calls in didSet | didSet is synchronous; actor calls need Task { await ... }                                   |
 | 2026-06-15 | Environment injected inside MenuBarExtra label   | .environment() on Scene is invalid; apply to View children only                              |
 | 2026-06-15 | PRODUCT_MODULE_NAME set explicitly               | PRODUCT_NAME "FIFAWC Scores" creates module "FIFAWC_Scores"; tests import "FIFAWCSCORES"     |
-| 2026-06-15 | App renamed from WC Scores → FIFAWC Scores       | Full rename across project, source, tests, CI/CD, docs, README. Bundle: com.fifawcscores.app |
+| 2026-06-15 | App renamed from WC Scores → FIFAWC Scores       | Full rename across project, source, tests, CI/CD, docs, README. Bundle: com.fifawcscores.app |     | 2026-06-15 | Tab row scroll hint gradient | Trailing LinearGradient when tabs overflow 340px panel — hints at scrollability |
+| 2026-06-15 | Settings button added to footer (above Sync)     | Always-reachable shortcut to ⚙️ Settings tab, even when tab row is scrolled                  |
+| 2026-06-15 | Auto-show Settings tab on first launch           | When no API key is set, panel opens on ⚙️ Settings so user can paste key immediately         |
+| 2026-06-15 | Sparkle startingUpdater = false                  | Suppresses EdDSA + appcast 404 warnings in console; manual check via "Check for Updates…"    |
+| 2026-06-15 | GitHub Pages site (docs/index.html)              | Landing page inspired by prayer-times-macos; emoji-based, no screenshots yet, SEO structured |
 
 ## Architecture Quick Reference
 

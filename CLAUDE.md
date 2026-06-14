@@ -13,7 +13,9 @@ Cup 2026 match schedules, live scores, and goal animations. Menu bar agent
 (no Dock icon). All interaction happens in the menu bar — no main window.
 
 **Current status:** Phase 1 complete (M1–M14). Phase 2 complete (M15–M18).
-Read `status.md` for exact milestone state.
+Post-phase 2 polish: tab scroll hints, Settings in footer, auto-show Settings on
+first launch, Sparkle warnings suppressed, GitHub Pages site created. Read
+`status.md` for exact milestone state.
 
 ---
 
