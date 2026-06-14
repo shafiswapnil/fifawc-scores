@@ -21,7 +21,7 @@ jobs:
 
       - name: Build
         run: |
-          xcodebuild -project WCSCORES.xcodeproj -scheme WCSCORES \
+          xcodebuild -project FIFAWCSCORES.xcodeproj -scheme FIFAWCSCORES \
             -configuration Debug -destination 'platform=macOS' \
             CODE_SIGNING_ALLOWED=NO build
 
@@ -39,6 +39,6 @@ jobs:
 
       - name: Run tests
         run: |
-          xcodebuild test -project WCSCORES.xcodeproj -scheme WCSCORES \
+          xcodebuild test -project FIFAWCSCORES.xcodeproj -scheme FIFAWCSCORES \
             -destination 'platform=macOS' \
             CODE_SIGNING_ALLOWED=NO

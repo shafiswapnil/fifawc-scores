@@ -1,5 +1,5 @@
 import XCTest
-@testable import WCSCORES
+@testable import FIFAWCSCORES
 
 /// Tests for MatchStore computed properties and settings logic.
 /// Does NOT test network calls — validates state management only.

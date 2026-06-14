@@ -1,5 +1,5 @@
 import XCTest
-@testable import WCSCORES
+@testable import FIFAWCSCORES
 
 /// Tests for FetchService URL construction, rate limiting, and error handling.
 /// Does NOT make real network calls — validates internal logic only.

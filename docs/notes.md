@@ -1,4 +1,4 @@
-# Raw Ideas & Notes — WC Scores
+# Raw Ideas & Notes — FIFAWC Scores
 
 ## Inspiration Sources
 
@@ -105,7 +105,7 @@
 
 ### Homebrew Cask
 
-- Package for `brew install --cask wc-scores`
+- Package for `brew install --cask fifawc-scores`
 
 ---
 
@@ -211,11 +211,11 @@
 
 ## App Name Options
 
-- **WC Scores** ✅ (short, clear)
+- **FIFAWC Scores** ✅ (short, clear)
 - **MatchDay** (generic, could conflict)
 - **GoalBar** (fun, punny)
 - **KickOff** (catchy)
 - **Pitch** (minimal)
-- **⚽ WC** (what shows in menu bar)
+- **⚽ FWC** (what shows in menu bar)
 
-→ Going with **WC Scores** as project name, **⚽ WC** as menu bar label.
+→ Going with **FIFAWC Scores** as project name, **⚽ FWC** as menu bar label.

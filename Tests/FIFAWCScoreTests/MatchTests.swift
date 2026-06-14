@@ -1,5 +1,5 @@
 import XCTest
-@testable import WCSCORES
+@testable import FIFAWCSCORES
 
 final class MatchTests: XCTestCase {
 

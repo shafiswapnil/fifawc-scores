@@ -255,7 +255,7 @@ Too fragile for production use. Only useful for flag images.
 - Network error → retry in 60s (don't spam)
 - API rate limit (429) → back off for 60s
 - Invalid response → log error, use cached data
-- No cached data → show "⚽ WC" in menu bar
+- No cached data → show "⚽ FWC" in menu bar
 
 ---
 

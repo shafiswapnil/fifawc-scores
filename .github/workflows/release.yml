@@ -34,14 +34,14 @@ jobs:
 
       - name: Build
         run: |
-          xcodebuild -project WCSCORES.xcodeproj -scheme WCSCORES \
+          xcodebuild -project FIFAWCSCORES.xcodeproj -scheme FIFAWCSCORES \
             -configuration Release -destination 'platform=macOS' \
             CODE_SIGNING_ALLOWED=NO build
 
       # ── Find the built .app ──
       - name: Locate .app bundle
         run: |
-          APP_PATH=$(find build -name "WC Scores.app" -type d | head -1)
+          APP_PATH=$(find build -name "FIFAWC Scores.app" -type d | head -1)
           if [ -z "$APP_PATH" ]; then
             echo "::error::Could not find .app bundle in build/"
             exit 1
@@ -52,8 +52,8 @@ jobs:
       - name: Create zip archive
         run: |
           cd "$(dirname "$APP_PATH")"
-          zip -r -y "WCSCORES-${{ env.VERSION }}.zip" "$(basename "$APP_PATH")"
-          echo "ARCHIVE_PATH=$(pwd)/WCSCORES-${{ env.VERSION }}.zip" >> "$GITHUB_ENV"
+          zip -r -y "FIFAWCSCORES-${{ env.VERSION }}.zip" "$(basename "\$APP_PATH")"
+          echo "ARCHIVE_PATH=$(pwd)/FIFAWCSCORES-${{ env.VERSION }}.zip" >> "$GITHUB_ENV"
 
       # ── Code sign (conditional — only if secret is set) ──
       - name: Import signing certificate
@@ -104,9 +104,9 @@ jobs:
 
           # Re-zip with stapled .app
           cd "$(dirname "$APP_PATH")"
-          rm -f "WCSCORES-${{ env.VERSION }}.zip"
-          zip -r -y "WCSCORES-${{ env.VERSION }}.zip" "$(basename "$APP_PATH")"
-          echo "ARCHIVE_PATH=$(pwd)/WCSCORES-${{ env.VERSION }}.zip" >> "$GITHUB_ENV"
+          rm -f "FIFAWCSCORES-${{ env.VERSION }}.zip"
+          zip -r -y "FIFAWCSCORES-${{ env.VERSION }}.zip" "$(basename "\$APP_PATH")"
+          echo "ARCHIVE_PATH=$(pwd)/FIFAWCSCORES-${{ env.VERSION }}.zip" >> "$GITHUB_ENV"
 
       # ── Cleanup keychain ──
       - name: Cleanup keychain
@@ -118,14 +118,14 @@ jobs:
         run: |
           BUNDLE_VERSION=$(/usr/libexec/PlistBuddy -c "Print :CFBundleVersion" "$APP_PATH/Contents/Info.plist" || echo "1")
           APP_SIZE=$(stat -f%z "$ARCHIVE_PATH")
-          DOWNLOAD_URL="https://github.com/${{ github.repository }}/releases/download/v${{ env.VERSION }}/WCSCORES-${{ env.VERSION }}.zip"
+          DOWNLOAD_URL="https://github.com/${{ github.repository }}/releases/download/v${{ env.VERSION }}/FIFAWCSCORES-${{ env.VERSION }}.zip"
           PUB_DATE=$(date -R)
 
           cat > docs/appcast.xml << XML
           <?xml version="1.0" standalone="yes"?>
           <rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
               <channel>
-                  <title>WC Scores</title>
+                  <title>FIFAWC Scores</title>
                   <item>
                       <title>v${{ env.VERSION }}</title>
                       <pubDate>${PUB_DATE}</pubDate>

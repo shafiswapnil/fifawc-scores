@@ -1,4 +1,4 @@
-# Project Status — WC Scores
+# Project Status — FIFAWC Scores
 
 > This file tracks the current stage of the project for any agent or LLM
 > working on it. Always update this file when milestones are completed.
@@ -32,29 +32,30 @@
 
 ## Key Decisions Log
 
-| Date       | Decision                                         | Rationale                                                                    |
-| ---------- | ------------------------------------------------ | ---------------------------------------------------------------------------- |
-| 2026-06-15 | football-data.org as primary API                 | Free, reliable, live scores, WC support                                      |
-| 2026-06-15 | Zero third-party dependencies                    | Tiny footprint, URLSession sufficient                                        |
-| 2026-06-15 | 60s poll interval (configurable, min 60s)        | Balance between freshness and API limits                                     |
-| 2026-06-15 | Midnight auto-check when idle                    | No polling waste when no matches                                             |
-| 2026-06-15 | Dynamic team colors                              | Cool, contextual theming                                                     |
-| 2026-06-15 | Simple goal animation first                      | Don't overcomplicate v1                                                      |
-| 2026-06-15 | @MainActor for MatchStore + PollController       | Clean Swift 6 concurrency, no cross-iso                                      |
-| 2026-06-15 | Standing model → GroupStanding + StandingEntry   | Match football-data.org's table structure                                    |
-| 2026-06-15 | API key user-configurable in Settings            | Normal users shouldn't edit source code                                      |
-| 2026-06-15 | API key stored in UserDefaults (@AppStorage)     | Matches existing pattern, good enough v1                                     |
-| 2026-06-15 | "No API key" error in header only                | Non-blocking onboarding, user finds Settings themselves                      |
-| 2026-06-15 | Full Schedule tab with date picker               | Spec required it, user chose to add now                                      |
-| 2026-06-15 | FetchService.apiKey made mutable                 | Allows runtime key updates from Settings                                     |
-| 2026-06-15 | Sparkle for auto-updates (not custom)            | Industry standard, handles version check + download + verify + replace       |
-| 2026-06-15 | GitHub Releases as update feed                   | Free hosting, native GitHub API, no custom server needed                     |
-| 2026-06-15 | Tag-driven CI/CD pipeline                        | Automated build → sign → notarize → publish on tag push                      |
-| 2026-06-15 | Version consistency: tag = MARKETING_VERSION     | Prevents false "update available" after installing latest                    |
-| 2026-06-15 | PollInterval uses backing store, not didSet      | @Observable + didSet self-assignment causes infinite recursion (crash)       |
-| 2026-06-15 | Task wrapping for actor-isolated calls in didSet | didSet is synchronous; actor calls need Task { await ... }                   |
-| 2026-06-15 | Environment injected inside MenuBarExtra label   | .environment() on Scene is invalid; apply to View children only              |
-| 2026-06-15 | PRODUCT_MODULE_NAME set explicitly               | PRODUCT_NAME "WC Scores" creates module "WC_Scores"; tests import "WCSCORES" |
+| Date       | Decision                                         | Rationale                                                                                    |
+| ---------- | ------------------------------------------------ | -------------------------------------------------------------------------------------------- |
+| 2026-06-15 | football-data.org as primary API                 | Free, reliable, live scores, WC support                                                      |
+| 2026-06-15 | Zero third-party dependencies                    | Tiny footprint, URLSession sufficient                                                        |
+| 2026-06-15 | 60s poll interval (configurable, min 60s)        | Balance between freshness and API limits                                                     |
+| 2026-06-15 | Midnight auto-check when idle                    | No polling waste when no matches                                                             |
+| 2026-06-15 | Dynamic team colors                              | Cool, contextual theming                                                                     |
+| 2026-06-15 | Simple goal animation first                      | Don't overcomplicate v1                                                                      |
+| 2026-06-15 | @MainActor for MatchStore + PollController       | Clean Swift 6 concurrency, no cross-iso                                                      |
+| 2026-06-15 | Standing model → GroupStanding + StandingEntry   | Match football-data.org's table structure                                                    |
+| 2026-06-15 | API key user-configurable in Settings            | Normal users shouldn't edit source code                                                      |
+| 2026-06-15 | API key stored in UserDefaults (@AppStorage)     | Matches existing pattern, good enough v1                                                     |
+| 2026-06-15 | "No API key" error in header only                | Non-blocking onboarding, user finds Settings themselves                                      |
+| 2026-06-15 | Full Schedule tab with date picker               | Spec required it, user chose to add now                                                      |
+| 2026-06-15 | FetchService.apiKey made mutable                 | Allows runtime key updates from Settings                                                     |
+| 2026-06-15 | Sparkle for auto-updates (not custom)            | Industry standard, handles version check + download + verify + replace                       |
+| 2026-06-15 | GitHub Releases as update feed                   | Free hosting, native GitHub API, no custom server needed                                     |
+| 2026-06-15 | Tag-driven CI/CD pipeline                        | Automated build → sign → notarize → publish on tag push                                      |
+| 2026-06-15 | Version consistency: tag = MARKETING_VERSION     | Prevents false "update available" after installing latest                                    |
+| 2026-06-15 | PollInterval uses backing store, not didSet      | @Observable + didSet self-assignment causes infinite recursion (crash)                       |
+| 2026-06-15 | Task wrapping for actor-isolated calls in didSet | didSet is synchronous; actor calls need Task { await ... }                                   |
+| 2026-06-15 | Environment injected inside MenuBarExtra label   | .environment() on Scene is invalid; apply to View children only                              |
+| 2026-06-15 | PRODUCT_MODULE_NAME set explicitly               | PRODUCT_NAME "FIFAWC Scores" creates module "FIFAWC_Scores"; tests import "FIFAWCSCORES"     |
+| 2026-06-15 | App renamed from WC Scores → FIFAWC Scores       | Full rename across project, source, tests, CI/CD, docs, README. Bundle: com.fifawcscores.app |
 
 ## Architecture Quick Reference
 
@@ -70,7 +71,7 @@
 ```
 Sources/
   App/
-    WCScoresApp.swift          # @main entry, creates MatchStore, injects via .environment
+    FIFAWCScoresApp.swift          # @main entry, creates MatchStore, injects via .environment
   Models/
     Match.swift                # Match, Score, ScoreValues
     MatchStatus.swift          # Enum: scheduled/timed/in_play/paused/finished/...

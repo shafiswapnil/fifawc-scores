@@ -1,4 +1,4 @@
-# WC Scores — macOS Menu Bar App
+# FIFAWC Scores — macOS Menu Bar App
 
 ### Technical Specification (v1.0)
 
@@ -111,7 +111,7 @@ The compact label in the menu bar area. It has three states:
 ### 6.1 No match today
 
 ```
-⚽ WC
+⚽ FWC
 ```
 
 Just the icon + abbreviation. Subtle, minimal.
@@ -359,7 +359,7 @@ fifawc-scores/
 ├── project.yml            # XcodeGen project definition
 ├── Sources/
 │   ├── App/
-│   │   ├── WCScoresApp.swift          # @main entry
+│   │   ├── FIFAWCScoresApp.swift          # @main entry
 │   │   └── AppDelegate.swift          # NSApplicationDelegate for menu bar
 │   ├── Models/
 │   │   ├── Match.swift                # Match data model

@@ -336,7 +336,7 @@ struct MenuBarPanel: View {
 
             // App info
             HStack {
-                Text("WC Scores v1.0")
+                Text("FIFAWC Scores v1.0")
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
                 Spacer()

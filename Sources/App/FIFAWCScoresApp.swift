@@ -4,7 +4,7 @@ import Sparkle
 /// App entry point. A menu bar agent (no Dock icon, `LSUIElement` in Info.plist)
 /// with a `.window`-style `MenuBarExtra`.
 @main
-struct WCScoresApp: App {
+struct FIFAWCScoresApp: App {
     @State private var store = MatchStore()
     private let updaterController: SPUStandardUpdaterController
 

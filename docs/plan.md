@@ -1,4 +1,4 @@
-# Development Plan — WC Scores
+# Development Plan — FIFAWC Scores
 
 ## Milestones
 
@@ -46,7 +46,7 @@
 ### M6: MenuBarLabel
 
 - Compact menu bar view with three states:
-  - No match: `⚽ WC`
+  - No match: `⚽ FWC`
   - Upcoming: `⚽ BRA vs ARG · 3:00 PM`
   - Live: `⚽ BRA 2 - 1 ARG · 67'`
 - Dynamic team-color accent
@@ -114,7 +114,7 @@
 
 - Add **Sparkle** via Swift Package Manager (SPM) — the industry-standard
   macOS update framework (used by VS Code, Discord, Rectangle, etc.)
-- Add `SPUStandardUpdaterController` to `WCScoresApp`
+- Add `SPUStandardUpdaterController` to `FIFAWCScoresApp`
 - Add **"Check for Updates"** button in Settings tab
 - Configure Sparkle feed URL → GitHub Releases API:
   `https://api.github.com/repos/{owner}/fifawc-scores/releases/latest`
@@ -181,7 +181,7 @@
     isFinished, displayText, homeScore, awayScore)
   - **MatchStatus** — displayName, isLive, hasStarted for each case
 - CI runs tests before publishing (gates the release pipeline)
-- Add `WCScoreTests` target to `project.yml`
+- Add `FIFAWCScoreTests` target to `project.yml`
 
 ---
 

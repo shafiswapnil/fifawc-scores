@@ -1,5 +1,5 @@
 <div align="center">
-  <h1>⚽ WC Scores</h1>
+  <h1>⚽ FIFAWC Scores</h1>
   <p><strong>Native macOS menu bar app for FIFA World Cup 2026</strong></p>
   <p>Live scores, match schedules, goal animations, and auto-updates — right from your menu bar.</p>
 
@@ -15,7 +15,7 @@
 
 ---
 
-**WC Scores** is a lightweight, open-source **macOS menu bar agent** that shows
+**FIFAWC Scores** is a lightweight, open-source **macOS menu bar agent** that shows
 FIFA World Cup 2026 match schedules, live scores, and goal animations — all from
 the menu bar. No Dock icon, no main window, no bloat. It fetches live data from
 [football-data.org](https://www.football-data.org) and auto-updates via
@@ -26,12 +26,12 @@ releases from GitHub.
 
 **Download** — grab the latest `.zip` from
 [Releases](https://github.com/shafiswapnil/fifawc-scores/releases/latest), unzip,
-and drag **WC Scores.app** to your Applications folder.
+and drag **FIFAWC Scores.app** to your Applications folder.
 
 > **First launch (unsigned build):** macOS may block the app because it's not
 > notarized yet. Go to **System Settings → Privacy & Security** and click **Open
 > Anyway**, then **Open** in the confirmation dialog. (Or run `xattr -dr
-com.apple.quarantine "/Applications/WC Scores.app"` in Terminal.)
+com.apple.quarantine "/Applications/FIFAWC Scores.app"` in Terminal.)
 
 **Auto-updates:** once installed, the app checks for new releases automatically.
 Click **Settings → Check for Updates…** to manually check. Sparkle handles
@@ -56,7 +56,7 @@ Requirements: **macOS 14 Sonoma or later** · Universal (Apple Silicon + Intel).
 1. Go to [football-data.org/client/register](https://www.football-data.org/client/register)
 2. Create a free account
 3. Copy your API key from the dashboard
-4. Open WC Scores → ⚙️ Settings tab → paste your key
+4. Open FIFAWC Scores → ⚙️ Settings tab → paste your key
 
 > The free tier allows 10 requests per minute — more than enough for this app.
 
@@ -74,7 +74,7 @@ brew install xcodegen
 xcodegen generate
 
 # 4. Open in Xcode
-open WCSCORES.xcodeproj
+open FIFAWCSCORES.xcodeproj
 ```
 
 Then press **⌘R** to build and run. The app will appear in your menu bar.
@@ -83,14 +83,14 @@ Then press **⌘R** to build and run. The app will appear in your menu bar.
 
 ```bash
 xcodegen generate
-xcodebuild -project WCSCORES.xcodeproj -scheme WCSCORES \
+xcodebuild -project FIFAWCSCORES.xcodeproj -scheme FIFAWCSCORES \
   -configuration Debug -destination 'platform=macOS' \
   CODE_SIGNING_ALLOWED=NO build
 ```
 
 ## Usage
 
-1. **Launch** — double-click WC Scores (or ⌘R in Xcode)
+1. **Launch** — double-click FIFAWC Scores (or ⌘R in Xcode)
 2. **Set API key** — click the ⚙️ tab, paste your key
 3. **Watch** — matches auto-poll, live scores update in the menu bar
 
@@ -98,7 +98,7 @@ xcodebuild -project WCSCORES.xcodeproj -scheme WCSCORES \
 
 | State    | Example                          |
 | -------- | -------------------------------- |
-| Idle     | `⚽ WC`                          |
+| Idle     | `⚽ FWC`                         |
 | Upcoming | `⚽ BRA vs ARG · 3:00 PM`        |
 | Live     | `⚽ BRA 2 - 1 ARG · 67'`         |
 | Goal     | `⚽ BRA 2 - 1 ARG` + ⚨ animation |
@@ -119,7 +119,7 @@ xcodebuild -project WCSCORES.xcodeproj -scheme WCSCORES \
 ```
 Sources/
 ├── App/
-│   └── WCScoresApp.swift        # @main entry, Sparkle auto-updater
+│   └── FIFAWCScoresApp.swift        # @main entry, Sparkle auto-updater
 ├── Models/
 │   ├── Match.swift               # Match data model + Codable
 │   ├── MatchStatus.swift         # Status enum (scheduled, live, finished…)

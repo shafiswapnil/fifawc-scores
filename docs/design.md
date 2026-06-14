@@ -1,4 +1,4 @@
-# Design Decisions — WC Scores
+# Design Decisions — FIFAWC Scores
 
 ## Color Scheme: Dynamic Team Theming
 

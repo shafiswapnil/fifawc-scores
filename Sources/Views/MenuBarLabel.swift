@@ -3,7 +3,7 @@ import SwiftUI
 /// The compact menu bar label. Shows the match status in the menu bar area.
 ///
 /// Three states:
-/// - **Idle**: `⚽ WC` (no match today or no data yet)
+/// - **Idle**: `⚽ FWC` (no match today or no data yet)
 /// - **Upcoming**: `⚽ BRA vs ARG · 3:00 PM`
 /// - **Live**: `⚽ BRA 2 - 1 ARG · 67'`
 struct MenuBarLabel: View {
@@ -34,7 +34,7 @@ struct MenuBarLabel: View {
 
     private var labelText: String {
         guard let match = store.featuredMatch else {
-            return "WC"
+            return "FWC"
         }
 
         switch match.status {

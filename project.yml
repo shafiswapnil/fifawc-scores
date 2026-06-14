@@ -1,6 +1,6 @@
-name: WCSCORES
+name: FIFAWCSCORES
 options:
-  bundleIdPrefix: com.wcscores
+  bundleIdPrefix: com.fifawcscores
   deploymentTarget:
     macOS: "14.0"
   createIntermediateGroups: true
@@ -20,7 +20,7 @@ packages:
     from: "2.6.0"
 
 targets:
-  WCSCORES:
+  FIFAWCSCORES:
     type: application
     platform: macOS
     sources:
@@ -32,9 +32,9 @@ targets:
         product: Sparkle
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.wcscores.app
-        PRODUCT_NAME: WC Scores
-        PRODUCT_MODULE_NAME: WCSCORES
+        PRODUCT_BUNDLE_IDENTIFIER: com.fifawcscores.app
+        PRODUCT_NAME: FIFAWC Scores
+        PRODUCT_MODULE_NAME: FIFAWCSCORES
         INFOPLIST_FILE: Sources/Resources/Info.plist
         GENERATE_INFOPLIST_FILE: NO
         ENABLE_HARDENED_RUNTIME: YES
@@ -44,37 +44,37 @@ targets:
         CODE_SIGN_STYLE: Automatic
         CODE_SIGN_IDENTITY: "-"
 
-  WCScoreTests:
+  FIFAWCScoreTests:
     type: bundle.unit-test
     platform: macOS
     sources:
-      - path: Tests/WCScoreTests
+      - path: Tests/FIFAWCScoreTests
     dependencies:
-      - target: WCSCORES
+      - target: FIFAWCSCORES
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.wcscores.tests
+        PRODUCT_BUNDLE_IDENTIFIER: com.fifawcscores.tests
         SWIFT_VERSION: "6.0"
         SWIFT_STRICT_CONCURRENCY: complete
         CODE_SIGN_STYLE: Automatic
         CODE_SIGN_IDENTITY: "-"
-        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/WC Scores.app/Contents/MacOS/WC Scores"
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/FIFAWC Scores.app/Contents/MacOS/FIFAWC Scores"
 
 schemes:
-  WCSCORES:
+  FIFAWCSCORES:
     build:
       targets:
-        WCSCORES: all
+        FIFAWCSCORES: all
     test:
       targets:
-        - WCScoreTests
+        - FIFAWCScoreTests
       gatherCoverageData: true
 
-  WCScoreTests:
+  FIFAWCScoreTests:
     build:
       targets:
-        WCScoreTests: all
+        FIFAWCScoreTests: all
     test:
       targets:
-        - WCScoreTests
+        - FIFAWCScoreTests
       gatherCoverageData: true

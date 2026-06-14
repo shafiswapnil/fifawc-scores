@@ -104,8 +104,8 @@ so to do this whole thing for this application:
 
 **Actions taken (M15: Auto-Update via Sparkle):**
 
-1. **project.yml** — Added `Sparkle` SPM package (from `2.6.0`), added dependency to WCSCORES target.
-2. **WCScoresApp.swift** — Imported `Sparkle`, added `SPUStandardUpdaterController` with `startingUpdater: true`. Passed `checkForUpdates` closure to `MenuBarPanel`.
+1. **project.yml** — Added `Sparkle` SPM package (from `2.6.0`), added dependency to FIFAWCSCORES target.
+2. **FIFAWCScoresApp.swift** — Imported `Sparkle`, added `SPUStandardUpdaterController` with `startingUpdater: true`. Passed `checkForUpdates` closure to `MenuBarPanel`.
 3. **MenuBarPanel.swift** — Added `let checkForUpdates: () -> Void` parameter. Added "Check for Updates…" button in the Settings tab (above app info, with `arrow.down.circle` icon).
 4. **Info.plist** — Added `SUFeedURL` pointing to `https://shafiswapnil.github.io/fifawc-scores/appcast.xml` (GitHub Pages-hosted appcast.xml).
 5. **docs/appcast.xml** — Created initial appcast skeleton with v1.0.0 entry. Length and Ed25519 signature placeholders to be filled when first release is built (M16/M17).
@@ -117,7 +117,7 @@ so to do this whole thing for this application:
 
 - Sparkle feed: GitHub Pages-hosted `appcast.xml` (not raw GitHub Releases JSON — Sparkle needs XML appcast format).
 - `SUPublicEDKey` omitted for now — will be generated with Sparkle's `generate_keys` tool in M17 when first signed release is prepared.
-- `SPUStandardUpdaterController` created in `WCScoresApp.init()` — automatic background checks enabled by default (matching prayer-times-macos pattern).
+- `SPUStandardUpdaterController` created in `FIFAWCScoresApp.init()` — automatic background checks enabled by default (matching prayer-times-macos pattern).
 - No wrapper `UpdateService` class yet — direct controller usage is sufficient for v1. Can be extracted if complexity grows.
 
 **Summary:** M15 complete. Sparkle integrated via SPM. "Check for Updates…" button in Settings tab. Feed URL set to GitHub Pages. Appcast XML skeleton created. All files parse clean. Ready for commit.
@@ -145,7 +145,7 @@ so to do this whole thing for this application:
    - `StandingTests` — StandingEntry (isQualified, goalDifferenceText), GroupStanding (displayName), Codable round-trip
    - `FetchServiceTests` — API key validation (hasApiKey, updateApiKey, empty key throws), error descriptions, empty key short-circuits fetch calls
    - `MatchStoreTests` — hasApiKey, empty state computed properties, pollInterval minimum enforcement, favoriteTeam, fetchAllData error guard
-   - `project.yml` updated with `WCScoreTests` target (bundle.unit-test, depends on WCSCORES)
+   - `project.yml` updated with `FIFAWCScoreTests` target (bundle.unit-test, depends on FIFAWCSCORES)
 5. **swiftc -parse** — All sources + tests parse clean (exit 0).
 6. **Docs updated** — status.md (M16-M18 ✅ Done, remaining items), CLAUDE.md (current status, repo layout with appcast.xml).
 
@@ -158,7 +158,6 @@ so to do this whole thing for this application:
 amazing!! thank you so so much! now i want few things:
 
 - update the README.md files if they require any new info. i think it does require new info! add this to agent rules too that: update README.md file after any big milestone we hit or anything serious that people who reading this README.md file requires knowledge of. (as they are installing, they should know. take inspiration from prayer-times-macos readme file again if required.)
-- i need another README file for myself! definately add it to .gitignore. because, this readme file will be for me, to maintain the whole repo. what i want on that readme is: as this application will be updated in future, to maintain or i saw you did some bump version scripts. i do not know anything about them. so make me understand there: why do i need xcode to be installed in my local machine, what happens if i push commits to github - whats the .github folder is doing and why, give me a github release template, how to make release on github (give me click to click and coding knowledge), when to use bump version, what does the bump version do and WHY, as i previously said i do not know the underhood process of how users get latest updates from github to their local machines - make understand, what are the test files - what they are doing, when this tests are going to happen - each time i push commits to github? or each time i release a version?. there are maybe more technical terms i do need to understand. make me understand. also update in the agent rules that update this personal README-PERSONAL doc for me each time we do something big, technically advnanced, or do a bigger milestones. this is help me a lot in my career and for the users i am building for.
 
 **Actions taken:**
 
@@ -185,19 +184,19 @@ After extensive debugging across multiple sessions (reproducing errors locally w
 
 3. **`MenuBarPanel.swift` — Preview missing required parameter.** `#Preview { MenuBarPanel() }` was missing the `checkForUpdates:` parameter. **Fix:** Changed to `MenuBarPanel(checkForUpdates: {})`.
 
-4. **`WCScoresApp.swift` — `.environment()` applied to Scene, not View.** `.environment(store)` and `.task { }` were chained on the `MenuBarExtra` Scene return. **Fix:** Moved inside the `MenuBarExtra { }` content closure, applied `.environment(store)` to both `MenuBarPanel` and `MenuBarLabel`.
+4. **`FIFAWCScoresApp.swift` — `.environment()` applied to Scene, not View.** `.environment(store)` and `.task { }` were chained on the `MenuBarExtra` Scene return. **Fix:** Moved inside the `MenuBarExtra { }` content closure, applied `.environment(store)` to both `MenuBarPanel` and `MenuBarLabel`.
 
 5. **`PollController.swift` — `TimeZone(secondsFromGMT:)` returns optional.** Needed force-unwrap (`!`) since `TimeZone(secondsFromGMT: 0)` is non-nil but Swift 6 strict concurrency flagged it. **Fix:** Added `!`.
 
 6. **`FetchService.swift` — `FetchError` not `Equatable`.** Tests used `XCTAssertEqual` on `FetchError` which required `Equatable` conformance. **Fix:** Added `Equatable` with manual `==` implementation.
 
-7. **`project.yml` — Missing `PRODUCT_MODULE_NAME`.** `PRODUCT_NAME: "WC Scores"` created module name `WC_Scores`, but tests import `WCSCORES`. **Fix:** Added `PRODUCT_MODULE_NAME: WCSCORES` to app target settings.
+7. **`project.yml` — Missing `PRODUCT_MODULE_NAME`.** `PRODUCT_NAME: "FIFAWC Scores"` created module name `FIFAWC_Scores`, but tests import `FIFAWCSCORES`. **Fix:** Added `PRODUCT_MODULE_NAME: FIFAWCSCORES` to app target settings.
 
-8. **`project.yml` — Missing `TEST_HOST` override.** XcodeGen auto-generates `TEST_HOST` using the target name (`WCSCORES.app`), but `PRODUCT_NAME` makes it `WC Scores.app`. **Fix:** Explicitly set `TEST_HOST` to match the actual product name.
+8. **`project.yml` — Missing `TEST_HOST` override.** XcodeGen auto-generates `TEST_HOST` using the target name (`FIFAWCSCORES.app`), but `PRODUCT_NAME` makes it `FIFAWC Scores.app`. **Fix:** Explicitly set `TEST_HOST` to match the actual product name.
 
-9. **`project.yml` — Missing scheme definitions.** CI uses `-scheme WCScoreTests` but XcodeGen only creates one scheme by default. **Fix:** Added explicit `schemes:` section defining both `WCSCORES` (with test targets) and `WCScoreTests`.
+9. **`project.yml` — Missing scheme definitions.** CI uses `-scheme FIFAWCScoreTests` but XcodeGen only creates one scheme by default. **Fix:** Added explicit `schemes:` section defining both `FIFAWCSCORES` (with test targets) and `FIFAWCScoreTests`.
 
-10. **`.github/workflows/ci.yml` — Test scheme mismatch.** CI used `-scheme WCScoreTests` which had the test host issue. **Fix:** Changed to `-scheme WCSCORES` which includes both app + test targets.
+10. **`.github/workflows/ci.yml` — Test scheme mismatch.** CI used `-scheme FIFAWCScoreTests` which had the test host issue. **Fix:** Changed to `-scheme FIFAWCSCORES` which includes both app + test targets.
 
 **Result:** `BUILD SUCCEEDED` + `** TEST SUCCEEDED **` — all 52 tests pass with 0 failures.
 
@@ -212,4 +211,22 @@ After extensive debugging across multiple sessions (reproducing errors locally w
 
 ---
 
-## Prompt 101
+## Prompt 12
+
+hey stop, before that, can you tell me what is the name of this APP?
+
+---
+
+## Prompt 13
+
+can we make it to FIFAWC Scores? do this rename on both internal and external go deep, update required codes and docs; run extensive tests, code; build it; make it successful; then focus on my previous propmt.
+
+---
+
+## Prompt 14
+
+1. so now teach me how to build this app locally first
+2. where will the executable file go? so that i can find and install it in my own machine
+3. then how do i publish the first release of this on github. give guide.
+4. write this in personal readme so that i can read and follow from here.
+5. what licence should be added to this repo? copyright it to me.
