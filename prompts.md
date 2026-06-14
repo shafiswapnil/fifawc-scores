@@ -1,10 +1,18 @@
-1: lets build an amazing menubar for macos! initial idea is: i want a menubar on macos, in which i can see match schedules (main focus is is there any match today, if yes then show team name and time (latest game first)), while game is on i want to see real time scores, when any team makes goal, a simple animation that its a goal, maybe a footbool sprints through left to right in small space in the menubar area. so the inspiration is from this app: https://github.com/tareq1988/prayer-times-macos. see the image also. this is still my initial idea. this needs more ideas with it, please question and discuss with me, lets do a research first, then lets finalize the plan then build in one go.
+1: ## Prompt 1 — Initial Idea & Research
+
+lets build an amazing menubar for macos! initial idea is: i want a menubar on macos, in which i can see match schedules (main focus is is there any match today, if yes then show team name and time (latest game first)), while game is on i want to see real time scores, when any team makes goal, a simple animation that its a goal, maybe a footbool sprints through left to right in small space in the menubar area. so the inspiration is from this app: https://github.com/tareq1988/prayer-times-macos. see the image also. this is still my initial idea. this needs more ideas with it, please question and discuss with me, lets do a research first, then lets finalize the plan then build in one go.
 
 - i will clone the inspiration repo for you so that you can take reference. i already did. check here the prayer-times-macos directory.
 - whatever we build, it has to consume a tiny ram. DO NOT EVEN MAKE THE SYSMEM BUSY.
 - we will never autostart with system (no login items), if anyone wants they will click to open the app > then i will stay in menubar.
 - lets not require any window or anything, we will do everything in the menubar only. so thats why i am saying we need more discussions. so lets discuss. what to keep, what can be shown, what are the optimizations, colors schemes, animations.
 - we will try to use very less amount of third party packages (if possible).
+
+**Summary:** User wants a macOS menu bar FIFA WC 2026 app. Core features: match schedule display, live scores, goal animation. Key constraints: tiny RAM, no Dock icon, no login items, menu bar only, minimal 3rd-party deps. Decision: research first, plan, then build in one go.
+
+---
+
+## Prompt 2 — Answers to Research Questions
 
 2: answer to 1: The one closest to a goal.
 answer to 2: previous, today, tomorrow, whole month.
@@ -16,12 +24,24 @@ answer to 7: keep it aside. lets build the main thing for now.
 
 initiate required md files for this whole app. so that you dont forget any goal, my raw idea, my decisions, also inspiration ideas. so create md files first. then lets start building.
 
+**Summary:** User answered 7 research questions: (1) nearest match focus, (2) views: previous/today/tomorrow/full month, (3) goal animation: tiny ⚨ emoji slides across menu bar, (4) midnight auto-check + manual Sync button, 1min live poll with user-configurable interval, (5) dynamic team colors, (6) all other decisions accepted, (7) keep settings aside for now. Decision: init doc files first, then build.
+
+---
+
+## Prompt 3 — Start Building Phase 1
+
 3: start building please. but before,
 
 - please know that i initiated git in this repo. while building, keep commiting.
 - those documentation files are so so good. thanks to you. shift them to docs/ folder maybe? that will be great. repo will look more clean.
 - also maintain a md file where you will be writing internal notes, i am also maintaining a prompt.md file where i am writing all the propmts. so in later how many agents or llm is used in this project, they should know - in which stage is this project is.
 - start the phase 1.
+
+**Summary:** User initiated git, requested docs moved to `docs/`, requested internal tracking in `status.md` and `prompts.md`. Then said build Phase 1.
+
+---
+
+## Prompt 4 — Crosscheck, API Key UX, Full Schedule, README
 
 4: great job man! you did all milestones in one prompt! so amazing. also you updated docs at the end! astonishing performance! loved it, keep up the energy and efficiency.
 
@@ -39,10 +59,21 @@ A: UserDefaults via @AppStorage (Recommended) - Simple, matches existing pattern
 Q: Should we add the 'Full Schedule' tab that was in the original spec?
 A: Add it now - Add a scrollable list of all tournament matches with a date picker.
 
+**Summary:** Crosscheck completed (M1-M10 verified). API key made user-installable via Settings (UserDefaults, @AppStorage, error in header when empty). Full Schedule tab added with date picker. TeamColors SRB duplicate fixed. README.md written with industry-standard format. Four decisions: (1) API key in UserDefaults, (2) error shown in header only, (3) Full Schedule tab added now, (4) fetchService changed from `let` to `var`.
+
+---
+
+## Prompt 5 — Update Docs
+
 5: update all the docs required. update status, decisions we took. go with the flow and yes obviously commit.
+
+**Summary:** Updated status.md (M1-M14 complete), docs/notes.md (17 decisions), prompts.md, project.yml (version 1.0.0). Committed as `docs: update all project docs for Phase 1 completion`.
+
+## Prompt 6 — Auto-Update & CI/CD Research
 
 6: as we are building a macos app now. while building i got a question in my head. in all other apps, i see a button to check for app updates. i dont know how this works in the industry. as for now, i will not be publishing this app in the app store. it will working totally from github. so tell me what happens under the hood. and my initial plan is - every time i publish a release on github, it should run some test scripts and if all tests green, we build the application on github meaning it should auto build executable mac app installation file then it should get published. also if any user presses Check for updates button > it should check the github release (i dont know the under the hood mechanism yet) so magic happens and the users gets a prompt, new release is here. if he clicks download the new relese, we take them to github release > there he downloads latest release and installs again in macos. while installaion, macos will definately ask by default that this app exists, so what should we do? the user will replace the app. this should work as expected i believe. one bug here i know is: each time the user downloads the app > he still gets a propmt or notification when checking for new update. he sees: there is a new version, click to download. but he JUST DID download the latest version and replaced with the latest version, right? then why the app is still showing theres a new one? i dont know what happened underhood, but i think its a version acknowledgement issue.
 so to do this whole thing for this application:
+
 - we need test scripts that run before publishing.
 - we need check for updates button with correct approach, version acknowledgement, mechanisms!
 - we should also configure github actions as well right? for the executable builds? do that.
@@ -50,3 +81,18 @@ so to do this whole thing for this application:
 - update plan docs, required docs.
 - always discuss with me what did you understand, what can be done, we always should follow industry standard.
 - take deep breath, start fresh. do not hallucinate. tell me if we need another new thread for building this, if so, stop and give me thread context for the new thread.
+
+**Summary:** User asked about auto-update mechanism for non-App Store macOS apps. Research completed: Sparkle framework identified as industry standard. GitHub Actions for CI/CD builds. "False update available" bug diagnosed — version consistency between MARKETING_VERSION and git tag is critical. M15-M18 planned: M15 (Sparkle), M16 (GitHub Actions CI/CD), M17 (version management script), M18 (test suite). New thread recommended for Phase 2. Thread context provided.
+
+---
+
+## Prompt 7 — CLAUDE.md Update, Prompt Framework, Thread Context
+
+7.1. do we need to update the CLAUDE.md file? see the prompts.md file, whole codebase, compare with CLAUDE.md > if anythings missing, do keep the CLAUDE.md file updated.
+
+7.2. also yeah, you will see in the prompt.md file > each time i am telling you to do something, i am telling you few things again and again, see the file and you will see commons. so cant we make a prompt framework in this repo that each time i prompt you, that framework (that every single llm in this world will follow and follows) gets checked, and model stays fresh and energetic?
+
+7.3. as you gave me a new thread prompt, so i should give that propmt to new thread just? i dont have to give the raw prompt no. 6 from prompts.md file? or giving it will energize or eunthusize the model?
+
+**Summary:** CLAUDE.md comprehensively rewritten as the universal agent prompt framework. Now includes: 9 mandatory agent behavior rules (read status.md, don't hallucinate, crosscheck, ask before decisions, update docs, commit per milestone, clean commits, energy/efficiency, never edit generated files), full architecture quick reference, build commands (including `swiftc -parse`), complete conventions, version/release rules, git history. Prompt framework IS CLAUDE.md — it gets injected as system context for every Copilot/agent session. Added prompt summaries to all 7 prompts in this file. Answer to Q7.3: condensed thread context is sufficient for new threads; raw prompt #6 adds "why" context for extra enthusiasm but isn't required.
+
