@@ -36,6 +36,25 @@ struct MenuBarPanel: View {
         "NED", "POR", "ITA", "JPN", "MAR", "USA"
     ]
 
+    /// Teams to show in the favorites grid — popular or search-filtered
+    private var teamsToShow: [String] {
+        if favoriteTeamSearch.isEmpty {
+            return Self.popularTeams
+        }
+        let query = favoriteTeamSearch.uppercased()
+        return Array(TeamFlags.flags.keys
+            .filter { $0.contains(query) || (TeamFlags.flags[$0] ?? "").contains(query) }
+            .sorted()
+            .prefix(12))
+    }
+
+    /// 3-column grid layout for team pills
+    private let favoriteGridColumns = [
+        GridItem(.flexible(), spacing: 4),
+        GridItem(.flexible(), spacing: 4),
+        GridItem(.flexible(), spacing: 4)
+    ]
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             header
@@ -356,50 +375,26 @@ struct MenuBarPanel: View {
                 }
                 .buttonStyle(.plain)
 
-                // Team grid — 12 popular + search results
-                let teamsToShow: [String]
-                if favoriteTeamSearch.isEmpty {
-                    teamsToShow = Self.popularTeams
-                } else {
-                    let query = favoriteTeamSearch.uppercased()
-                    teamsToShow = Array(TeamFlags.flags.keys
-                        .filter { $0.contains(query) || (TeamFlags.flags[$0] ?? "").contains(query) }
-                        .sorted()
-                        .prefix(12))
-                }
-
-                if teamsToShow.isEmpty {
-                    Text("No teams match \"\(favoriteTeamSearch)\"")
-                        .font(.caption2)
-                        .foregroundStyle(.tertiary)
-                        .padding(.vertical, 4)
-                } else {
-                    // 3-column grid of team pills
-                    let columns = [
-                        GridItem(.flexible(), spacing: 4),
-                        GridItem(.flexible(), spacing: 4),
-                        GridItem(.flexible(), spacing: 4)
-                    ]
-                    LazyVGrid(columns: columns, spacing: 4) {
-                        ForEach(teamsToShow, id: \.self) { tla in
-                            Button {
-                                store.favoriteTeam = tla
-                            } label: {
-                                Text("\(TeamFlags.flags[tla] ?? "⚽") \(tla)")
-                                    .font(.caption2)
-                                    .padding(.horizontal, 6)
-                                    .padding(.vertical, 4)
-                                    .frame(maxWidth: .infinity)
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 6)
-                                            .fill(store.favoriteTeam == tla
-                                                  ? Color.accentColor
-                                                  : Color.primary.opacity(0.06))
-                                    )
-                                    .foregroundStyle(store.favoriteTeam == tla ? .white : .secondary)
-                            }
-                            .buttonStyle(.plain)
+                // 3-column grid of team pills
+                LazyVGrid(columns: favoriteGridColumns, spacing: 4) {
+                    ForEach(teamsToShow, id: \.self) { tla in
+                        Button {
+                            store.favoriteTeam = tla
+                        } label: {
+                            Text("\(TeamFlags.flags[tla] ?? "⚽") \(tla)")
+                                .font(.caption2)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 4)
+                                .frame(maxWidth: .infinity)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 6)
+                                        .fill(store.favoriteTeam == tla
+                                              ? Color.accentColor
+                                              : Color.primary.opacity(0.06))
+                                )
+                                .foregroundStyle(store.favoriteTeam == tla ? .white : .secondary)
                         }
+                        .buttonStyle(.plain)
                     }
                 }
             }
