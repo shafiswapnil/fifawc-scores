@@ -1,12 +1,26 @@
 import SwiftUI
 
 /// The `.window`-style panel shown when the menu bar item is clicked.
+/// Contains tabbed navigation for Today, Yesterday, Tomorrow, Full Schedule, Standings.
 struct MenuBarPanel: View {
+    @Environment(MatchStore.self) private var store
+
+    @State private var selectedTab: PanelTab = .today
+
+    enum PanelTab: String, CaseIterable {
+        case today = "Today"
+        case yesterday = "Yesterday"
+        case tomorrow = "Tomorrow"
+        case standings = "Standings"
+    }
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 0) {
             header
             Divider().opacity(0.5)
-            placeholderContent
+            tabRow
+            Divider().opacity(0.3)
+            content
             Divider().opacity(0.5)
             footer
         }
@@ -18,56 +32,382 @@ struct MenuBarPanel: View {
     // MARK: - Header
 
     private var header: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text("FIFA WORLD CUP 2026")
-                .font(.caption2.weight(.semibold))
-                .foregroundStyle(.secondary)
-                .tracking(0.5)
-            Text("⚽ Coming Soon")
-                .font(.title3.weight(.semibold))
+        HStack {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("FIFA WORLD CUP 2026")
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                    .tracking(0.5)
+
+                if store.isFetching {
+                    Text("Syncing…")
+                        .font(.caption)
+                        .foregroundStyle(.tertiary)
+                } else if let error = store.errorMessage {
+                    Text(error)
+                        .font(.caption)
+                        .foregroundStyle(.red)
+                        .lineLimit(1)
+                } else if let match = store.featuredMatch, match.isLive {
+                    Text("🔴 LIVE")
+                        .font(.caption2.weight(.bold))
+                        .foregroundStyle(.red)
+                } else {
+                    Text("⚽ Match Hub")
+                        .font(.title3.weight(.semibold))
+                }
+            }
+            Spacer()
+        }
+        .padding(.horizontal, 8)
+        .padding(.bottom, 8)
+    }
+
+    // MARK: - Tab Row
+
+    private var tabRow: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 6) {
+                ForEach(PanelTab.allCases, id: \.self) { tab in
+                    Button {
+                        withAnimation(.easeInOut(duration: 0.15)) {
+                            selectedTab = tab
+                        }
+                    } label: {
+                        Text(tab.rawValue)
+                            .font(.caption.weight(.medium))
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 4)
+                            .background(
+                                Capsule()
+                                    .fill(selectedTab == tab
+                                          ? Color.accentColor
+                                          : Color.clear)
+                            )
+                            .foregroundStyle(selectedTab == tab ? .white : .secondary)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(.horizontal, 8)
+            .padding(.vertical, 6)
+        }
+    }
+
+    // MARK: - Content
+
+    @ViewBuilder
+    private var content: some View {
+        switch selectedTab {
+        case .today:
+            matchList(store.todayMatches, emptyText: "No matches today")
+        case .yesterday:
+            matchList(store.yesterdayMatches, emptyText: "No matches yesterday")
+        case .tomorrow:
+            matchList(store.tomorrowMatches, emptyText: "No matches tomorrow")
+        case .standings:
+            standingsList
+        }
+    }
+
+    // MARK: - Match List
+
+    private func matchList(_ matches: [Match], emptyText: String) -> some View {
+        Group {
+            if matches.isEmpty {
+                VStack(spacing: 8) {
+                    Image(systemName: "calendar")
+                        .font(.title2)
+                        .foregroundStyle(.tertiary)
+                    Text(emptyText)
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity, minHeight: 120)
+            } else {
+                ScrollView {
+                    LazyVStack(spacing: 6) {
+                        // Live matches first
+                        let live = matches.filter { $0.isLive }
+                        if !live.isEmpty {
+                            ForEach(live) { match in
+                                MatchCard(match: match, isLiveHighlight: true)
+                            }
+                            Divider().opacity(0.3)
+                        }
+
+                        // Upcoming matches (sorted by time)
+                        let upcoming = matches
+                            .filter { !$0.status.hasStarted }
+                            .sorted { $0.utcDate < $1.utcDate }
+                        if !upcoming.isEmpty {
+                            ForEach(upcoming) { match in
+                                MatchCard(match: match, isLiveHighlight: false)
+                            }
+                        }
+
+                        // Finished matches (most recent first)
+                        let finished = matches
+                            .filter { $0.isFinished }
+                            .sorted { $0.utcDate > $1.utcDate }
+                        if !finished.isEmpty {
+                            if !upcoming.isEmpty || !live.isEmpty {
+                                Divider().opacity(0.3)
+                            }
+                            ForEach(finished) { match in
+                                MatchCard(match: match, isLiveHighlight: false)
+                            }
+                        }
+                    }
+                    .padding(.vertical, 6)
+                }
+                .frame(maxHeight: 300)
+            }
         }
         .padding(.horizontal, 8)
     }
 
-    // MARK: - Placeholder
+    // MARK: - Standings
 
-    private var placeholderContent: some View {
-        VStack(spacing: 8) {
-            Text("Match data will appear here")
-                .font(.callout)
-                .foregroundStyle(.secondary)
-            Text("Connect to football-data.org to see live scores")
-                .font(.caption)
-                .foregroundStyle(.tertiary)
+    private var standingsList: some View {
+        Group {
+            if store.standings.isEmpty {
+                VStack(spacing: 8) {
+                    Image(systemName: "list.number")
+                        .font(.title2)
+                        .foregroundStyle(.tertiary)
+                    Text("No standings available")
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity, minHeight: 120)
+            } else {
+                ScrollView {
+                    LazyVStack(spacing: 10) {
+                        ForEach(store.standings) { group in
+                            GroupStandingCard(group: group)
+                        }
+                    }
+                    .padding(.vertical, 6)
+                }
+                .frame(maxHeight: 300)
+            }
         }
-        .frame(maxWidth: .infinity, minHeight: 120)
+        .padding(.horizontal, 8)
     }
 
     // MARK: - Footer
 
     private var footer: some View {
         VStack(spacing: 1) {
-            Button { } label: {
-                footerLabel("Sync", systemImage: "arrow.triangle.2.circlepath")
+            Button {
+                Task { await store.sync() }
+            } label: {
+                HStack {
+                    if store.isFetching {
+                        ProgressView()
+                            .controlSize(.mini)
+                    } else {
+                        Image(systemName: "arrow.triangle.2.circlepath")
+                    }
+                    Text("Sync")
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.vertical, 5)
+                .padding(.horizontal, 8)
+                .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
             .menuRowHighlight()
+            .disabled(store.isFetching)
 
             Button { NSApplication.shared.terminate(nil) } label: {
-                footerLabel("Quit", systemImage: "power")
+                Label("Quit", systemImage: "power")
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.vertical, 5)
+                    .padding(.horizontal, 8)
+                    .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
             .menuRowHighlight()
         }
         .font(.callout)
+        .padding(.top, 4)
     }
+}
 
-    private func footerLabel(_ title: LocalizedStringKey, systemImage: String) -> some View {
-        Label(title, systemImage: systemImage)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.vertical, 5)
-            .padding(.horizontal, 8)
-            .contentShape(Rectangle())
+// MARK: - Match Card
+
+/// A compact card showing one match with flags, scores, status, and group.
+struct MatchCard: View {
+    let match: Match
+    let isLiveHighlight: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 3) {
+            // Main row: flags + teams + score/time
+            HStack(spacing: 0) {
+                // Home team
+                Text(match.homeTeam.flagEmoji)
+                    .font(.system(size: 14))
+                Text("  ")
+                Text(match.homeTeam.tla)
+                    .font(.caption.weight(.semibold))
+                    .frame(width: 32, alignment: .leading)
+
+                Spacer()
+
+                // Score or time
+                Text(match.displayText)
+                    .font(.system(.caption, design: .monospaced).weight(.bold))
+                    .foregroundStyle(isLiveHighlight ? Color.red : .primary)
+
+                Spacer()
+
+                // Away team
+                Text(match.awayTeam.tla)
+                    .font(.caption.weight(.semibold))
+                    .frame(width: 32, alignment: .trailing)
+                Text("  ")
+                Text(match.awayTeam.flagEmoji)
+                    .font(.system(size: 14))
+            }
+
+            // Status row: minute/status + group + venue
+            HStack {
+                if match.isLive {
+                    HStack(spacing: 3) {
+                        Circle()
+                            .fill(.red)
+                            .frame(width: 5, height: 5)
+                        Text(match.status.displayName)
+                            .foregroundStyle(.red)
+                    }
+                    .font(.caption2.weight(.medium))
+                } else if match.isFinished {
+                    Text("FT")
+                        .font(.caption2.weight(.medium))
+                        .foregroundStyle(.secondary)
+                } else {
+                    Image(systemName: "clock")
+                        .font(.system(size: 8))
+                    Text(match.status.displayName)
+                }
+
+                if let group = match.groupDisplay {
+                    Text("·")
+                    Text(group)
+                }
+
+                Spacer()
+
+                if let venue = match.venue {
+                    Text(venue)
+                        .font(.caption2)
+                        .foregroundStyle(.tertiary)
+                        .lineLimit(1)
+                }
+            }
+            .font(.caption2)
+            .foregroundStyle(.secondary)
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 6)
+        .background(
+            RoundedRectangle(cornerRadius: 6)
+                .fill(isLiveHighlight
+                      ? Color.red.opacity(0.06)
+                      : Color.primary.opacity(0.03))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 6)
+                .stroke(isLiveHighlight ? Color.red.opacity(0.15) : Color.clear, lineWidth: 0.5)
+        )
+    }
+}
+
+// MARK: - Group Standing Card
+
+/// A mini group table showing team positions, points, and goal difference.
+struct GroupStandingCard: View {
+    let group: GroupStanding
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            // Group header
+            Text(group.displayName)
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.secondary)
+                .padding(.horizontal, 4)
+
+            // Table header
+            HStack {
+                Text("Team")
+                    .frame(width: 80, alignment: .leading)
+                Spacer()
+                Text("P")
+                    .frame(width: 20)
+                Text("W")
+                    .frame(width: 20)
+                Text("D")
+                    .frame(width: 20)
+                Text("L")
+                    .frame(width: 20)
+                Text("GD")
+                    .frame(width: 28)
+                Text("Pts")
+                    .frame(width: 28)
+            }
+            .font(.system(size: 9, weight: .medium, design: .monospaced))
+            .foregroundStyle(.tertiary)
+            .padding(.horizontal, 4)
+
+            // Team rows
+            ForEach(group.table) { entry in
+                HStack(spacing: 0) {
+                    Text("\(entry.position).")
+                        .font(.system(size: 10, design: .monospaced))
+                        .foregroundStyle(.secondary)
+                        .frame(width: 16, alignment: .trailing)
+
+                    Text(entry.team.flagEmoji)
+                        .font(.system(size: 11))
+
+                    Text(entry.team.tla)
+                        .font(.system(size: 10, weight: .semibold))
+                        .frame(width: 36, alignment: .leading)
+
+                    Spacer()
+
+                    Text("\(entry.playedGames)")
+                        .frame(width: 20)
+                    Text("\(entry.won)")
+                        .frame(width: 20)
+                    Text("\(entry.draw)")
+                        .frame(width: 20)
+                    Text("\(entry.lost)")
+                        .frame(width: 20)
+                    Text(entry.goalDifferenceText)
+                        .frame(width: 28)
+                        .foregroundStyle(entry.goalDifference > 0 ? .green
+                                         : entry.goalDifference < 0 ? .red : .secondary)
+                    Text("\(entry.points)")
+                        .frame(width: 28)
+                        .fontWeight(.bold)
+                }
+                .font(.system(size: 10, design: .monospaced))
+                .padding(.horizontal, 4)
+                .padding(.vertical, 2)
+                .background(entry.isQualified
+                            ? Color.accentColor.opacity(0.06)
+                            : Color.clear)
+            }
+        }
+        .padding(8)
+        .background(
+            RoundedRectangle(cornerRadius: 8)
+                .fill(Color.primary.opacity(0.03))
+        )
     }
 }
 
@@ -78,14 +418,20 @@ private struct MenuRowHighlight: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .background(
-                RoundedRectangle(cornerRadius: 6)
-                    .fill(hovering ? Color.primary.opacity(0.1) : .clear)
-            )
+            .background(hovering ? Color.primary.opacity(0.08) : Color.clear)
             .onHover { hovering = $0 }
     }
 }
 
-private extension View {
-    func menuRowHighlight() -> some View { modifier(MenuRowHighlight()) }
+extension View {
+    func menuRowHighlight() -> some View {
+        modifier(MenuRowHighlight())
+    }
+}
+
+// MARK: - Preview
+
+#Preview {
+    MenuBarPanel()
+        .environment(MatchStore())
 }
