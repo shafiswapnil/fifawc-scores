@@ -22,12 +22,15 @@ struct FIFAWCScoresApp: App {
         MenuBarExtra {
             MenuBarPanel(checkForUpdates: { updaterController.checkForUpdates(nil) })
                 .environment(store)
-                .task {
-                    store.startPolling()
-                }
         } label: {
             MenuBarLabel()
                 .environment(store)
+                .task {
+                    // Start polling on launch so data is fetched immediately.
+                    // The panel's .task only fires when opened — the label
+                    // needs data before that.
+                    store.startPolling()
+                }
         }
         .menuBarExtraStyle(.window)
     }

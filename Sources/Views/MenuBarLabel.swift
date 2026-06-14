@@ -9,6 +9,11 @@ import SwiftUI
 struct MenuBarLabel: View {
     @Environment(MatchStore.self) private var store
 
+    /// Force re-render every 30s for live minute updates + catch data loads.
+    /// MenuBarExtra labels are notoriously slow to re-render with @Observable.
+    @State private var tick = false
+    private let timer = Timer.publish(every: 30, on: .main, in: .common).autoconnect()
+
     var body: some View {
         HStack(spacing: 4) {
             // Goal animation overlay
@@ -28,6 +33,13 @@ struct MenuBarLabel: View {
         }
         .contentTransition(.numericText())
         .animation(.default, value: labelText)
+        .onReceive(timer) { _ in
+            // Toggle tick to force SwiftUI to re-evaluate labelText.
+            // This catches: (1) elapsed minute updates for live matches,
+            // (2) TIMED→IN_PLAY transitions via effectiveStatus clock logic,
+            // (3) data arriving after initial fetch completes.
+            tick.toggle()
+        }
     }
 
     // MARK: - Label Text

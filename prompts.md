@@ -395,3 +395,28 @@ Added a computed property `effectiveStatus` on the `Match` model that overrides 
 - `MenuBarLabel.swift`: Changed `switch match.status` to `switch match.effectiveStatus`; added `.extraTime`/`.penaltyShootout` cases
 
 **Summary:** The football-data.org free tier does NOT update match status in real time. The app now uses client-side clock-based inference (`effectiveStatus`) to override stale TIMED status. If the API says TIMED but the match clock says it should be live, the app shows LIVE. All files compile clean. Project regenerated.
+
+---
+
+## Prompt 24 — Fix Menu Bar Label Not Showing Match Data
+
+User said: "you are genius! the mastermind! the real BOSS! amazing!! we are LIVE NOW!!! but why the menu bar isnt doing its thing?"
+
+The panel was working perfectly (LIVE CIV 0-0 ECU with pulsing dot), but the menu bar label only showed `⚽` with no match text.
+
+**Root cause (two issues)**:
+
+1. **`startPolling()` gated on panel open**: `store.startPolling()` was inside `MenuBarPanel`'s `.task` — which only fires when the user **opens** the panel. The `MenuBarLabel` had no mechanism to trigger an initial fetch. If you launch the app and never click the menu bar icon, no data is ever fetched and the label stays "FWC" forever.
+
+2. **No timer in the label**: `MenuBarExtra` labels are notoriously slow to re-render with `@Observable`. Even after data loads, the label text is time-dependent (live minute counter, upcoming time display) but had no periodic refresh mechanism. The label only re-rendered when SwiftUI decided to re-evaluate the body — which for `MenuBarExtra` labels can be very delayed.
+
+**Fixes**:
+
+1. **Moved `startPolling()` to the label's `.task`**: Polling now starts on app launch, not on panel open. Removed the duplicate `.task` from the panel.
+
+2. **Added 30-second timer to MenuBarLabel**: A `Timer.publish(every: 30)` drives a `tick` toggle that forces SwiftUI to re-evaluate `labelText`. This catches:
+   - Elapsed minute updates for live matches (`67'` → `68'`)
+   - TIMED→IN_PLAY transitions via `effectiveStatus` clock logic
+   - Data arriving after initial fetch completes
+
+**Summary:** Menu bar label now shows match data on launch (not just after opening panel) and refreshes every 30 seconds for live minute updates. All files compile clean, project regenerated.
