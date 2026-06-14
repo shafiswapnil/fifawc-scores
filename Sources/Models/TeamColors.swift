@@ -44,7 +44,6 @@ enum TeamColors {
         "SCO": TeamColor(primary: Color(red: 0.0, green: 0.247, blue: 0.545), secondary: .white),  // Blue/White
         "CZE": TeamColor(primary: Color(red: 0.863, green: 0.078, blue: 0.235), secondary: Color(red: 0.0, green: 0.247, blue: 0.545)),  // Red/Blue
         "AUT": TeamColor(primary: Color(red: 0.863, green: 0.078, blue: 0.235), secondary: .white),  // Red/White
-        "SRB": TeamColor(primary: Color(red: 0.863, green: 0.078, blue: 0.235), secondary: Color(red: 0.0, green: 0.247, blue: 0.545)),  // Red/Blue
         "ROU": TeamColor(primary: Color(red: 0.0, green: 0.224, blue: 0.663), secondary: Color(red: 1.0, green: 0.808, blue: 0.0)),  // Blue/Yellow
         "HUN": TeamColor(primary: Color(red: 0.804, green: 0.067, blue: 0.165), secondary: Color(red: 0.0, green: 0.533, blue: 0.267)),  // Red/Green
         "GRE": TeamColor(primary: Color(red: 0.0, green: 0.314, blue: 0.686), secondary: .white),  // Blue/White

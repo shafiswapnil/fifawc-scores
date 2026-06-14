@@ -36,7 +36,7 @@ final class MatchStore {
     // MARK: - Polling
 
     private var pollController: PollController?
-    private let fetchService: FetchService
+    private var fetchService: FetchService
 
     // MARK: - Settings (persisted)
 
@@ -60,6 +60,20 @@ final class MatchStore {
         }
     }
 
+    /// API key for football-data.org. Persisted in UserDefaults.
+    /// Empty string means not configured — app shows error and won't poll.
+    var apiKey: String {
+        didSet {
+            UserDefaults.standard.set(apiKey, forKey: "apiKey")
+            fetchService.updateApiKey(apiKey)
+        }
+    }
+
+    /// Whether a valid API key has been configured.
+    var hasApiKey: Bool {
+        !apiKey.trimmingCharacters(in: .whitespaces).isEmpty
+    }
+
     // MARK: - Previous Scores (for goal detection)
 
     private var previousScores: [Int: ScoreSnapshot] = [:]
@@ -72,13 +86,15 @@ final class MatchStore {
 
     // MARK: - Init
 
-    init(apiKey: String = "REPLACE_WITH_YOUR_API_KEY") {
-        self.fetchService = FetchService(apiKey: apiKey)
-
-        // Restore settings
+    init() {
+        // Restore settings from UserDefaults
         let storedInterval = UserDefaults.standard.double(forKey: "pollInterval")
         self.pollInterval = storedInterval > 0 ? max(60, storedInterval) : 60
         self.favoriteTeam = UserDefaults.standard.string(forKey: "favoriteTeam")
+
+        let storedApiKey = UserDefaults.standard.string(forKey: "apiKey") ?? ""
+        self.apiKey = storedApiKey
+        self.fetchService = FetchService(apiKey: storedApiKey)
     }
 
     // MARK: - Computed Properties
@@ -202,6 +218,11 @@ final class MatchStore {
     /// Fetch all needed data: today, yesterday, tomorrow matches + standings.
     func fetchAllData() async {
         guard !isFetching else { return }
+
+        guard hasApiKey else {
+            errorMessage = "No API key set — go to Settings"
+            return
+        }
 
         isFetching = true
         errorMessage = nil

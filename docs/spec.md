@@ -175,7 +175,7 @@ The expanded panel shown when the menu bar item is clicked.
 │  ⏰ 9:00 PM  ·  Group D        │
 │  ─────────────────────────────  │
 │  🔄 Sync                        │  ← manual sync button
-│  ⚙️ Settings                    │  ← poll interval, favorite team
+│  ⚙️ Settings                    │  ← API key, poll interval, favorite team
 │  ❌ Quit                        │
 └─────────────────────────────────┘
 ```
@@ -203,11 +203,11 @@ Each match is a compact card showing:
 
 ### 7.4 Footer Actions
 
-| Button       | Action                                                                               |
-| ------------ | ------------------------------------------------------------------------------------ |
-| **Sync**     | Force an immediate data fetch from football-data.org. Shows a brief spinner.         |
-| **Settings** | In-panel settings: poll interval slider, favorite team picker. (No separate window.) |
-| **Quit**     | `NSApplication.shared.terminate(nil)`                                                |
+| Button       | Action                                                                                              |
+| ------------ | --------------------------------------------------------------------------------------------------- |
+| **Sync**     | Force an immediate data fetch from football-data.org. Shows a brief spinner.                        |
+| **Settings** | In-panel settings: API key field, poll interval slider, favorite team picker. (No separate window.) |
+| **Quit**     | `NSApplication.shared.terminate(nil)`                                                               |
 
 ---
 

@@ -83,12 +83,39 @@
 - Accessibility (VoiceOver labels)
 - Conventional commit history
 
+### M11: API Key in Settings (User-Configurable)
+
+- `FetchService.apiKey` changed from `let` → `var` with `updateApiKey()` method
+- `MatchStore.apiKey` persisted in UserDefaults via `@AppStorage`
+- `MatchStore.fetchService` changed from `let` → `var` (re-creatable)
+- `fetchAllData()` shows "No API key set — go to Settings" when key is missing
+- Settings tab: API key text field + football-data.org registration link
+- Green/orange status indicator (checkmark/warning)
+- Added `FetchError.invalidAPIKey` case
+
+### M12: Full Schedule Tab
+
+- New `fullSchedule` case in `PanelTab` enum (labeled "Schedule")
+- Date picker to filter matches from a start date onward
+- Matches grouped by date with day headers (e.g., "Thu, Jun 11")
+- Uses `store.allMatches` (all fetched dates)
+
+### M13: TeamColors SRB Fix
+
+- Removed duplicate `"SRB"` entry in `TeamColors.swift`
+
+### M14: README.md
+
+- Industry-standard README with centered header, badges, features list
+- Build-from-source instructions (XcodeGen)
+- API key setup guide, settings reference, architecture diagram
+
 ---
 
 ## Build Order
 
 ```
-M1 → M2 → M3 → M4 → M5 → M6 → M7 → M8 → M9 → M10
+M1 → M2 → M3 → M4 → M5 → M6 → M7 → M8 → M9 → M10 → M11 → M12 → M13 → M14
 ```
 
 Each milestone is independently buildable and testable.

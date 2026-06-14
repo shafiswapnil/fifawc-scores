@@ -6,11 +6,13 @@ struct MenuBarPanel: View {
     @Environment(MatchStore.self) private var store
 
     @State private var selectedTab: PanelTab = .today
+    @State private var fullScheduleStartDate: Date = Calendar.current.date(from: Calendar.current.dateComponents([.year, .month, .day], from: Date()))!
 
     enum PanelTab: String, CaseIterable {
         case today = "Today"
         case yesterday = "Yesterday"
         case tomorrow = "Tomorrow"
+        case fullSchedule = "Schedule"
         case standings = "Standings"
         case settings = "⚙️"
     }
@@ -106,6 +108,8 @@ struct MenuBarPanel: View {
             matchList(store.yesterdayMatches, emptyText: "No matches yesterday")
         case .tomorrow:
             matchList(store.tomorrowMatches, emptyText: "No matches tomorrow")
+        case .fullSchedule:
+            fullScheduleView
         case .standings:
             standingsList
         case .settings:
@@ -203,6 +207,37 @@ struct MenuBarPanel: View {
 
     private var settingsView: some View {
         VStack(alignment: .leading, spacing: 12) {
+            // API Key
+            VStack(alignment: .leading, spacing: 4) {
+                HStack {
+                    Text("API Key")
+                        .font(.caption.weight(.medium))
+                    if store.hasApiKey {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundStyle(.green)
+                            .font(.caption2)
+                    } else {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundStyle(.orange)
+                            .font(.caption2)
+                    }
+                }
+                TextField("Paste your API key here", text: Binding(
+                    get: { store.apiKey },
+                    set: { store.apiKey = $0 }
+                ))
+                .textFieldStyle(.roundedBorder)
+                .font(.caption)
+                HStack(spacing: 4) {
+                    Text("Free at")
+                    Link("football-data.org", destination: URL(string: "https://www.football-data.org/client/register")!)
+                        .font(.caption2)
+                }
+                .foregroundStyle(.tertiary)
+            }
+
+            Divider().opacity(0.3)
+
             // Poll interval
             VStack(alignment: .leading, spacing: 4) {
                 HStack {
@@ -294,6 +329,92 @@ struct MenuBarPanel: View {
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 6)
+    }
+
+    // MARK: - Full Schedule
+
+    private var fullScheduleView: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            // Date picker
+            HStack {
+                DatePicker(
+                    "From",
+                    selection: $fullScheduleStartDate,
+                    displayedComponents: .date
+                )
+                .datePickerStyle(.compact)
+                .labelsHidden()
+                .font(.caption)
+            }
+            .padding(.horizontal, 8)
+            .padding(.top, 6)
+
+            // Matches from start date onward
+            let filteredMatches = store.allMatches
+                .filter { $0.utcDate >= fullScheduleStartDate }
+                .sorted { $0.utcDate < $1.utcDate }
+
+            if filteredMatches.isEmpty {
+                VStack(spacing: 8) {
+                    Image(systemName: "calendar.badge.exclamationmark")
+                        .font(.title2)
+                        .foregroundStyle(.tertiary)
+                    Text("No scheduled matches from this date")
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity, minHeight: 120)
+            } else {
+                ScrollView {
+                    LazyVStack(spacing: 2) {
+                        // Group by date
+                        let grouped = Dictionary(grouping: filteredMatches) { match in
+                            dateStringForSchedule(match.utcDate)
+                        }
+                        let sortedKeys = grouped.keys.sorted()
+
+                        ForEach(sortedKeys, id: \.self) { dateKey in
+                            if let dayMatches = grouped[dateKey] {
+                                // Date header
+                                Text(headerForDate(dateKey))
+                                    .font(.caption2.weight(.semibold))
+                                    .foregroundStyle(.secondary)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .padding(.horizontal, 8)
+                                    .padding(.top, 8)
+                                    .padding(.bottom, 2)
+
+                                ForEach(dayMatches) { match in
+                                    MatchCard(match: match, isLiveHighlight: match.isLive)
+                                }
+                            }
+                        }
+                    }
+                    .padding(.vertical, 6)
+                }
+                .frame(maxHeight: 300)
+            }
+        }
+        .padding(.horizontal, 8)
+    }
+
+    // MARK: - Full Schedule Helpers
+
+    private func dateStringForSchedule(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        return formatter.string(from: date)
+    }
+
+    private func headerForDate(_ key: String) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        guard let date = formatter.date(from: key) else { return key }
+        formatter.dateFormat = "EEE, MMM d"
+        formatter.timeZone = .current
+        return formatter.string(from: date)
     }
 
     // MARK: - Footer

@@ -3,6 +3,7 @@ import Foundation
 /// Errors that can occur during API fetching.
 enum FetchError: Error, LocalizedError {
     case invalidURL
+    case invalidAPIKey
     case networkError(Error)
     case rateLimited
     case serverError(Int)
@@ -12,6 +13,7 @@ enum FetchError: Error, LocalizedError {
     var errorDescription: String? {
         switch self {
         case .invalidURL: "Invalid URL"
+        case .invalidAPIKey: "No API key — set one in Settings"
         case .networkError(let error): "Network error: \(error.localizedDescription)"
         case .rateLimited: "Rate limited — too many requests"
         case .serverError(let code): "Server error (\(code))"
@@ -31,9 +33,9 @@ actor FetchService {
     private let baseURL = "https://api.football-data.org/v4"
     private let competitionCode = "WC"  // FIFA World Cup
 
-    /// API key for football-data.org. In production, this should be
-    /// injected or stored in Keychain. For v1, hardcoded.
-    private let apiKey: String
+    /// API key for football-data.org. Set via Settings.
+    /// When empty, all fetch calls short-circuit with an error.
+    private var apiKey: String
 
     private let session: URLSession
     private let decoder: JSONDecoder
@@ -46,7 +48,7 @@ actor FetchService {
 
     // MARK: - Init
 
-    init(apiKey: String = "REPLACE_WITH_YOUR_API_KEY") {
+    init(apiKey: String) {
         self.apiKey = apiKey
         self.session = URLSession.shared
 
@@ -57,6 +59,16 @@ actor FetchService {
     }
 
     // MARK: - Public API
+
+    /// Update the API key at runtime (called when user sets it in Settings).
+    func updateApiKey(_ key: String) {
+        self.apiKey = key
+    }
+
+    /// Whether a valid API key is configured.
+    var hasApiKey: Bool {
+        !apiKey.isEmpty && apiKey != "REPLACE_WITH_YOUR_API_KEY"
+    }
 
     /// Fetch all matches for a specific date.
     func fetchMatches(for date: Date) async throws -> [Match] {
@@ -110,6 +122,10 @@ actor FetchService {
     }
 
     private func fetch<T: Decodable>(url: URL) async throws -> T {
+        guard hasApiKey else {
+            throw FetchError.invalidAPIKey
+        }
+
         try await enforceRateLimit()
 
         var request = URLRequest(url: url)

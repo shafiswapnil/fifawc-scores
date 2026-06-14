@@ -5,22 +5,26 @@
 
 ## Current Stage
 
-**All milestones complete.** v1.0 feature-complete. Ready for real API key testing and polish.
+**Post-v1 polish complete.** API key is now user-configurable in Settings. Full Schedule tab added. README written. Ready for Xcode build + real API key testing.
 
 ## Milestone Tracker
 
-| #   | Milestone                   | Status         | Commit  | Notes                                                    |
-| --- | --------------------------- | -------------- | ------- | -------------------------------------------------------- |
-| M1  | Project Scaffolding         | ✅ Done        | 157f5f3 | XcodeGen, dirs, Info.plist, empty MenuBarExtra            |
-| M2  | Data Models                 | ✅ Done        | bced77f | Match, Team, Standing, MatchStatus, TeamColors            |
-| M3  | API Client (FetchService)   | ✅ Done        | 88a5c5a | football-data.org v4, URLSession, rate limiter            |
-| M4  | MatchStore (Central State)  | ✅ Done        | 102e099 | @Observable @MainActor, goal detection, computed props    |
-| M5  | PollController (Scheduling) | ✅ Done        | 102e099 | State machine: idle→live→idle, midnight rollover           |
-| M6  | MenuBarLabel                | ✅ Done        | 9a90463 | 3 states: idle/upcoming/live, dynamic team colors          |
-| M7  | Goal Animation              | ✅ Done        | 9a90463 | ⚨ slide left→right (1.5s ease-in-out)                     |
-| M8  | MenuBarPanel                | ✅ Done        | b310017 | Tabs, MatchCards, GroupStandingCards, footer                |
-| M9  | Settings (In-Panel)         | ✅ Done        | 2a19c7b | Poll interval slider, favorite team picker                 |
-| M10 | Polish & Testing            | ✅ Done        | 0d5b386 | Cleaned duplicate TLA keys, all files compile clean        |
+| #   | Milestone                   | Status  | Commit  | Notes                                                  |
+| --- | --------------------------- | ------- | ------- | ------------------------------------------------------ |
+| M1  | Project Scaffolding         | ✅ Done | 157f5f3 | XcodeGen, dirs, Info.plist, empty MenuBarExtra         |
+| M2  | Data Models                 | ✅ Done | bced77f | Match, Team, Standing, MatchStatus, TeamColors         |
+| M3  | API Client (FetchService)   | ✅ Done | 88a5c5a | football-data.org v4, URLSession, rate limiter         |
+| M4  | MatchStore (Central State)  | ✅ Done | 102e099 | @Observable @MainActor, goal detection, computed props |
+| M5  | PollController (Scheduling) | ✅ Done | 102e099 | State machine: idle→live→idle, midnight rollover       |
+| M6  | MenuBarLabel                | ✅ Done | 9a90463 | 3 states: idle/upcoming/live, dynamic team colors      |
+| M7  | Goal Animation              | ✅ Done | 9a90463 | ⚨ slide left→right (1.5s ease-in-out)                  |
+| M8  | MenuBarPanel                | ✅ Done | b310017 | Tabs, MatchCards, GroupStandingCards, footer           |
+| M9  | Settings (In-Panel)         | ✅ Done | 2a19c7b | Poll interval slider, favorite team picker             |
+| M10 | Polish & Testing            | ✅ Done | 0d5b386 | Cleaned duplicate TLA keys, all files compile clean    |
+| M11 | API Key in Settings         | ✅ Done | TBD     | UserDefaults storage, Settings UI, error in header     |
+| M12 | Full Schedule Tab           | ✅ Done | TBD     | Date picker, grouped matches, all tournament dates     |
+| M13 | TeamColors SRB Fix          | ✅ Done | TBD     | Removed duplicate "SRB" entry in TeamColors            |
+| M14 | README.md                   | ✅ Done | TBD     | Industry-standard README with install + architecture   |
 
 ## Git History
 
@@ -37,22 +41,28 @@ bced77f feat(models): add core data models (M2)
 
 ## Key Decisions Log
 
-| Date       | Decision                                  | Rationale                                |
-| ---------- | ----------------------------------------- | ---------------------------------------- |
-| 2026-06-15 | football-data.org as primary API          | Free, reliable, live scores, WC support  |
-| 2026-06-15 | Zero third-party dependencies             | Tiny footprint, URLSession sufficient    |
-| 2026-06-15 | 60s poll interval (configurable, min 60s) | Balance between freshness and API limits |
-| 2026-06-15 | Midnight auto-check when idle             | No polling waste when no matches         |
-| 2026-06-15 | Dynamic team colors                       | Cool, contextual theming                 |
-| 2026-06-15 | Simple goal animation first               | Don't overcomplicate v1                  |
-| 2026-06-15 | @MainActor for MatchStore + PollController| Clean Swift 6 concurrency, no cross-iso  |
-| 2026-06-15 | Standing model → GroupStanding + StandingEntry | Match football-data.org's table structure |
+| Date       | Decision                                       | Rationale                                               |
+| ---------- | ---------------------------------------------- | ------------------------------------------------------- |
+| 2026-06-15 | football-data.org as primary API               | Free, reliable, live scores, WC support                 |
+| 2026-06-15 | Zero third-party dependencies                  | Tiny footprint, URLSession sufficient                   |
+| 2026-06-15 | 60s poll interval (configurable, min 60s)      | Balance between freshness and API limits                |
+| 2026-06-15 | Midnight auto-check when idle                  | No polling waste when no matches                        |
+| 2026-06-15 | Dynamic team colors                            | Cool, contextual theming                                |
+| 2026-06-15 | Simple goal animation first                    | Don't overcomplicate v1                                 |
+| 2026-06-15 | @MainActor for MatchStore + PollController     | Clean Swift 6 concurrency, no cross-iso                 |
+| 2026-06-15 | Standing model → GroupStanding + StandingEntry | Match football-data.org's table structure               |
+| 2026-06-15 | API key user-configurable in Settings          | Normal users shouldn't edit source code                 |
+| 2026-06-15 | API key stored in UserDefaults (@AppStorage)   | Matches existing pattern, good enough v1                |
+| 2026-06-15 | "No API key" error in header only              | Non-blocking onboarding, user finds Settings themselves |
+| 2026-06-15 | Full Schedule tab with date picker             | Spec required it, user chose to add now                 |
+| 2026-06-15 | FetchService.apiKey made mutable               | Allows runtime key updates from Settings                |
 
 ## Architecture Quick Reference
 
 - **App**: SwiftUI `MenuBarExtra` (.window style), macOS 14+
 - **State**: `@Observable @MainActor` MatchStore drives all views
 - **API**: football-data.org v4, URLSession, X-Auth-Token header
+- **API Key**: User-configurable in Settings tab, stored in UserDefaults
 - **Polling**: Task-based state machine (idle ↔ live), midnight UTC rollover
 - **Build**: XcodeGen (`project.yml`), Swift 6, strict concurrency
 
@@ -74,7 +84,7 @@ Sources/
     PollController.swift       # @MainActor class — polling state machine
   Views/
     MenuBarLabel.swift         # Compact menu bar (3 states + goal animation)
-    MenuBarPanel.swift         # Expanded panel (tabs, cards, standings, settings)
+    MenuBarPanel.swift         # Expanded panel (6 tabs: Today/Yesterday/Tomorrow/Schedule/Standings/Settings)
   Resources/
     Info.plist                 # LSUIElement = true (no Dock icon)
     Assets.xcassets/           # AccentColor (FIFA purple), AppIcon (placeholder)
@@ -82,7 +92,7 @@ Sources/
 
 ## Remaining Before Distribution
 
-1. **API Key**: Replace `REPLACE_WITH_YOUR_API_KEY` in FetchService with real key from football-data.org
+1. **API Key**: User enters their own key in Settings (no more hardcoded placeholder)
 2. **App Icon**: Create actual AppIcon assets (256x256, 128x128, etc.)
 3. **Xcode Build**: Full build with Xcode (not just `swiftc -parse`) to catch runtime issues
 4. **Real-world testing**: Test with live tournament data when WC 2026 starts

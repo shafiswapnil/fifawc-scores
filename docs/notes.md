@@ -25,7 +25,7 @@
 ## User Decisions (Locked In)
 
 1. **Featured match priority**: Show the match closest to a goal (highest elapsed time)
-2. **Panel views**: Previous day, Today, Tomorrow, Full Month schedule, Standings
+2. **Panel views**: Previous day, Today, Tomorrow, Full Schedule, Standings
 3. **Goal animation**: Tiny ⚨ slides left-to-right across menu bar text (keep it simple)
 4. **Polling**:
    - Live matches: 60 seconds (configurable, min 60s)
@@ -35,6 +35,12 @@
 6. **Tech**: Swift 6, SwiftUI, MenuBarExtra, URLSession, XcodeGen, macOS 14+
 7. **Dependencies**: ZERO third-party packages (pure native)
 8. **No auto-start**: User opens manually, app stays in menu bar
+9. **API key**: User-configurable in Settings tab (not hardcoded)
+   - Stored in UserDefaults via `@AppStorage`
+   - "No API key" error shown in panel header (non-blocking)
+   - Link to football-data.org registration in Settings
+10. **Full Schedule tab**: Added with date picker, shows all tournament matches grouped by date
+11. **Goal animation**: Simple text slide first, no complex animations for v1
 
 ---
 
