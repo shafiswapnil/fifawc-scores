@@ -206,7 +206,7 @@ struct MenuBarPanel: View {
 
                         // Upcoming matches (sorted by time)
                         let upcoming = matches
-                            .filter { !$0.status.hasStarted }
+                            .filter { !$0.effectiveStatus.hasStarted }
                             .sorted { $0.utcDate < $1.utcDate }
                         if !upcoming.isEmpty {
                             ForEach(upcoming) { match in
@@ -680,7 +680,7 @@ struct MatchCard: View {
                             .fill(.red)
                             .frame(width: 5, height: 5)
                             .opacity(scorePulse ? 1.0 : 0.3)
-                        Text(match.status.displayName)
+                        Text(match.effectiveStatus.displayName)
                             .foregroundStyle(.red)
                             .font(.caption2.weight(.medium))
                     }
@@ -697,7 +697,7 @@ struct MatchCard: View {
                     HStack(spacing: 2) {
                         Image(systemName: "clock")
                             .font(.system(size: 8))
-                        Text(match.status.displayName)
+                        Text(match.effectiveStatus.displayName)
                     }
                     .font(.caption2)
                 }

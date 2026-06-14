@@ -2,7 +2,7 @@ import Foundation
 
 /// Polling interval state — used by MatchStore to determine the right polling behavior.
 enum PollState: Equatable {
-    /// No live matches. Check again at midnight.
+    /// No live matches. Poll periodically to catch TIMED→IN_PLAY transitions.
     case idle
     /// Matches in progress. Poll at configured interval.
     case live
@@ -85,9 +85,15 @@ final class PollController {
         while !Task.isCancelled {
             switch state {
             case .idle:
-                // Wait until midnight for next-day check
-                await waitForMidnight()
+                // Poll every 120 s in idle to catch TIMED → IN_PLAY transitions.
+                // This is the key fix: we can't wait until midnight because we'd
+                // miss any match that kicks off between now and then.
+                try? await Task.sleep(for: .seconds(120))
                 if Task.isCancelled { break }
+
+                // Re-fetch data to catch status changes (TIMED→IN_PLAY, new day's matches)
+                await store?.sync()
+                updateState()
 
             case .live:
                 // Wait the configured interval then re-fetch
@@ -116,36 +122,5 @@ final class PollController {
         } else {
             state = .idle
         }
-    }
-
-    // MARK: - Midnight Wait
-
-    /// Wait until the next midnight (UTC) to check for new day's matches.
-    private func waitForMidnight() async {
-        let now = Date()
-
-        // Build next midnight UTC
-        var utcCalendar = Calendar.current
-        utcCalendar.timeZone = TimeZone(secondsFromGMT: 0)!
-
-        var components = utcCalendar.dateComponents([.year, .month, .day], from: now)
-        components.day! += 1
-        components.hour = 0
-        components.minute = 0
-        components.second = 5  // Small delay past midnight for API date rollover
-
-        let midnight = utcCalendar.date(from: components) ?? now.addingTimeInterval(3600)
-        let waitTime = midnight.timeIntervalSince(now)
-
-        // Safety: cap at 25 hours to avoid runaway sleeps
-        let safeWait = min(max(waitTime, 1), 90_000)
-
-        try? await Task.sleep(for: .seconds(safeWait))
-
-        guard !Task.isCancelled else { return }
-
-        // Fetch new day's data
-        await store?.sync()
-        updateState()
     }
 }

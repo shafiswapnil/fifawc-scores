@@ -59,11 +59,28 @@ actor FetchService {
     private var requestTimestamps: [Date] = []
     private let maxRequestsPerMinute = 10
 
+    /// Dynamic rate limit from API response headers.
+    /// X-RequestsAvailable: remaining requests before 429.
+    /// X-RequestCounter-Reset: seconds until the counter resets.
+    private var remainingRequests: Int = 10
+    private var resetInterval: TimeInterval = 60
+
     // MARK: - Init
 
     init(apiKey: String) {
         self.apiKey = apiKey
-        self.session = URLSession.shared
+
+        // Use a non-shared session with NO disk cache.
+        // URLSession.shared has a persistent on-disk cache that can serve
+        // stale match data (e.g. TIMED status) even after the API reports
+        // IN_PLAY. A dedicated session with .reloadIgnoringLocalCacheData
+        // ensures every fetch hits the network for real-time accuracy.
+        let config = URLSessionConfiguration.default
+        config.requestCachePolicy = .reloadIgnoringLocalCacheData
+        config.urlCache = nil  // No disk or memory cache
+        config.timeoutIntervalForRequest = 15
+        config.timeoutIntervalForResource = 30
+        self.session = URLSession(configuration: config)
 
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
@@ -145,6 +162,7 @@ actor FetchService {
         request.httpMethod = "GET"
         request.setValue(apiKey, forHTTPHeaderField: "X-Auth-Token")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
+        request.setValue("no-cache", forHTTPHeaderField: "Cache-Control")
         request.timeoutInterval = 15
 
         let data: Data
@@ -163,6 +181,17 @@ actor FetchService {
         // Record timestamp for rate limiting
         requestTimestamps.append(Date())
 
+        // Read API rate-limit headers for smarter throttling.
+        // See: https://docs.football-data.org/general/v4/lookup_tables.html
+        if let available = httpResponse.value(forHTTPHeaderField: "X-RequestsAvailable"),
+           let remaining = Int(available) {
+            remainingRequests = remaining
+        }
+        if let reset = httpResponse.value(forHTTPHeaderField: "X-RequestCounter-Reset"),
+           let seconds = Double(reset) {
+            resetInterval = seconds
+        }
+
         switch httpResponse.statusCode {
         case 200...299:
             do {
@@ -177,13 +206,22 @@ actor FetchService {
         }
     }
 
-    /// Simple rate limiter: ensures no more than 10 requests per minute.
+    /// Rate limiter: uses both local tracking and API response headers.
+    /// The API returns X-RequestsAvailable and X-RequestCounter-Reset headers
+    /// that tell us exactly how many requests remain and when the counter resets.
     private func enforceRateLimit() async {
         let oneMinuteAgo = Date().addingTimeInterval(-60)
         requestTimestamps = requestTimestamps.filter { $0 > oneMinuteAgo }
 
+        // If the API told us we're low on requests, wait until reset
+        if remainingRequests <= 2 {
+            try? await Task.sleep(for: .seconds(resetInterval + 1))
+            remainingRequests = maxRequestsPerMinute
+            return
+        }
+
+        // Fallback: local sliding window check
         if requestTimestamps.count >= maxRequestsPerMinute {
-            // Wait until the oldest request falls outside the window
             if let oldest = requestTimestamps.first {
                 let waitTime = oldest.addingTimeInterval(60).timeIntervalSinceNow
                 if waitTime > 0 {

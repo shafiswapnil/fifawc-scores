@@ -8,6 +8,8 @@ final class MatchStatusTests: XCTestCase {
         XCTAssertEqual(MatchStatus.timed.displayName, "Timed")
         XCTAssertEqual(MatchStatus.inPlay.displayName, "Live")
         XCTAssertEqual(MatchStatus.paused.displayName, "Half Time")
+        XCTAssertEqual(MatchStatus.extraTime.displayName, "Extra Time")
+        XCTAssertEqual(MatchStatus.penaltyShootout.displayName, "Penalties")
         XCTAssertEqual(MatchStatus.finished.displayName, "FT")
         XCTAssertEqual(MatchStatus.postponed.displayName, "Postponed")
         XCTAssertEqual(MatchStatus.suspended.displayName, "Suspended")
@@ -18,6 +20,8 @@ final class MatchStatusTests: XCTestCase {
     func testIsLive() {
         XCTAssertTrue(MatchStatus.inPlay.isLive)
         XCTAssertTrue(MatchStatus.paused.isLive)
+        XCTAssertTrue(MatchStatus.extraTime.isLive)
+        XCTAssertTrue(MatchStatus.penaltyShootout.isLive)
 
         XCTAssertFalse(MatchStatus.scheduled.isLive)
         XCTAssertFalse(MatchStatus.timed.isLive)
@@ -31,6 +35,8 @@ final class MatchStatusTests: XCTestCase {
     func testHasStarted() {
         XCTAssertTrue(MatchStatus.inPlay.hasStarted)
         XCTAssertTrue(MatchStatus.paused.hasStarted)
+        XCTAssertTrue(MatchStatus.extraTime.hasStarted)
+        XCTAssertTrue(MatchStatus.penaltyShootout.hasStarted)
         XCTAssertTrue(MatchStatus.finished.hasStarted)
 
         XCTAssertFalse(MatchStatus.scheduled.hasStarted)
@@ -47,13 +53,24 @@ final class MatchStatusTests: XCTestCase {
         XCTAssertEqual(status, .inPlay)
     }
 
+    func testExtraTimeDecoding() throws {
+        let json = "\"EXTRA_TIME\"".data(using: .utf8)!
+        let status = try JSONDecoder().decode(MatchStatus.self, from: json)
+        XCTAssertEqual(status, .extraTime)
+    }
+
+    func testPenaltyShootoutDecoding() throws {
+        let json = "\"PENALTY_SHOOTOUT\"".data(using: .utf8)!
+        let status = try JSONDecoder().decode(MatchStatus.self, from: json)
+        XCTAssertEqual(status, .penaltyShootout)
+    }
+
     func testAllCasesCovered() {
-        // Ensure our test covers every case
         let allCases: [MatchStatus] = [
-            .scheduled, .timed, .inPlay, .paused, .finished,
-            .postponed, .suspended, .cancelled, .awarded
+            .scheduled, .timed, .inPlay, .paused, .extraTime, .penaltyShootout,
+            .finished, .postponed, .suspended, .cancelled, .awarded
         ]
-        XCTAssertEqual(allCases.count, 9)
+        XCTAssertEqual(allCases.count, 11)
         for status in allCases {
             XCTAssertFalse(status.displayName.isEmpty, "\(status) has empty displayName")
         }

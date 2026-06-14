@@ -154,7 +154,7 @@ final class MatchStore {
     var nextMatch: Match? {
         let now = Date()
         let upcoming = allMatches.filter {
-            !$0.status.hasStarted && $0.utcDate > now
+            !$0.effectiveStatus.hasStarted && $0.utcDate > now
         }.sorted { $0.utcDate < $1.utcDate }
 
         if let fav = favoriteTeam {
@@ -186,7 +186,7 @@ final class MatchStore {
     var upcomingToday: [Match] {
         let now = Date()
         return todayMatches
-            .filter { !$0.status.hasStarted && $0.utcDate > now }
+            .filter { !$0.effectiveStatus.hasStarted && $0.utcDate > now }
             .sorted { $0.utcDate < $1.utcDate }
     }
 

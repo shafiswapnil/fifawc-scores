@@ -37,8 +37,8 @@ struct MenuBarLabel: View {
             return "FWC"
         }
 
-        switch match.status {
-        case .inPlay, .paused:
+        switch match.effectiveStatus {
+        case .inPlay, .paused, .extraTime, .penaltyShootout:
             // Live: "BRA 2 - 1 ARG · 67'"
             let h = match.homeScore ?? 0
             let a = match.awayScore ?? 0

@@ -19,20 +19,52 @@ struct Match: Codable, Sendable, Identifiable {
     /// Away team's current score.
     var awayScore: Int? { score.fullTime.away }
 
-    /// Whether this match is currently live.
-    var isLive: Bool { status.isLive }
+    // MARK: - Client-Side Status Inference
 
-    /// Whether this match has finished.
-    var isFinished: Bool { status == .finished }
+    /// The football-data.org free tier often returns stale `TIMED` status even
+    /// when a match is live (lastUpdated can be days old). We infer the real
+    /// status from the clock:
+    /// - 0–135 min after kickoff → assume IN_PLAY (live match window)
+    /// - >135 min after kickoff  → assume FINISHED (match ended)
+    /// - Matches that already have FINISHED/IN_PLAY from the API are trusted.
+    ///
+    /// A full match lasts ~105 min (2 halves + halftime). With extra time and
+    /// penalties, up to ~135 min. Beyond that, the match is done.
+    var effectiveStatus: MatchStatus {
+        // Trust explicit live/finished statuses from the API
+        if status == .finished || status.isLive || status == .extraTime || status == .penaltyShootout {
+            return status
+        }
 
-    /// The display string for the match time or score.
+        // For TIMED/SCHEDULED, check the clock
+        let now = Date()
+        let elapsed = now.timeIntervalSince(utcDate)
+        let matchWindow: TimeInterval = 135 * 60  // 135 minutes (2h15m)
+
+        guard elapsed > 0 else {
+            // Match hasn't started yet
+            return status
+        }
+
+        if elapsed < matchWindow {
+            // Within the live match window — the API just hasn't updated
+            return .inPlay
+        } else {
+            // Past the match window — it must be finished
+            return .finished
+        }
+    }
+
+    /// Whether this match is currently live (uses effective status).
+    var isLive: Bool { effectiveStatus.isLive }
+
+    /// Whether this match has finished (uses effective status).
+    var isFinished: Bool { effectiveStatus == .finished }
+
+    /// The display string for the match time or score (uses effective status).
     var displayText: String {
-        switch status {
-        case .inPlay, .paused:
-            let h = homeScore ?? 0
-            let a = awayScore ?? 0
-            return "\(h) - \(a)"
-        case .finished:
+        switch effectiveStatus {
+        case .inPlay, .paused, .extraTime, .penaltyShootout, .finished:
             let h = homeScore ?? 0
             let a = awayScore ?? 0
             return "\(h) - \(a)"
