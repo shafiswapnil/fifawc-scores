@@ -4,6 +4,8 @@ import SwiftUI
 /// with a `.window`-style `MenuBarExtra`.
 @main
 struct WCScoresApp: App {
+    @State private var store = MatchStore()
+
     var body: some Scene {
         MenuBarExtra {
             MenuBarPanel()
@@ -11,5 +13,9 @@ struct WCScoresApp: App {
             MenuBarLabel()
         }
         .menuBarExtraStyle(.window)
+        .environment(store)
+        .task {
+            store.startPolling()
+        }
     }
 }
