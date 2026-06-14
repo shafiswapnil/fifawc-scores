@@ -5,7 +5,7 @@
 
 ## Current Stage
 
-**Phase 1 complete (M1–M14). Phase 2 complete (M15–M18). Phase 3 complete (M19).** Full UI/UX redesign: glass material panel, 520px height, horizontal day pills, 12-team grid with search, live match experience with pulsing dot + team colors, hidden scrollbars, ±7 day schedule fetching.
+**Phase 1 complete (M1–M18). Phase 2 complete (M15–M18). Phase 3 complete (M19).** Full UI/UX redesign: glass material panel, 520px height, horizontal day pills, 12-team grid with search, live match experience with pulsing dot + team colors, hidden scrollbars, ±7 day schedule fetching. **Bug fixes**: PollController idle state now polls every 120s (was waiting until midnight). FetchService uses dedicated URLSession with no cache + Cache-Control: no-cache header (was using URLSession.shared which cached stale TIMED responses). **API compliance**: MatchStatus includes EXTRA_TIME + PENALTY_SHOOTOUT. Response-header-aware rate limiting (X-RequestsAvailable, X-RequestCounter-Reset). **CRITICAL FIX**: football-data.org free tier returns stale match status — API showed TIMED while match was actually LIVE for 32+ min. Implemented client-side status inference (`effectiveStatus`) that overrides stale API status using match clock logic (0–135 min after kickoff → infer IN_PLAY).
 
 ## Milestone Tracker
 
@@ -33,46 +33,51 @@
 
 ## Key Decisions Log
 
-| Date       | Decision                                                    | Rationale                                                                                    |
-| ---------- | ----------------------------------------------------------- | -------------------------------------------------------------------------------------------- | --- | ---------- | ---------------------------- | ------------------------------------------------------------------------------- |
-| 2026-06-15 | football-data.org as primary API                            | Free, reliable, live scores, WC support                                                      |
-| 2026-06-15 | Zero third-party dependencies                               | Tiny footprint, URLSession sufficient                                                        |
-| 2026-06-15 | 60s poll interval (configurable, min 60s)                   | Balance between freshness and API limits                                                     |
-| 2026-06-15 | Midnight auto-check when idle                               | No polling waste when no matches                                                             |
-| 2026-06-15 | Dynamic team colors                                         | Cool, contextual theming                                                                     |
-| 2026-06-15 | Simple goal animation first                                 | Don't overcomplicate v1                                                                      |
-| 2026-06-15 | @MainActor for MatchStore + PollController                  | Clean Swift 6 concurrency, no cross-iso                                                      |
-| 2026-06-15 | Standing model → GroupStanding + StandingEntry              | Match football-data.org's table structure                                                    |
-| 2026-06-15 | API key user-configurable in Settings                       | Normal users shouldn't edit source code                                                      |
-| 2026-06-15 | API key stored in UserDefaults (@AppStorage)                | Matches existing pattern, good enough v1                                                     |
-| 2026-06-15 | "No API key" error in header only                           | Non-blocking onboarding, user finds Settings themselves                                      |
-| 2026-06-15 | Full Schedule tab with date picker                          | Spec required it, user chose to add now                                                      |
-| 2026-06-15 | FetchService.apiKey made mutable                            | Allows runtime key updates from Settings                                                     |
-| 2026-06-15 | Sparkle for auto-updates (not custom)                       | Industry standard, handles version check + download + verify + replace                       |
-| 2026-06-15 | GitHub Releases as update feed                              | Free hosting, native GitHub API, no custom server needed                                     |
-| 2026-06-15 | Tag-driven CI/CD pipeline                                   | Automated build → sign → notarize → publish on tag push                                      |
-| 2026-06-15 | Version consistency: tag = MARKETING_VERSION                | Prevents false "update available" after installing latest                                    |
-| 2026-06-15 | PollInterval uses backing store, not didSet                 | @Observable + didSet self-assignment causes infinite recursion (crash)                       |
-| 2026-06-15 | Task wrapping for actor-isolated calls in didSet            | didSet is synchronous; actor calls need Task { await ... }                                   |
-| 2026-06-15 | Environment injected inside MenuBarExtra label              | .environment() on Scene is invalid; apply to View children only                              |
-| 2026-06-15 | PRODUCT_MODULE_NAME set explicitly                          | PRODUCT_NAME "FIFAWC Scores" creates module "FIFAWC_Scores"; tests import "FIFAWCSCORES"     |
-| 2026-06-15 | App renamed from WC Scores → FIFAWC Scores                  | Full rename across project, source, tests, CI/CD, docs, README. Bundle: com.fifawcscores.app |     | 2026-06-15 | Tab row scroll hint gradient | Trailing LinearGradient when tabs overflow 340px panel — hints at scrollability |
-| 2026-06-15 | Settings button added to footer (above Sync)                | Always-reachable shortcut to ⚙️ Settings tab, even when tab row is scrolled                  |
-| 2026-06-15 | Auto-show Settings tab on first launch                      | When no API key is set, panel opens on ⚙️ Settings so user can paste key immediately         |
-| 2026-06-15 | Sparkle startingUpdater = false                             | Suppresses EdDSA + appcast 404 warnings in console; manual check via "Check for Updates…"    |
-| 2026-06-15 | GitHub Pages site (docs/index.html)                         | Landing page inspired by prayer-times-macos; emoji-based, no screenshots yet, SEO structured |
-| 2026-06-16 | Full UI/UX redesign (M19)                                   | Glass material, 520px panel, day pills, 12-team grid, live experience, hidden scrollbars     |
-| 2026-06-16 | Panel height fixed at 520px                                 | Consistent size like prayer app; content scrolls inside                                      |
-| 2026-06-16 | Glass material: .ultraThinMaterial + .regularMaterial cards | Native macOS frosted glass look, modern and clean                                            |
-| 2026-06-16 | Horizontal day pills replacing DatePicker                   | 15-day scrollable row of date capsules; more visual, modern feel                             |
-| 2026-06-16 | MatchStore.fetchScheduleAround(\_:) for ±7 days             | Schedule tab fetches ±7 days around picker date; fixes empty schedule bug                    |
-| 2026-06-16 | 12 popular teams + TLA search for favorites                 | Expanded from 6 hardcoded to 12 + search field; all 48 nations searchable                    |
-| 2026-06-16 | Unified Settings fonts (.caption.weight(.medium))           | Consistent typography across all Settings sections                                           |
-| 2026-06-16 | Hidden scrollbars (.scrollIndicators(.hidden))              | Cleaner look; content scrolls naturally without visible scroll chrome                        |
-| 2026-06-16 | Pulsing red dot for live matches                            | 1s ease-in-out repeat animation on header + MatchCard live indicator                         |
-| 2026-06-16 | TeamColors on live match cards                              | Home/away team TLA shown in team color; card border tinted with home team color              |
-| 2026-06-16 | Removed black LinearGradient scroll hint                    | Was unprofessional; replaced with natural scroll + hidden indicators                         |
-| 2026-06-16 | MenuBarLabel "FWC" text verified correct                    | Shows "FWC" only when no featuredMatch; shows match data once API loads                      |
+| Date       | Decision                                                    | Rationale                                                                                                                            |
+| ---------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | --- | ---------- | ---------------------------- | ------------------------------------------------------------------------------- |
+| 2026-06-15 | football-data.org as primary API                            | Free, reliable, live scores, WC support                                                                                              |
+| 2026-06-15 | Zero third-party dependencies                               | Tiny footprint, URLSession sufficient                                                                                                |
+| 2026-06-15 | 60s poll interval (configurable, min 60s)                   | Balance between freshness and API limits                                                                                             |
+| 2026-06-15 | Midnight auto-check when idle                               | No polling waste when no matches                                                                                                     |
+| 2026-06-15 | Dynamic team colors                                         | Cool, contextual theming                                                                                                             |
+| 2026-06-15 | Simple goal animation first                                 | Don't overcomplicate v1                                                                                                              |
+| 2026-06-15 | @MainActor for MatchStore + PollController                  | Clean Swift 6 concurrency, no cross-iso                                                                                              |
+| 2026-06-15 | Standing model → GroupStanding + StandingEntry              | Match football-data.org's table structure                                                                                            |
+| 2026-06-15 | API key user-configurable in Settings                       | Normal users shouldn't edit source code                                                                                              |
+| 2026-06-15 | API key stored in UserDefaults (@AppStorage)                | Matches existing pattern, good enough v1                                                                                             |
+| 2026-06-15 | "No API key" error in header only                           | Non-blocking onboarding, user finds Settings themselves                                                                              |
+| 2026-06-15 | Full Schedule tab with date picker                          | Spec required it, user chose to add now                                                                                              |
+| 2026-06-15 | FetchService.apiKey made mutable                            | Allows runtime key updates from Settings                                                                                             |
+| 2026-06-15 | Sparkle for auto-updates (not custom)                       | Industry standard, handles version check + download + verify + replace                                                               |
+| 2026-06-15 | GitHub Releases as update feed                              | Free hosting, native GitHub API, no custom server needed                                                                             |
+| 2026-06-15 | Tag-driven CI/CD pipeline                                   | Automated build → sign → notarize → publish on tag push                                                                              |
+| 2026-06-15 | Version consistency: tag = MARKETING_VERSION                | Prevents false "update available" after installing latest                                                                            |
+| 2026-06-15 | PollInterval uses backing store, not didSet                 | @Observable + didSet self-assignment causes infinite recursion (crash)                                                               |
+| 2026-06-15 | Task wrapping for actor-isolated calls in didSet            | didSet is synchronous; actor calls need Task { await ... }                                                                           |
+| 2026-06-15 | Environment injected inside MenuBarExtra label              | .environment() on Scene is invalid; apply to View children only                                                                      |
+| 2026-06-15 | PRODUCT_MODULE_NAME set explicitly                          | PRODUCT_NAME "FIFAWC Scores" creates module "FIFAWC_Scores"; tests import "FIFAWCSCORES"                                             |
+| 2026-06-15 | App renamed from WC Scores → FIFAWC Scores                  | Full rename across project, source, tests, CI/CD, docs, README. Bundle: com.fifawcscores.app                                         |     | 2026-06-15 | Tab row scroll hint gradient | Trailing LinearGradient when tabs overflow 340px panel — hints at scrollability |
+| 2026-06-15 | Settings button added to footer (above Sync)                | Always-reachable shortcut to ⚙️ Settings tab, even when tab row is scrolled                                                          |
+| 2026-06-15 | Auto-show Settings tab on first launch                      | When no API key is set, panel opens on ⚙️ Settings so user can paste key immediately                                                 |
+| 2026-06-15 | Sparkle startingUpdater = false                             | Suppresses EdDSA + appcast 404 warnings in console; manual check via "Check for Updates…"                                            |
+| 2026-06-15 | GitHub Pages site (docs/index.html)                         | Landing page inspired by prayer-times-macos; emoji-based, no screenshots yet, SEO structured                                         |
+| 2026-06-16 | Full UI/UX redesign (M19)                                   | Glass material, 520px panel, day pills, 12-team grid, live experience, hidden scrollbars                                             |
+| 2026-06-16 | Panel height fixed at 520px                                 | Consistent size like prayer app; content scrolls inside                                                                              |
+| 2026-06-16 | Glass material: .ultraThinMaterial + .regularMaterial cards | Native macOS frosted glass look, modern and clean                                                                                    |
+| 2026-06-16 | Horizontal day pills replacing DatePicker                   | 15-day scrollable row of date capsules; more visual, modern feel                                                                     |
+| 2026-06-16 | MatchStore.fetchScheduleAround(\_:) for ±7 days             | Schedule tab fetches ±7 days around picker date; fixes empty schedule bug                                                            |
+| 2026-06-16 | 12 popular teams + TLA search for favorites                 | Expanded from 6 hardcoded to 12 + search field; all 48 nations searchable                                                            |
+| 2026-06-16 | Unified Settings fonts (.caption.weight(.medium))           | Consistent typography across all Settings sections                                                                                   |
+| 2026-06-16 | Hidden scrollbars (.scrollIndicators(.hidden))              | Cleaner look; content scrolls naturally without visible scroll chrome                                                                |
+| 2026-06-16 | Pulsing red dot for live matches                            | 1s ease-in-out repeat animation on header + MatchCard live indicator                                                                 |
+| 2026-06-16 | TeamColors on live match cards                              | Home/away team TLA shown in team color; card border tinted with home team color                                                      |
+| 2026-06-16 | Removed black LinearGradient scroll hint                    | Was unprofessional; replaced with natural scroll + hidden indicators                                                                 |
+| 2026-06-16 | MenuBarLabel "FWC" text verified correct                    | Shows "FWC" only when no featuredMatch; shows match data once API loads                                                              |
+| 2026-06-16 | PollController idle state polls every 120s                  | Was sleeping until midnight → missed TIMED→IN_PLAY transitions. Now catches them in ≤2 min                                           |
+| 2026-06-16 | FetchService uses dedicated URLSession (no cache)           | URLSession.shared cached stale TIMED responses on disk; .reloadIgnoringLocalCacheData + no urlCache + Cache-Control: no-cache header |
+| 2026-06-16 | MatchStatus: added EXTRA_TIME + PENALTY_SHOOTOUT            | API returns these for extra time/penalties; missing cases caused JSON decode failures                                                |
+| 2026-06-16 | Response-header rate limiting (X-RequestsAvailable)         | API email warned about throttling; now reads X-RequestsAvailable + X-RequestCounter-Reset headers                                    |
+| 2026-06-16 | Client-side status inference (`effectiveStatus`)            | football-data.org free tier returns stale TIMED status even when match is LIVE; clock-based inference overrides stale API data       |
 
 ## Architecture Quick Reference
 
@@ -80,7 +85,9 @@
 - **State**: `@Observable @MainActor` MatchStore drives all views
 - **API**: football-data.org v4, URLSession, X-Auth-Token header
 - **API Key**: User-configurable in Settings tab, stored in UserDefaults
-- **Polling**: Task-based state machine (idle ↔ live), midnight UTC rollover
+- **Polling**: Task-based state machine (idle ↔ live), 120s idle polling, no-cache URLSession
+- **Status Inference**: `Match.effectiveStatus` overrides stale API status using match clock logic (0–135 min after kickoff → IN_PLAY)
+- **Rate Limiting**: Response-header-aware (X-RequestsAvailable, X-RequestCounter-Reset) + local sliding window
 - **Build**: XcodeGen (`project.yml`), Swift 6, strict concurrency
 
 ## File Structure
