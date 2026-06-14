@@ -12,7 +12,7 @@ struct FIFAWCScoresApp: App {
         // Sparkle: automatic background checks enabled by default.
         // Feed URL is set via SUFeedURL in Info.plist → GitHub Releases API.
         updaterController = SPUStandardUpdaterController(
-            startingUpdater: true,
+            startingUpdater: false,
             updaterDelegate: nil,
             userDriverDelegate: nil
         )
