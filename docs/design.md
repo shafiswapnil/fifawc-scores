@@ -1,0 +1,240 @@
+# Design Decisions — WC Scores
+
+## Color Scheme: Dynamic Team Theming
+
+### Primary Approach
+
+Colors adapt to the currently featured match:
+
+- **Home team primary color** → accent for menu bar text, card borders, active states
+- **Away team primary color** → secondary accent
+- Default (no featured match or idle) → FIFA purple (`#56006B`)
+
+### Team Color Palette (FIFA WC 2026 Participants)
+
+| Team            | Primary                | Secondary           |
+| --------------- | ---------------------- | ------------------- |
+| 🇦🇷 Argentina    | `#75AADB` (light blue) | `#FFFFFF` (white)   |
+| 🇧🇷 Brazil       | `#FFDF00` (yellow)     | `#009C3B` (green)   |
+| 🇫🇷 France       | `#002395` (blue)       | `#ED2939` (red)     |
+| 🇩🇪 Germany      | `#000000` (black)      | `#DD0000` (red)     |
+| 🇪🇸 Spain        | `#AA151B` (red)        | `#F1BF00` (yellow)  |
+| 🇬🇧 England      | `#FFFFFF` (white)      | `#CF081F` (red)     |
+| 🇵🇹 Portugal     | `#006600` (green)      | `#FF0000` (red)     |
+| 🇳🇱 Netherlands  | `#FF6600` (orange)     | `#21468B` (blue)    |
+| 🇧🇪 Belgium      | `#000000` (black)      | `#FDDA24` (yellow)  |
+| 🇮🇹 Italy        | `#008C45` (green)      | `#CD212A` (red)     |
+| 🇺🇾 Uruguay      | `#5DCBEF` (sky blue)   | `#FCE300` (yellow)  |
+| 🇨🇴 Colombia     | `#FCD116` (yellow)     | `#003893` (blue)    |
+| 🇲🇽 Mexico       | `#006847` (green)      | `#CE1126` (red)     |
+| 🇺🇸 USA          | `#3C3B6E` (navy)       | `#B22234` (red)     |
+| 🇯🇵 Japan        | `#BC002D` (red)        | `#FFFFFF` (white)   |
+| 🇰🇷 South Korea  | `#003478` (blue)       | `#C60C30` (red)     |
+| 🇦🇺 Australia    | `#00843D` (green)      | `#00008B` (navy)    |
+| 🇲🇦 Morocco      | `#C1272D` (red)        | `#006233` (green)   |
+| 🇸🇳 Senegal      | `#00853F` (green)      | `#EF3340` (red)     |
+| 🇨🇲 Cameroon     | `#007A5E` (green)      | `#CE1126` (red)     |
+| 🇳🇬 Nigeria      | `#008751` (green)      | `#FFFFFF` (white)   |
+| 🇬🇭 Ghana        | `#006B3F` (green)      | `#FCD116` (yellow)  |
+| 🇵🇱 Poland       | `#FFFFFF` (white)      | `#DC143C` (crimson) |
+| 🇨🇭 Switzerland  | `#FF0000` (red)        | `#FFFFFF` (white)   |
+| 🇩🇰 Denmark      | `#C8102E` (red)        | `#FFFFFF` (white)   |
+| 🇸🇪 Sweden       | `#006AA7` (blue)       | `#FECC02` (yellow)  |
+| 🇨🇷 Costa Rica   | `#00238C` (blue)       | `#EF0B29` (red)     |
+| 🇵🇾 Paraguay     | `#D52B1E` (red)        | `#0038A8` (blue)    |
+| 🇺🇿 Uzbekistan   | `#1EB53A` (green)      | `#0099B5` (teal)    |
+| 🇸🇦 Saudi Arabia | `#006C35` (green)      | `#FFFFFF` (white)   |
+| 🇮🇷 Iran         | `#239F40` (green)      | `#DA0000` (red)     |
+| 🇮🇶 Iraq         | `#CE1126` (red)        | `#007A3D` (green)   |
+| 🇯🇴 Jordan       | `#000000` (black)      | `#CE1126` (red)     |
+| 🇦🇪 UAE          | `#FF0000` (red)        | `#00732F` (green)   |
+| 🇶🇦 Qatar        | `#8D1B3D` (maroon)     | `#FFFFFF` (white)   |
+| 🇧🇭 Bahrain      | `#CE1126` (red)        | `#FFFFFF` (white)   |
+| 🇴🇲 Oman         | `#007A3D` (green)      | `#C8102E` (red)     |
+| 🇱🇧 Lebanon      | `#EE161F` (red)        | `#00A551` (green)   |
+| 🇦🇺 Australia    | `#00843D` (green)      | `#FFCD00` (gold)    |
+| 🇳🇿 New Zealand  | `#000000` (black)      | `#FFFFFF` (white)   |
+| 🇨🇦 Canada       | `#FF0000` (red)        | `#FFFFFF` (white)   |
+| 🇨🇺 Cuba         | `#002A8F` (blue)       | `#CF142B` (red)     |
+| 🇯🇲 Jamaica      | `#009B3A` (green)      | `#FED100` (yellow)  |
+| 🇭🇹 Haiti        | `#00209F` (blue)       | `#D21034` (red)     |
+| 🇵🇦 Panama       | `#003DA5` (blue)       | `#C8102E` (red)     |
+| 🇬🇹 Guatemala    | `#4997D0` (blue)       | `#4997D0` (blue)    |
+| 🇸🇻 El Salvador  | `#0047AB` (blue)       | `#0047AB` (blue)    |
+| 🇭🇳 Honduras     | `#0073CF` (blue)       | `#0073CF` (blue)    |
+| 🇳🇮 Nicaragua    | `#0067C6` (blue)       | `#0067C6` (blue)    |
+| 🇨🇼 Curaçao      | `#00A5D9` (blue)       | `#F9D616` (yellow)  |
+
+### Color Application Rules
+
+1. **Menu bar label**: Team primary color for text, or `.primary` (system) when idle.
+2. **Panel header**: Gradient from home team primary → away team primary (subtle).
+3. **Match card borders**: Home team color at 20% opacity.
+4. **Live indicator**: Pulsing dot in home team primary color.
+5. **Goal animation**: Football emoji in team primary color.
+6. **Standings header**: FIFA purple (`#56006B`) — neutral.
+7. **Fallback**: If team not in dictionary, use `.accentColor` (system).
+
+---
+
+## Menu Bar Label Design
+
+### Typography
+
+- SF Pro Text, 13px (standard menu bar size).
+- `.monospacedDigit()` for scores and countdowns.
+
+### States
+
+#### Idle (no match today)
+
+```
+⚽ WC
+```
+
+- Icon: ⚨ emoji or SF Symbol `figure.soccer`
+- Text: "WC" in `.secondary` color
+
+#### Upcoming
+
+```
+⚽ BRA vs ARG · 3:00 PM
+```
+
+- Icon: ⚽
+- Team names in home team primary color
+- Time in `.secondary`
+
+#### Live
+
+```
+⚽ BRA 2 - 1 ARG · 67'
+```
+
+- Score in bold
+- Live minute with pulsing dot
+- Home team color accent
+
+---
+
+## Panel Design
+
+### Dimensions
+
+- Width: 340px (fixed, like the prayer app's 300px)
+- Height: Dynamic based on content
+- Max height: 500px (scrollable)
+
+### Background
+
+- `.ultraThinMaterial` with backdrop blur (native macOS material)
+- Rounded corners: 11px (matches macOS system panels)
+
+### Match Card Layout
+
+```
+┌──────────────────────────────────┐
+│  🇧🇷  BRA  2 - 1  ARG  🇦🇷       │
+│  ⏱ 67'  ·  Group A              │
+└──────────────────────────────────┘
+```
+
+- 60px height per card
+- Teams: abbreviated (3-letter code) with flag emoji
+- Score: centered, bold, monospaced
+- Status line: minute/status + group
+
+### Tab Design
+
+- Horizontal pill-style tabs
+- Active tab: filled with accent color
+- Inactive: text only with hover highlight
+- Scrollable if overflow
+
+### Footer
+
+- Three buttons: Sync, Settings, Quit
+- Each as a full-width row with icon + label
+- Hover highlight (like the prayer app's `MenuRowHighlight`)
+
+---
+
+## Goal Animation Design
+
+### Concept
+
+When a goal is detected, a tiny football emoji slides across the menu bar
+text area — a subtle but delightful "goal!" moment.
+
+### Implementation
+
+```swift
+struct GoalAnimation: View {
+    @State private var offset: CGFloat = -20
+    @State private var opacity: Double = 0
+
+    var body: some View {
+        Text("⚽")
+            .font(.system(size: 11))
+            .offset(x: offset)
+            .opacity(opacity)
+            .onAppear {
+                withAnimation(.easeInOut(duration: 1.5)) {
+                    offset = 200
+                    opacity = 1
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                    withAnimation { opacity = 0 }
+                }
+            }
+    }
+}
+```
+
+### Timing
+
+1. Score change detected in `PollController`.
+2. `MatchStore.goalScored` flag set to `true`.
+3. `MenuBarLabel` shows `GoalAnimation` overlay.
+4. After 1.5s, animation auto-removes.
+5. Flag reset after animation completes.
+
+---
+
+## Standings View Design
+
+### Group Table Layout
+
+```
+┌──────────────────────────────────┐
+│  GROUP A                        │
+│  # Team       P  W  D  L  Pts   │
+│  1 Brazil     3  2  1  0   7    │
+│  2 Argentina  3  2  0  1   6    │
+│  3 Uruguay    3  1  1  1   4    │
+│  4 Saudi Arb  3  0  0  3   0    │
+└──────────────────────────────────┘
+```
+
+- Groups A through H
+- Compact table: position, team, P, W, D, L, Pts
+- Highlight qualified teams (top 2) with green dot
+- Scrollable if many groups
+
+---
+
+## Accessibility
+
+- VoiceOver labels for all interactive elements.
+- Match cards read as: "Brazil two, Argentina one, 67 minutes, Group A".
+- Tab labels are self-descriptive.
+- Sync button has clear state feedback.
+
+---
+
+## Dark Mode Support
+
+- All colors work in both light and dark mode.
+- Team colors are applied with appropriate opacity for each mode.
+- Panel background uses `.ultraThinMaterial` which adapts automatically.
+- Text uses `.primary`, `.secondary`, `.tertiary` semantic colors.

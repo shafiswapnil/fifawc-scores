@@ -1,0 +1,22 @@
+prayer-times-macos/
+
+# Xcode
+*.xcodeproj/
+!project.yml
+*.xcworkspace/
+build/
+DerivedData/
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Swift
+.build/
+.swiftpm/
+Packages/
+
+# macOS
+.DS_Store
+*.swp
+*~
