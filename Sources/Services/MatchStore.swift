@@ -218,6 +218,34 @@ final class MatchStore {
         await fetchAllData()
     }
 
+    /// Fetch matches for the schedule tab (±7 days around a date).
+    /// Called when user picks a date in the Schedule tab.
+    func fetchScheduleAround(_ date: Date) async {
+        guard hasApiKey else { return }
+
+        let cal = Calendar.current
+        guard let startDate = cal.date(byAdding: .day, value: -7, to: date),
+              let endDate = cal.date(byAdding: .day, value: 7, to: date) else { return }
+
+        do {
+            let matches = try await fetchService.fetchMatches(from: startDate, to: endDate)
+
+            var grouped: [String: [Match]] = [:]
+            for match in matches {
+                let key = dateString(for: match.utcDate)
+                grouped[key, default: []].append(match)
+            }
+
+            for (key, dayMatches) in grouped {
+                matchesByDate[key] = dayMatches.sorted { $0.utcDate < $1.utcDate }
+            }
+
+            detectGoals(newMatches: matches)
+        } catch {
+            // Silent fail for schedule — don't overwrite main error
+        }
+    }
+
     // MARK: - Data Fetching
 
     /// Fetch all needed data: today, yesterday, tomorrow matches + standings.
