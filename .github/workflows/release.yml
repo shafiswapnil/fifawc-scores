@@ -1,0 +1,162 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  release:
+    name: Build, Sign & Release
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      # ── Validate version tag matches project.yml ──
+      - name: Validate version consistency
+        run: |
+          TAG_VERSION="${GITHUB_REF#refs/tags/v}"
+          PLIST_VERSION=$(/usr/libexec/PlistBuddy -c "Print :MARKETING_VERSION" project.yml 2>/dev/null || \
+            grep 'MARKETING_VERSION:' project.yml | sed 's/.*"\(.*\)".*/\1/')
+          if [ "$TAG_VERSION" != "$PLIST_VERSION" ]; then
+            echo "::error::Tag version ($TAG_VERSION) does not match project.yml MARKETING_VERSION ($PLIST_VERSION)"
+            exit 1
+          fi
+          echo "VERSION=$TAG_VERSION" >> "$GITHUB_ENV"
+
+      # ── Swift syntax check ──
+      - name: Parse check
+        run: |
+          swiftc -parse Sources/**/*.swift \
+            -sdk /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk \
+            -target arm64-apple-macosx14.0
+
+      # ── Generate & build ──
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Build
+        run: |
+          xcodebuild -project WCSCORES.xcodeproj -scheme WCSCORES \
+            -configuration Release -destination 'platform=macOS' \
+            CODE_SIGNING_ALLOWED=NO build
+
+      # ── Find the built .app ──
+      - name: Locate .app bundle
+        run: |
+          APP_PATH=$(find build -name "WC Scores.app" -type d | head -1)
+          if [ -z "$APP_PATH" ]; then
+            echo "::error::Could not find .app bundle in build/"
+            exit 1
+          fi
+          echo "APP_PATH=$APP_PATH" >> "$GITHUB_ENV"
+
+      # ── Archive ──
+      - name: Create zip archive
+        run: |
+          cd "$(dirname "$APP_PATH")"
+          zip -r -y "WCSCORES-${{ env.VERSION }}.zip" "$(basename "$APP_PATH")"
+          echo "ARCHIVE_PATH=$(pwd)/WCSCORES-${{ env.VERSION }}.zip" >> "$GITHUB_ENV"
+
+      # ── Code sign (conditional — only if secret is set) ──
+      - name: Import signing certificate
+        if: env.DEVELOPER_ID_CERTIFICATE != ''
+        env:
+          DEVELOPER_ID_CERTIFICATE: ${{ secrets.DEVELOPER_ID_CERTIFICATE }}
+          CERTIFICATE_PASSWORD: ${{ secrets.CERTIFICATE_PASSWORD }}
+        run: |
+          KEYCHAIN_PATH=$RUNNER_TEMP/signing.keychain-db
+          CERT_PATH=$RUNNER_TEMP/certificate.p12
+
+          echo -n "$DEVELOPER_ID_CERTIFICATE" | base64 --decode > "$CERT_PATH"
+
+          security create-keychain -p "" "$KEYCHAIN_PATH"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+          security unlock-keychain -p "" "$KEYCHAIN_PATH"
+          security import "$CERT_PATH" -P "$CERTIFICATE_PASSWORD" \
+            -A -t cert -f pkcs12 -k "$KEYCHAIN_PATH"
+          security set-key-partition-list -S apple-tool:,apple: \
+            -k "" "$KEYCHAIN_PATH"
+          security list-keychain -d user -s "$KEYCHAIN_PATH"
+
+          KEY_SHA=$(security find-identity -v -p codesigning "$KEYCHAIN_PATH" | \
+            grep "Developer ID Application" | head -1 | awk '{print $2}')
+          echo "SIGNING_IDENTITY=$KEY_SHA" >> "$GITHUB_ENV"
+
+      - name: Code sign
+        if: env.SIGNING_IDENTITY != ''
+        run: |
+          codesign --force --deep --sign "$SIGNING_IDENTITY" \
+            --options runtime --timestamp "$APP_PATH"
+
+      # ── Notarize (conditional) ──
+      - name: Notarize
+        if: env.APPLE_ID != ''
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          NOTARIZATION_PASSWORD: ${{ secrets.NOTARIZATION_PASSWORD }}
+        run: |
+          ditto -c -k --keepParent "$APP_PATH" "$RUNNER_TEMP/staging.zip"
+          xcrun notarytool submit "$RUNNER_TEMP/staging.zip" \
+            --apple-id "$APPLE_ID" \
+            --team-id "$APPLE_TEAM_ID" \
+            --password "$NOTARIZATION_PASSWORD" \
+            --wait
+          xcrun stapler staple "$APP_PATH"
+
+          # Re-zip with stapled .app
+          cd "$(dirname "$APP_PATH")"
+          rm -f "WCSCORES-${{ env.VERSION }}.zip"
+          zip -r -y "WCSCORES-${{ env.VERSION }}.zip" "$(basename "$APP_PATH")"
+          echo "ARCHIVE_PATH=$(pwd)/WCSCORES-${{ env.VERSION }}.zip" >> "$GITHUB_ENV"
+
+      # ── Cleanup keychain ──
+      - name: Cleanup keychain
+        if: always()
+        run: security delete-keychain "$RUNNER_TEMP/signing.keychain-db" 2>/dev/null || true
+
+      # ── Update appcast.xml (for Sparkle) ──
+      - name: Update appcast.xml
+        run: |
+          BUNDLE_VERSION=$(/usr/libexec/PlistBuddy -c "Print :CFBundleVersion" "$APP_PATH/Contents/Info.plist" || echo "1")
+          APP_SIZE=$(stat -f%z "$ARCHIVE_PATH")
+          DOWNLOAD_URL="https://github.com/${{ github.repository }}/releases/download/v${{ env.VERSION }}/WCSCORES-${{ env.VERSION }}.zip"
+          PUB_DATE=$(date -R)
+
+          cat > docs/appcast.xml << XML
+          <?xml version="1.0" standalone="yes"?>
+          <rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
+              <channel>
+                  <title>WC Scores</title>
+                  <item>
+                      <title>v${{ env.VERSION }}</title>
+                      <pubDate>${PUB_DATE}</pubDate>
+                      <sparkle:version>${BUNDLE_VERSION}</sparkle:version>
+                      <sparkle:shortVersionString>${{ env.VERSION }}</sparkle:shortVersionString>
+                      <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+                      <enclosure
+                          url="${DOWNLOAD_URL}"
+                          length="${APP_SIZE}"
+                          type="application/octet-stream"
+                          sparkle:edSignature=""
+                      />
+                  </item>
+              </channel>
+          </rss>
+          XML
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/appcast.xml
+          git commit -m "chore: update appcast.xml for v${{ env.VERSION }}" || true
+          git push
+
+      # ── Create GitHub Release ──
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ env.ARCHIVE_PATH }}
+          generate_release_notes: true
+          draft: false
+          prerelease: false

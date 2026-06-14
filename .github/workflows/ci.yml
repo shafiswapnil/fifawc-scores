@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    name: Parse & Build
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Swift syntax check
+        run: |
+          swiftc -parse Sources/**/*.swift \
+            -sdk /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk \
+            -target arm64-apple-macosx14.0
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Build
+        run: |
+          xcodebuild -project WCSCORES.xcodeproj -scheme WCSCORES \
+            -configuration Debug -destination 'platform=macOS' \
+            CODE_SIGNING_ALLOWED=NO build
+
+  test-suite:
+    name: Unit Tests
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Run tests
+        run: |
+          xcodebuild test -project WCSCORES.xcodeproj -scheme WCScoreTests \
+            -destination 'platform=macOS' \
+            CODE_SIGNING_ALLOWED=NO
