@@ -652,7 +652,7 @@ struct MatchCard: View {
                         .font(.system(size: 15))
                     Text(match.homeTeam.tla)
                         .font(.caption.weight(.semibold))
-                        .foregroundStyle(isLiveHighlight ? TeamColors.color(for: match.homeTeam.tla) : .primary)
+                        .foregroundStyle(isLiveHighlight ? TeamColors.forTeam(match.homeTeam.tla).primary : .primary)
                 }
                 .frame(minWidth: 60, alignment: .leading)
 
@@ -670,7 +670,7 @@ struct MatchCard: View {
                 HStack(spacing: 4) {
                     Text(match.awayTeam.tla)
                         .font(.caption.weight(.semibold))
-                        .foregroundStyle(isLiveHighlight ? TeamColors.color(for: match.awayTeam.tla) : .primary)
+                        .foregroundStyle(isLiveHighlight ? TeamColors.forTeam(match.awayTeam.tla).primary : .primary)
                     Text(match.awayTeam.flagEmoji)
                         .font(.system(size: 15))
                 }
@@ -732,14 +732,14 @@ struct MatchCard: View {
                 .overlay(
                     RoundedRectangle(cornerRadius: 8)
                         .fill(isLiveHighlight
-                              ? TeamColors.color(for: match.homeTeam.tla).opacity(0.06)
+                              ? TeamColors.forTeam(match.homeTeam.tla).primary.opacity(0.06)
                               : Color.clear)
                 )
         )
         .overlay(
             RoundedRectangle(cornerRadius: 8)
                 .stroke(isLiveHighlight
-                        ? TeamColors.color(for: match.homeTeam.tla).opacity(0.2)
+                        ? TeamColors.forTeam(match.homeTeam.tla).primary.opacity(0.2)
                         : Color.clear, lineWidth: 0.5)
         )
     }
