@@ -21,4 +21,4 @@ initiate required md files for this whole app. so that you dont forget any goal,
 - also maintain a md file where you will be writing internal notes, i am also maintaining a prompt.md file where i am writing all the propmts. so in later how many agents or llm is used in this project, they should know - in which stage is this project is.
 - start the phase 1.
 
-4: update required docs, status docs, also i saw input for API key, remember to add settings tab and all. keep all variables in the settings. if you already did, cross check again.
+4: 
