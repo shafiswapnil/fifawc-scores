@@ -230,3 +230,27 @@ can we make it to FIFAWC Scores? do this rename on both internal and external go
 3. then how do i publish the first release of this on github. give guide.
 4. write this in personal readme so that i can read and follow from here.
 5. what licence should be added to this repo? copyright it to me.
+
+---
+
+## Prompt 15
+
+fix 3 bugs from running the app: (1) tab row overflow — Settings ⚙️ tab cut off, can't reach API key input, (2) no API key prompt on first launch, (3) Sparkle EdDSA + appcast 404 warnings in console.
+
+**Summary:** Widened nothing — added trailing fade gradient to hint at scrollable tabs. Added auto-show Settings when no API key set. Changed Sparkle startingUpdater to false.
+
+---
+
+## Prompt 16
+
+add Settings button above Sync in the footer. make Settings accessible even when ⚙️ tab is scrolled off.
+
+**Summary:** Added ⚙️ Settings button to footer, above Sync and Quit. Scrolls to Settings tab on tap.
+
+---
+
+## Prompt 17
+
+verify swift code compiles, build it, check all good, then update required docs, READMEs, index.html. complete everything 0 to 100%.
+
+**Summary:** swiftc -parse clean (all 11 source + test files). Updated status.md (6 new decisions), CLAUDE.md (current status), README.md (features + website section), prompts.md (this log). GitHub Pages index.html verified correct.
