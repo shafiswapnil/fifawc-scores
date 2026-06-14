@@ -110,12 +110,89 @@
 - Build-from-source instructions (XcodeGen)
 - API key setup guide, settings reference, architecture diagram
 
+### M15: Auto-Update via Sparkle
+
+- Add **Sparkle** via Swift Package Manager (SPM) — the industry-standard
+  macOS update framework (used by VS Code, Discord, Rectangle, etc.)
+- Add `SPUStandardUpdaterController` to `WCScoresApp`
+- Add **"Check for Updates"** button in Settings tab
+- Configure Sparkle feed URL → GitHub Releases API:
+  `https://api.github.com/repos/{owner}/fifawc-scores/releases/latest`
+- Sparkle handles: version comparison, download, Ed25519 signature
+  verification, app replacement, and restart
+- Add `SUFeedURL` to `Info.plist` pointing to GitHub Releases
+- Update `CLAUDE.md` to note Sparkle as the one allowed third-party
+  dependency (it's a framework, not a bloated library)
+
+**Version consistency is critical:**
+- `MARKETING_VERSION` in `project.yml` must match the git tag
+  (e.g. tag `v1.1.0` → `MARKETING_VERSION: "1.1.0"`)
+- Sparkle compares `CFBundleShortVersionString` (from `MARKETING_VERSION`)
+  against the GitHub release tag to determine if an update is available
+
+### M16: GitHub Actions CI/CD Pipeline
+
+- Create `.github/workflows/release.yml`
+- **Trigger:** push of a version tag (`v*`)
+- **Jobs:**
+  1. **Test** — `swiftc -parse` all sources, validate no warnings
+  2. **Build** — `xcodebuild` on `macos-14` runner, produce `.app` bundle
+  3. **Archive** — create `.zip` from `.app`
+  4. **Sign** — codesign with Developer ID certificate (stored as
+     GitHub Secrets: `DEVELOPER_ID_CERTIFICATE`, `CERTIFICATE_PASSWORD`)
+  5. **Notarize** — submit to Apple via `notarytool` (secrets:
+     `APPLE_ID`, `APPLE_TEAM_ID`, `NOTARIZATION_PASSWORD`)
+  6. **Staple** — staple the notarization ticket to the `.app`
+  7. **Release** — create GitHub Release with `.zip` attached, auto-generate
+     release notes from commit messages
+- Create `.github/workflows/ci.yml` for PR checks (parse + build)
+
+**GitHub Secrets required:**
+| Secret | Purpose |
+|--------|---------|
+| `DEVELOPER_ID_CERTIFICATE` | Base64-encoded .p12 certificate |
+| `CERTIFICATE_PASSWORD` | Password for the .p12 |
+| `APPLE_ID` | Apple ID for notarization |
+| `APPLE_TEAM_ID` | Apple Developer Team ID |
+| `NOTARIZATION_PASSWORD` | App-specific password for notarization |
+
+### M17: Version Management Script
+
+- Create `scripts/bump-version.sh`
+- Usage: `./scripts/bump-version.sh 1.1.0`
+- Actions:
+  1. Update `MARKETING_VERSION` in `project.yml`
+  2. Run `xcodegen generate` to regenerate project
+  3. Validate version format (semver)
+  4. Create git commit: `chore: bump version to 1.1.0`
+  5. Create git tag: `v1.1.0`
+  6. Print: `git push origin main --tags` reminder
+- CI enforces: tag version must match `MARKETING_VERSION` in `project.yml`
+
+### M18: Test Suite
+
+- Create `Tests/` directory with XCTest targets
+- Unit tests for:
+  - **FetchService** — URL construction, rate limiter, error handling
+  - **MatchStore** — goal detection logic, computed properties, API key
+    guard (empty key shows error, valid key allows fetch)
+  - **Match model** — Codable round-trip, computed properties (isLive,
+    isFinished, displayText, homeScore, awayScore)
+  - **MatchStatus** — displayName, isLive, hasStarted for each case
+- CI runs tests before publishing (gates the release pipeline)
+- Add `WCScoreTests` target to `project.yml`
+
 ---
 
 ## Build Order
 
 ```
 M1 → M2 → M3 → M4 → M5 → M6 → M7 → M8 → M9 → M10 → M11 → M12 → M13 → M14
+                                                                          ↓
+M15 ← M16 ← M17 ← M18 (auto-update + CI/CD phase, can be done in parallel)
 ```
+
+**Phase 1 (M1–M14):** App features — ✅ DONE
+**Phase 2 (M15–M18):** Distribution & update infrastructure
 
 Each milestone is independently buildable and testable.

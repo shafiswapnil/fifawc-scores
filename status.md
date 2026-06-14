@@ -5,7 +5,7 @@
 
 ## Current Stage
 
-**Post-v1 polish complete.** API key is now user-configurable in Settings. Full Schedule tab added. README written. Ready for Xcode build + real API key testing.
+**Phase 1 complete (M1–M14).** App features done. Phase 2 planned: auto-update via Sparkle + GitHub Actions CI/CD pipeline.
 
 ## Milestone Tracker
 
@@ -25,11 +25,16 @@
 | M12 | Full Schedule Tab           | ✅ Done | TBD     | Date picker, grouped matches, all tournament dates     |
 | M13 | TeamColors SRB Fix          | ✅ Done | TBD     | Removed duplicate "SRB" entry in TeamColors            |
 | M14 | README.md                   | ✅ Done | TBD     | Industry-standard README with install + architecture   |
+| M15 | Auto-Update via Sparkle      | ⬜ Plan | —       | SPM integration, "Check for Updates" in Settings       |
+| M16 | GitHub Actions CI/CD        | ⬜ Plan | —       | Build, sign, notarize, publish on tag push             |
+| M17 | Version Management Script   | ⬜ Plan | —       | bump-version.sh, semver, tag ↔ project.yml sync       |
+| M18 | Test Suite                  | ⬜ Plan | —       | XCTest for FetchService, MatchStore, models            |
 
 ## Git History
 
 ```
-0d5b386 (HEAD) chore: clean up Team.swift duplicate TLA keys (M10)
+6efbe7c (HEAD) feat: add API key in Settings, Full Schedule tab, fix TeamColors, README
+0d5b386 chore: clean up Team.swift duplicate TLA keys (M10)
 2a19c7b feat(settings): add in-panel settings tab (M9)
 b310017 feat(ui): add MenuBarPanel with tabs, match cards, standings (M8)
 9a90463 feat(ui): add MenuBarLabel with real data + goal animation (M6+M7)
@@ -56,6 +61,10 @@ bced77f feat(models): add core data models (M2)
 | 2026-06-15 | "No API key" error in header only              | Non-blocking onboarding, user finds Settings themselves |
 | 2026-06-15 | Full Schedule tab with date picker             | Spec required it, user chose to add now                 |
 | 2026-06-15 | FetchService.apiKey made mutable               | Allows runtime key updates from Settings                |
+| 2026-06-15 | Sparkle for auto-updates (not custom)           | Industry standard, handles version check + download + verify + replace |
+| 2026-06-15 | GitHub Releases as update feed                  | Free hosting, native GitHub API, no custom server needed |
+| 2026-06-15 | Tag-driven CI/CD pipeline                       | Automated build → sign → notarize → publish on tag push |
+| 2026-06-15 | Version consistency: tag = MARKETING_VERSION    | Prevents false "update available" after installing latest |
 
 ## Architecture Quick Reference
 
@@ -92,11 +101,15 @@ Sources/
 
 ## Remaining Before Distribution
 
-1. **API Key**: User enters their own key in Settings (no more hardcoded placeholder)
+1. ~~**API Key**: User enters their own key in Settings~~ ✅ Done
 2. **App Icon**: Create actual AppIcon assets (256x256, 128x128, etc.)
 3. **Xcode Build**: Full build with Xcode (not just `swiftc -parse`) to catch runtime issues
 4. **Real-world testing**: Test with live tournament data when WC 2026 starts
 5. **Code signing**: Developer ID + notarization for distribution
+6. **Sparkle integration**: Add auto-update framework (M15)
+7. **GitHub Actions**: CI/CD pipeline for automated builds (M16)
+8. **Version management**: Script to bump version + create tags (M17)
+9. **Test suite**: Unit tests for core logic (M18)
 
 ## Agent Instructions
 

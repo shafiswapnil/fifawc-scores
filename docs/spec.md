@@ -333,10 +333,15 @@ No Dock icon, no main window. Menu bar agent only.
 
 ---
 
-## 13. Distribution
+## 13. Distribution & Auto-Update
 
 - **GitHub Releases** (unsigned for dev, Developer ID + notarization for release).
 - No App Store.
+- **Sparkle** for auto-updates — industry-standard macOS update framework.
+- Sparkle feed URL → GitHub Releases API (`/repos/{owner}/fifawc-scores/releases/latest`).
+- "Check for Updates" button in Settings tab.
+- Version consistency: `MARKETING_VERSION` in `project.yml` must match git tag.
+- CI/CD pipeline: GitHub Actions builds, signs, notarizes, publishes on tag push.
 - No Homebrew initially (add later if popular).
 
 ---

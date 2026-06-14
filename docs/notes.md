@@ -10,7 +10,7 @@
 - PrayerClock as `@Observable` driving everything
 - MenuBarLabel (compact) + MenuBarPanel (expanded)
 - XcodeGen for project generation
-- Sparkle for updates (we skip this in v1)
+- Sparkle for updates (adopted in M15 — was "skip in v1", now planned)
 - LSUIElement = true for no Dock icon
 
 ### Key Takeaways
@@ -41,6 +41,15 @@
    - Link to football-data.org registration in Settings
 10. **Full Schedule tab**: Added with date picker, shows all tournament matches grouped by date
 11. **Goal animation**: Simple text slide first, no complex animations for v1
+
+### Phase 2 Decisions (Auto-Update + CI/CD)
+
+12. **Auto-update via Sparkle**: Industry-standard framework (VS Code, Discord, Rectangle all use it). Handles version check, download, Ed25519 signature verify, app replace, restart. The one allowed third-party dependency.
+13. **GitHub Releases as update feed**: Free, native GitHub API. Sparkle reads `https://api.github.com/repos/{owner}/fifawc-scores/releases/latest` to check for new versions.
+14. **Tag-driven CI/CD**: Push a git tag → GitHub Actions builds → signs → notarizes → publishes. No manual build steps.
+15. **Version consistency**: `MARKETING_VERSION` in `project.yml` MUST match the git tag. Prevents the "just installed latest but still sees update available" bug.
+16. **Sparkle is NOT bloated**: It's a single framework (~2MB), adds no runtime overhead when not checking for updates. Acceptable under the "tiny footprint" constraint.
+17. **Test gate**: CI runs tests before publishing. No release without green tests.
 
 ---
 
@@ -128,6 +137,42 @@
 - Only prevent App Nap during live matches
 - Use `beginActivity` with `.idleSystemSleepDisabled`
 - Release activity when match ends
+
+### Auto-Update Architecture (Phase 2)
+
+**How Sparkle works under the hood:**
+
+1. App bundles Sparkle framework + `SUFeedURL` in Info.plist
+2. On launch or manual "Check for Updates" click:
+   - Sparkle reads `CFBundleShortVersionString` (e.g. "1.0.0")
+   - Fetches `https://api.github.com/repos/{owner}/fifawc-scores/releases/latest`
+   - Parses the release tag (e.g. "v1.1.0")
+   - Compares: "1.0.0" < "1.1.0" → update available
+3. Shows dialog with release notes + "Download" button
+4. Downloads `.zip` from the release assets
+5. Verifies Ed25519 cryptographic signature (prevents tampering)
+6. Replaces old `.app` with new one, restarts app
+
+**Version bug prevention:**
+- The "false update available" bug happens when:
+  - Tag says `v1.1.0` but `MARKETING_VERSION` is still `1.0.0`
+  - User downloads `v1.1.0`, replaces app, but old app was still running
+  - Solution: always quit old app before replacing, bump version BEFORE tagging
+
+**CI/CD pipeline (GitHub Actions):**
+- Trigger: `git tag v1.1.0 && git push origin main --tags`
+- Runner: `macos-14` (Apple Silicon)
+- Steps: parse → build → archive → sign → notarize → staple → release
+- Secrets: Developer ID certificate + Apple notarization credentials
+
+**What the user sees (end-to-end flow):**
+1. Developer runs `./scripts/bump-version.sh 1.1.0`
+2. Script updates version, commits, tags
+3. Developer pushes: `git push origin main --tags`
+4. GitHub Actions builds and publishes to GitHub Releases
+5. User's app checks for updates → sees v1.1.0 → clicks Download
+6. Sparkle downloads, verifies, replaces, restarts
+7. User is now on v1.1.0. App shows "You're up to date!" on next check
 
 ---
 

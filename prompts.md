@@ -41,12 +41,12 @@ A: Add it now - Add a scrollable list of all tournament matches with a date pick
 
 5: update all the docs required. update status, decisions we took. go with the flow and yes obviously commit.
 
-i am building a macos app now. while building i got a question in my head. in all other apps, i see a button to check for app updates. i dont know how this works in the industry. as for now, i will not be publishing this app in the app store. it will working totally from github. so tell me what happens under the hood. and my initial plan is - every time i publish a release on github, it should run some test scripts and if all tests green, we build the application on github meaning it should auto build executable mac app installation file then it should get published. also if any user presses Check for updates button > it should check the github release (i dont know the under the hood mechanism yet) so magic happens and the users gets a prompt, new release is here. if he clicks download the new relese, we take them to github release > there he downloads latest release and installs again in macos. while installaion, macos will definately ask by default that this app exists, so what should we do? the user will replace the app. this should work as expected i believe. 
-
-check and show version always
-
-testing before publishing a release.
-
-6: update all the docs required. update status, decisions we took. go with the flow and yes obviously commit.
-
-summary: Updated status.md (M11-M14 milestones, new decisions, architecture, remaining items), docs/plan.md (M11-M14 milestones), docs/spec.md (Settings panel now includes API key), docs/notes.md (decisions 9-11 about API key UX, Full Schedule tab). All doc changes committed.
+6: as we are building a macos app now. while building i got a question in my head. in all other apps, i see a button to check for app updates. i dont know how this works in the industry. as for now, i will not be publishing this app in the app store. it will working totally from github. so tell me what happens under the hood. and my initial plan is - every time i publish a release on github, it should run some test scripts and if all tests green, we build the application on github meaning it should auto build executable mac app installation file then it should get published. also if any user presses Check for updates button > it should check the github release (i dont know the under the hood mechanism yet) so magic happens and the users gets a prompt, new release is here. if he clicks download the new relese, we take them to github release > there he downloads latest release and installs again in macos. while installaion, macos will definately ask by default that this app exists, so what should we do? the user will replace the app. this should work as expected i believe. one bug here i know is: each time the user downloads the app > he still gets a propmt or notification when checking for new update. he sees: there is a new version, click to download. but he JUST DID download the latest version and replaced with the latest version, right? then why the app is still showing theres a new one? i dont know what happened underhood, but i think its a version acknowledgement issue.
+so to do this whole thing for this application:
+- we need test scripts that run before publishing.
+- we need check for updates button with correct approach, version acknowledgement, mechanisms!
+- we should also configure github actions as well right? for the executable builds? do that.
+- plan again, this is also a huge task.
+- update plan docs, required docs.
+- always discuss with me what did you understand, what can be done, we always should follow industry standard.
+- take deep breath, start fresh. do not hallucinate. tell me if we need another new thread for building this, if so, stop and give me thread context for the new thread.
