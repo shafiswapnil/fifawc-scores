@@ -1,8 +1,9 @@
 import Foundation
 
-/// A group standing entry in the tournament table.
-struct Standing: Codable, Sendable, Identifiable {
-    var id: String { "\(group)-\(team.tla)" }
+/// A single team's standing entry within a group table.
+/// Maps to football-data.org's `table` array items.
+struct StandingEntry: Codable, Sendable, Identifiable {
+    var id: String { team.tla }
 
     let position: Int
     let team: Team
@@ -14,8 +15,7 @@ struct Standing: Codable, Sendable, Identifiable {
     let goalsFor: Int
     let goalsAgainst: Int
     let goalDifference: Int
-
-    var form: String? { nil }  // Future: "W,W,D,L,W"
+    let form: String?
 
     /// Whether this team qualifies (top 2 in group).
     var isQualified: Bool { position <= 2 }
@@ -27,12 +27,15 @@ struct Standing: Codable, Sendable, Identifiable {
     }
 }
 
-/// A complete group table with all team standings.
+/// A complete group table — maps to football-data.org's standings array item.
+/// Each item has a `group` and a `table` array of team entries.
 struct GroupStanding: Codable, Sendable, Identifiable {
     var id: String { group }
 
+    let stage: String?
+    let type: String?
     let group: String
-    let standings: [Standing]
+    let table: [StandingEntry]
 
     /// Display name (e.g. "Group A").
     var displayName: String {
