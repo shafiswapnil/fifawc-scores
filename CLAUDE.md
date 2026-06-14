@@ -161,7 +161,11 @@ WCScoresApp (@main)
 ## Git History
 
 ```
-efa6db8 (HEAD) docs: plan Phase 2 — Sparkle auto-update, GitHub Actions CI/CD
+631c44e (HEAD) docs: update project docs for M15 completion
+8ac4aa9 feat: add Sparkle auto-update framework (M15)
+37acbca docs: add CLAUDE.md self-update rule to mandatory agent behavior rules
+6a3a719 docs: rewrite CLAUDE.md as universal agent prompt framework, add prompt summaries
+efa6db8 docs: plan Phase 2 — Sparkle auto-update, GitHub Actions CI/CD
 6efbe7c feat: add API key in Settings, Full Schedule tab, fix TeamColors, README
 0d5b386 chore: clean up Team.swift duplicate TLA keys (M10)
 2a19c7b feat(settings): add in-panel settings tab (M9)
