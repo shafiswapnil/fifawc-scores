@@ -1,7 +1,7 @@
 import Foundation
 
 /// Errors that can occur during API fetching.
-enum FetchError: Error, LocalizedError {
+enum FetchError: Error, LocalizedError, Equatable {
     case invalidURL
     case invalidAPIKey
     case networkError(Error)
@@ -9,6 +9,19 @@ enum FetchError: Error, LocalizedError {
     case serverError(Int)
     case decodingError(Error)
     case noData
+
+    static func == (lhs: FetchError, rhs: FetchError) -> Bool {
+        switch (lhs, rhs) {
+        case (.invalidURL, .invalidURL): true
+        case (.invalidAPIKey, .invalidAPIKey): true
+        case (.rateLimited, .rateLimited): true
+        case (.noData, .noData): true
+        case (.serverError(let a), .serverError(let b)): a == b
+        case (.networkError, .networkError): true
+        case (.decodingError, .decodingError): true
+        default: false
+        }
+    }
 
     var errorDescription: String? {
         switch self {

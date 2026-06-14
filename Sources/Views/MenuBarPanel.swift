@@ -673,6 +673,6 @@ extension View {
 // MARK: - Preview
 
 #Preview {
-    MenuBarPanel()
+    MenuBarPanel(checkForUpdates: {})
         .environment(MatchStore())
 }

@@ -39,6 +39,6 @@ jobs:
 
       - name: Run tests
         run: |
-          xcodebuild test -project WCSCORES.xcodeproj -scheme WCScoreTests \
+          xcodebuild test -project WCSCORES.xcodeproj -scheme WCSCORES \
             -destination 'platform=macOS' \
             CODE_SIGNING_ALLOWED=NO

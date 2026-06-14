@@ -41,11 +41,16 @@ final class MatchStore {
     // MARK: - Settings (persisted)
 
     /// Polling interval in seconds. Minimum 60.
+    /// Uses a private backing store to avoid @Observable + didSet recursion.
+    private var _pollInterval: TimeInterval = 60
     var pollInterval: TimeInterval {
-        didSet {
-            pollInterval = max(60, pollInterval)
-            UserDefaults.standard.set(pollInterval, forKey: "pollInterval")
-            pollController?.updateInterval(pollInterval)
+        get { _pollInterval }
+        set {
+            let clamped = max(60, newValue)
+            guard clamped != _pollInterval else { return }
+            _pollInterval = clamped
+            UserDefaults.standard.set(clamped, forKey: "pollInterval")
+            pollController?.updateInterval(clamped)
         }
     }
 
@@ -65,7 +70,7 @@ final class MatchStore {
     var apiKey: String {
         didSet {
             UserDefaults.standard.set(apiKey, forKey: "apiKey")
-            fetchService.updateApiKey(apiKey)
+            Task { await fetchService.updateApiKey(apiKey) }
         }
     }
 
@@ -89,7 +94,7 @@ final class MatchStore {
     init() {
         // Restore settings from UserDefaults
         let storedInterval = UserDefaults.standard.double(forKey: "pollInterval")
-        self.pollInterval = storedInterval > 0 ? max(60, storedInterval) : 60
+        self._pollInterval = storedInterval > 0 ? max(60, storedInterval) : 60
         self.favoriteTeam = UserDefaults.standard.string(forKey: "favoriteTeam")
 
         let storedApiKey = UserDefaults.standard.string(forKey: "apiKey") ?? ""

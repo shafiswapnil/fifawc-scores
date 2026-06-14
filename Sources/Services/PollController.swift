@@ -126,7 +126,7 @@ final class PollController {
 
         // Build next midnight UTC
         var utcCalendar = Calendar.current
-        utcCalendar.timeZone = TimeZone(secondsFromGMT: 0)
+        utcCalendar.timeZone = TimeZone(secondsFromGMT: 0)!
 
         var components = utcCalendar.dateComponents([.year, .month, .day], from: now)
         components.day! += 1

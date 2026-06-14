@@ -34,6 +34,7 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.wcscores.app
         PRODUCT_NAME: WC Scores
+        PRODUCT_MODULE_NAME: WCSCORES
         INFOPLIST_FILE: Sources/Resources/Info.plist
         GENERATE_INFOPLIST_FILE: NO
         ENABLE_HARDENED_RUNTIME: YES
@@ -57,3 +58,23 @@ targets:
         SWIFT_STRICT_CONCURRENCY: complete
         CODE_SIGN_STYLE: Automatic
         CODE_SIGN_IDENTITY: "-"
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/WC Scores.app/Contents/MacOS/WC Scores"
+
+schemes:
+  WCSCORES:
+    build:
+      targets:
+        WCSCORES: all
+    test:
+      targets:
+        - WCScoreTests
+      gatherCoverageData: true
+
+  WCScoreTests:
+    build:
+      targets:
+        WCScoreTests: all
+    test:
+      targets:
+        - WCScoreTests
+      gatherCoverageData: true

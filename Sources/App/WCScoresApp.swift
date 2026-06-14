@@ -21,13 +21,14 @@ struct WCScoresApp: App {
     var body: some Scene {
         MenuBarExtra {
             MenuBarPanel(checkForUpdates: { updaterController.checkForUpdates(nil) })
+                .environment(store)
+                .task {
+                    store.startPolling()
+                }
         } label: {
             MenuBarLabel()
+                .environment(store)
         }
         .menuBarExtraStyle(.window)
-        .environment(store)
-        .task {
-            store.startPolling()
-        }
     }
 }
