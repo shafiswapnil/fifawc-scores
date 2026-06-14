@@ -5,49 +5,30 @@
 
 ## Current Stage
 
-**Phase 1 complete (M1–M14).** Phase 2 started: M15 (Sparkle auto-update) done. M16–M18 planned.
+**Phase 1 complete (M1–M14). Phase 2 complete (M15–M18).** App features done. Auto-update via Sparkle, CI/CD pipeline, version management, and test suite all implemented.
 
 ## Milestone Tracker
 
-| #   | Milestone                   | Status  | Commit  | Notes                                                  |
-| --- | --------------------------- | ------- | ------- | ------------------------------------------------------ |
-| M1  | Project Scaffolding         | ✅ Done | 157f5f3 | XcodeGen, dirs, Info.plist, empty MenuBarExtra         |
-| M2  | Data Models                 | ✅ Done | bced77f | Match, Team, Standing, MatchStatus, TeamColors         |
-| M3  | API Client (FetchService)   | ✅ Done | 88a5c5a | football-data.org v4, URLSession, rate limiter         |
-| M4  | MatchStore (Central State)  | ✅ Done | 102e099 | @Observable @MainActor, goal detection, computed props |
-| M5  | PollController (Scheduling) | ✅ Done | 102e099 | State machine: idle→live→idle, midnight rollover       |
-| M6  | MenuBarLabel                | ✅ Done | 9a90463 | 3 states: idle/upcoming/live, dynamic team colors      |
-| M7  | Goal Animation              | ✅ Done | 9a90463 | ⚨ slide left→right (1.5s ease-in-out)                  |
-| M8  | MenuBarPanel                | ✅ Done | b310017 | Tabs, MatchCards, GroupStandingCards, footer           |
-| M9  | Settings (In-Panel)         | ✅ Done | 2a19c7b | Poll interval slider, favorite team picker             |
-| M10 | Polish & Testing            | ✅ Done | 0d5b386 | Cleaned duplicate TLA keys, all files compile clean    |
-| M11 | API Key in Settings         | ✅ Done | TBD     | UserDefaults storage, Settings UI, error in header     |
-| M12 | Full Schedule Tab           | ✅ Done | TBD     | Date picker, grouped matches, all tournament dates     |
-| M13 | TeamColors SRB Fix          | ✅ Done | TBD     | Removed duplicate "SRB" entry in TeamColors            |
-| M14 | README.md                   | ✅ Done | TBD     | Industry-standard README with install + architecture   |
-| M15 | Auto-Update via Sparkle     | ✅ Done | TBD     | SPM integration, "Check for Updates" in Settings       |
-| M16 | GitHub Actions CI/CD        | ⬜ Plan | —       | Build, sign, notarize, publish on tag push             |
-| M17 | Version Management Script   | ⬜ Plan | —       | bump-version.sh, semver, tag ↔ project.yml sync        |
-| M18 | Test Suite                  | ⬜ Plan | —       | XCTest for FetchService, MatchStore, models            |
-
-## Git History
-
-```
-fba5ed3 (HEAD) docs: update project docs for M15 completion
-8ac4aa9 feat: add Sparkle auto-update framework (M15)
-37acbca docs: add CLAUDE.md self-update rule to mandatory agent behavior rules
-6a3a719 docs: rewrite CLAUDE.md as universal agent prompt framework, add prompt summaries
-efa6db8 docs: plan Phase 2 — Sparkle auto-update, GitHub Actions CI/CD
-6efbe7c feat: add API key in Settings, Full Schedule tab, fix TeamColors, README
-0d5b386 chore: clean up Team.swift duplicate TLA keys (M10)
-2a19c7b feat(settings): add in-panel settings tab (M9)
-b310017 feat(ui): add MenuBarPanel with tabs, match cards, standings (M8)
-9a90463 feat(ui): add MenuBarLabel with real data + goal animation (M6+M7)
-102e099 feat(state): add MatchStore + PollController (M4+M5)
-88a5c5a feat(api): add FetchService for football-data.org (M3)
-bced77f feat(models): add core data models (M2)
-157f5f3 chore: initial project scaffolding (M1)
-```
+| #   | Milestone                   | Status  | Commit  | Notes                                                                |
+| --- | --------------------------- | ------- | ------- | -------------------------------------------------------------------- |
+| M1  | Project Scaffolding         | ✅ Done | 157f5f3 | XcodeGen, dirs, Info.plist, empty MenuBarExtra                       |
+| M2  | Data Models                 | ✅ Done | bced77f | Match, Team, Standing, MatchStatus, TeamColors                       |
+| M3  | API Client (FetchService)   | ✅ Done | 88a5c5a | football-data.org v4, URLSession, rate limiter                       |
+| M4  | MatchStore (Central State)  | ✅ Done | 102e099 | @Observable @MainActor, goal detection, computed props               |
+| M5  | PollController (Scheduling) | ✅ Done | 102e099 | State machine: idle→live→idle, midnight rollover                     |
+| M6  | MenuBarLabel                | ✅ Done | 9a90463 | 3 states: idle/upcoming/live, dynamic team colors                    |
+| M7  | Goal Animation              | ✅ Done | 9a90463 | ⚨ slide left→right (1.5s ease-in-out)                                |
+| M8  | MenuBarPanel                | ✅ Done | b310017 | Tabs, MatchCards, GroupStandingCards, footer                         |
+| M9  | Settings (In-Panel)         | ✅ Done | 2a19c7b | Poll interval slider, favorite team picker                           |
+| M10 | Polish & Testing            | ✅ Done | 0d5b386 | Cleaned duplicate TLA keys, all files compile clean                  |
+| M11 | API Key in Settings         | ✅ Done | TBD     | UserDefaults storage, Settings UI, error in header                   |
+| M12 | Full Schedule Tab           | ✅ Done | TBD     | Date picker, grouped matches, all tournament dates                   |
+| M13 | TeamColors SRB Fix          | ✅ Done | TBD     | Removed duplicate "SRB" entry in TeamColors                          |
+| M14 | README.md                   | ✅ Done | TBD     | Industry-standard README with install + architecture                 |
+| M15 | Auto-Update via Sparkle     | ✅ Done | TBD     | SPM integration, "Check for Updates" in Settings                     |
+| M16 | GitHub Actions CI/CD        | ✅ Done | —       | ci.yml + release.yml, build/sign/notarize/release on tag push        |
+| M17 | Version Management Script   | ✅ Done | —       | bump-version.sh, semver validation, commit + tag                     |
+| M18 | Test Suite                  | ✅ Done | —       | XCTest: Match, MatchStatus, Team, Standing, FetchService, MatchStore |
 
 ## Key Decisions Log
 
@@ -106,15 +87,15 @@ Sources/
 
 ## Remaining Before Distribution
 
-1. ~~**API Key**: User enters their own key in Settings~~ ✅ Done
-2. **App Icon**: Create actual AppIcon assets (256x256, 128x128, etc.)
-3. **Xcode Build**: Full build with Xcode (not just `swiftc -parse`) to catch runtime issues
-4. **Real-world testing**: Test with live tournament data when WC 2026 starts
-5. **Code signing**: Developer ID + notarization for distribution
-6. ~~**Sparkle integration**: Add auto-update framework (M15)~~ ✅ Done
-7. **GitHub Actions**: CI/CD pipeline for automated builds (M16)
-8. **Version management**: Script to bump version + create tags (M17)
-9. **Test suite**: Unit tests for core logic (M18)
+4. ~~**App Icon**: Create actual AppIcon assets (256x256, 128x128, etc.)~~
+5. **Xcode Build**: Full build with Xcode (not just `swiftc -parse`) to catch runtime issues
+6. **Real-world testing**: Test with live tournament data when WC 2026 starts
+7. ~~**Code signing**: Developer ID + notarization for distribution~~
+8. ~~**Sparkle integration**: Add auto-update framework (M15)~~ ✅ Done
+9. ~~**GitHub Actions**: CI/CD pipeline for automated builds (M16)~~ ✅ Done
+10. ~~**Version management**: Script to bump version + create tags (M17)~~ ✅ Done
+11. ~~**Test suite**: Unit tests for core logic (M18)~~ ✅ Done
+12. **Ed25519 keys**: Generate Sparkle signing keys (before first signed release)
 
 ## Agent Instructions
 

@@ -12,7 +12,7 @@
 Cup 2026 match schedules, live scores, and goal animations. Menu bar agent
 (no Dock icon). All interaction happens in the menu bar — no main window.
 
-**Current status:** Phase 1 complete (M1–M14). M15 (Sparkle) done. M16–M18 planned.
+**Current status:** Phase 1 complete (M1–M14). Phase 2 complete (M15–M18).
 Read `status.md` for exact milestone state.
 
 ---
@@ -32,14 +32,14 @@ These are non-negotiable. The user has reinforced these across every session.
    ask the user. Don't assume.
 5. **Update docs after every change.** When you complete a milestone or make
    a key decision, update ALL of these:
-   - `CLAUDE.md` — update "Current status" line (phase/milestone state) and
-     "Git History" section (latest commit hash + message)
+   - `CLAUDE.md` — update "Current status" line (phase/milestone state)
    - `status.md` (milestone tracker + decisions log)
    - `docs/plan.md` (if new milestone added)
    - `docs/notes.md` (if new decision or idea)
    - `prompts.md` (log the prompt + summary)
      After a **full phase** ends, also verify CLAUDE.md architecture section
      still matches reality (new files, changed wiring, etc.).
+     Do NOT maintain a Git History section — just run `git log`.
 6. **Commit each milestone separately** with Conventional Commits format.
 7. **Keep commits clean.** One logical change per commit. Never mix
    feature code with doc updates in the same commit.
@@ -62,6 +62,7 @@ docs/
   design.md             # UI/UX design decisions, color schemes, animations
   api.md                # Data source research, API endpoints, polling strategy
   notes.md              # Raw ideas, user decisions, future features
+  appcast.xml           # Sparkle update feed (auto-updated by CI on release)
 project.yml             # XcodeGen project definition (app target)
 WCSCORES.xcodeproj      # GENERATED from project.yml — git-ignored, do not edit
 Sources/
@@ -155,24 +156,3 @@ WCScoresApp (@main)
 - Sparkle compares `CFBundleShortVersionString` against GitHub release tags.
 - Mismatch causes false "update available" prompts — always verify before tagging.
 - Use `./scripts/bump-version.sh X.Y.Z` (M17) to enforce consistency.
-
----
-
-## Git History
-
-```
-631c44e (HEAD) docs: update project docs for M15 completion
-8ac4aa9 feat: add Sparkle auto-update framework (M15)
-37acbca docs: add CLAUDE.md self-update rule to mandatory agent behavior rules
-6a3a719 docs: rewrite CLAUDE.md as universal agent prompt framework, add prompt summaries
-efa6db8 docs: plan Phase 2 — Sparkle auto-update, GitHub Actions CI/CD
-6efbe7c feat: add API key in Settings, Full Schedule tab, fix TeamColors, README
-0d5b386 chore: clean up Team.swift duplicate TLA keys (M10)
-2a19c7b feat(settings): add in-panel settings tab (M9)
-b310017 feat(ui): add MenuBarPanel with tabs, match cards, standings (M8)
-9a90463 feat(ui): add MenuBarLabel with real data + goal animation (M6+M7)
-102e099 feat(state): add MatchStore + PollController (M4+M5)
-88a5c5a feat(api): add FetchService for football-data.org (M3)
-bced77f feat(models): add core data models (M2)
-157f5f3 chore: initial project scaffolding (M1)
-```
