@@ -10,11 +10,12 @@ final class MatchTests: XCTestCase {
         homeScore: Int? = nil,
         awayScore: Int? = nil,
         group: String? = "GROUP_A",
-        stage: String? = nil
+        stage: String? = nil,
+        utcDate: Date = Date().addingTimeInterval(3600 * 5) // future to avoid effectiveStatus clock inference
     ) -> Match {
         Match(
             id: 1,
-            utcDate: Date(),
+            utcDate: utcDate,
             status: status,
             matchday: 1,
             stage: stage,
@@ -78,18 +79,7 @@ final class MatchTests: XCTestCase {
     }
 
     func testDisplayTextScheduledShowsTime() {
-        // Use a future date so effectiveStatus stays .scheduled (not inferred as .inPlay)
-        let futureDate = Date().addingTimeInterval(3600 * 5)
-        let match = Match(
-            id: 1, utcDate: futureDate, status: .scheduled, matchday: 1,
-            stage: nil, group: "GROUP_A",
-            homeTeam: Team(id: 1, name: "Brazil", shortName: "Brazil", tla: "BRA", crest: nil),
-            awayTeam: Team(id: 2, name: "Argentina", shortName: "Argentina", tla: "ARG", crest: nil),
-            score: Score(winner: nil, duration: "REGULAR",
-                fullTime: ScoreValues(home: nil, away: nil),
-                halfTime: ScoreValues(home: nil, away: nil)),
-            venue: "MetLife Stadium"
-        )
+        let match = makeMatch(status: .scheduled)
         // Should return a time string (e.g. "3:00 PM"), not a score
         XCTAssertFalse(match.displayText.contains(" - "))
     }
