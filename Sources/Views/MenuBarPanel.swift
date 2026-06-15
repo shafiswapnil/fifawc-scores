@@ -156,7 +156,7 @@ struct MenuBarPanel: View {
             .padding(.horizontal, 8)
             .padding(.vertical, 4)
         }
-        .scrollIndicatorsVisibility(.hidden)
+        .scrollIndicators(.hidden)
     }
 
     // MARK: - Content
@@ -230,7 +230,7 @@ struct MenuBarPanel: View {
                         matchContent
                             .padding(.vertical, 6)
                     }
-                    .scrollIndicatorsVisibility(.hidden)
+                    .scrollIndicators(.hidden)
                 } else {
                     // Few matches — size to content, no scroll
                     matchContent
@@ -264,7 +264,7 @@ struct MenuBarPanel: View {
                     }
                     .padding(.vertical, 6)
                 }
-                .scrollIndicatorsVisibility(.hidden)
+                .scrollIndicators(.hidden)
             }
         }
         .padding(.horizontal, 8)
@@ -428,7 +428,7 @@ struct MenuBarPanel: View {
         .padding(.horizontal, 8)
         .padding(.vertical, 6)
         }
-        .scrollIndicatorsVisibility(.hidden)
+        .scrollIndicators(.hidden)
     }
 
     // MARK: - Full Schedule
@@ -473,7 +473,7 @@ struct MenuBarPanel: View {
                 .padding(.horizontal, 8)
                 .padding(.top, 6)
             }
-        .scrollIndicatorsVisibility(.hidden)
+        .scrollIndicators(.hidden)
             if isLoadingSchedule {
                 VStack(spacing: 8) {
                     ProgressView()
@@ -504,7 +504,7 @@ struct MenuBarPanel: View {
                             .padding(.horizontal, 8)
                             .padding(.vertical, 6)
                     }
-                    .scrollIndicatorsVisibility(.hidden)
+                    .scrollIndicators(.hidden)
                 } else {
                     scheduleContent
                         .padding(.horizontal, 8)
