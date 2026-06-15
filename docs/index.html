@@ -1,261 +1,567 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>FIFAWC Scores — Free macOS Menu Bar App for FIFA World Cup 2026</title>
-  <meta name="description" content="FIFAWC Scores is a free, native macOS menu bar app for FIFA World Cup 2026 — live scores, match schedules, goal animations, and auto-updates. Open source, lightweight, no bloat.">
-  <meta name="keywords" content="FIFA World Cup 2026, macOS menu bar app, live scores, football scores app, WC 2026, World Cup scores, match schedule, goal animation, football-data.org, open source">
-  <meta name="author" content="Swapnil Shafi">
-  <link rel="canonical" href="https://shafiswapnil.github.io/fifawc-scores/">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>
+            FIFAWC Scores — Free macOS Menu Bar App for FIFA World Cup 2026
+        </title>
+        <meta
+            name="description"
+            content="FIFAWC Scores is a free, native macOS menu bar app for FIFA World Cup 2026 — live scores, match schedules, goal animations, and auto-updates. Open source, lightweight, no bloat."
+        />
+        <meta
+            name="keywords"
+            content="FIFA World Cup 2026, macOS menu bar app, live scores, football scores app, WC 2026, World Cup scores, match schedule, goal animation, football-data.org, open source"
+        />
+        <meta name="author" content="Swapnil Shafi" />
+        <link
+            rel="canonical"
+            href="https://shafiswapnil.github.io/fifawc-scores/"
+        />
 
-  <!-- Open Graph -->
-  <meta property="og:type" content="website">
-  <meta property="og:site_name" content="FIFAWC Scores">
-  <meta property="og:url" content="https://shafiswapnil.github.io/fifawc-scores/">
-  <meta property="og:title" content="FIFAWC Scores — Free macOS Menu Bar App for FIFA World Cup 2026">
-  <meta property="og:description" content="Live scores, match schedules, goal animations, and auto-updates — right from your menu bar. Free, open source, lightweight.">
-  <meta property="og:image" content="https://shafiswapnil.github.io/fifawc-scores/og-image.png">
-  <meta property="og:image:alt" content="FIFAWC Scores macOS menu bar showing a live World Cup match score">
+        <!-- Open Graph -->
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="FIFAWC Scores" />
+        <meta
+            property="og:url"
+            content="https://shafiswapnil.github.io/fifawc-scores/"
+        />
+        <meta
+            property="og:title"
+            content="FIFAWC Scores — Free macOS Menu Bar App for FIFA World Cup 2026"
+        />
+        <meta
+            property="og:description"
+            content="Live scores, match schedules, goal animations, and auto-updates — right from your menu bar. Free, open source, lightweight."
+        />
+        <meta
+            property="og:image"
+            content="https://shafiswapnil.github.io/fifawc-scores/og-image.png"
+        />
+        <meta
+            property="og:image:alt"
+            content="FIFAWC Scores macOS menu bar showing a live World Cup match score"
+        />
 
-  <!-- Twitter Card -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="FIFAWC Scores — Free macOS Menu Bar App for FIFA World Cup 2026">
-  <meta name="twitter:description" content="Live scores, match schedules, goal animations, and auto-updates — right from your menu bar. Free, open source, lightweight.">
-  <meta name="twitter:image" content="https://shafiswapnil.github.io/fifawc-scores/og-image.png">
+        <!-- Twitter Card -->
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta
+            name="twitter:title"
+            content="FIFAWC Scores — Free macOS Menu Bar App for FIFA World Cup 2026"
+        />
+        <meta
+            name="twitter:description"
+            content="Live scores, match schedules, goal animations, and auto-updates — right from your menu bar. Free, open source, lightweight."
+        />
+        <meta
+            name="twitter:image"
+            content="https://shafiswapnil.github.io/fifawc-scores/og-image.png"
+        />
 
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚽</text></svg>">
+        <link
+            rel="icon"
+            href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚽</text></svg>"
+        />
 
-  <!-- Structured data -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "SoftwareApplication",
-        "name": "FIFAWC Scores",
-        "operatingSystem": "macOS 14.0",
-        "applicationCategory": "SportsApplication",
-        "description": "A free, native macOS menu bar app for FIFA World Cup 2026 — live scores, match schedules, goal animations, and auto-updates via Sparkle.",
-        "url": "https://shafiswapnil.github.io/fifawc-scores/",
-        "downloadUrl": "https://github.com/shafiswapnil/fifawc-scores/releases/latest",
-        "softwareVersion": "1.0.0",
-        "license": "https://github.com/shafiswapnil/fifawc-scores/blob/main/LICENSE",
-        "author": { "@type": "Person", "name": "Swapnil Shafi" },
-        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
-      },
-      {
-        "@type": "FAQPage",
-        "mainEntity": [
-          {
-            "@type": "Question",
-            "name": "Is FIFAWC Scores free?",
-            "acceptedAnswer": { "@type": "Answer", "text": "Yes. FIFAWC Scores is completely free and open source under the MIT license — no subscription, no ads, no account." }
-          },
-          {
-            "@type": "Question",
-            "name": "Do I need an API key?",
-            "acceptedAnswer": { "@type": "Answer", "text": "Yes. The app fetches live data from football-data.org, which requires a free API key. Sign up at football-data.org/client/register, copy your key, and paste it into the Settings tab. The free tier (10 requests/min) is more than enough." }
-          },
-          {
-            "@type": "Question",
-            "name": "Does the app work on Apple Silicon and Intel?",
-            "acceptedAnswer": { "@type": "Answer", "text": "Yes. FIFAWC Scores is a universal binary that runs natively on both Apple Silicon (M1/M2/M3/M4) and Intel Macs." }
-          },
-          {
-            "@type": "Question",
-            "name": "Does it show live scores?",
-            "acceptedAnswer": { "@type": "Answer", "text": "Yes. During matches, the app polls football-data.org at a configurable interval (60–300 seconds) and shows live scores, match status, and goal animations." }
-          }
-        ]
-      }
-    ]
-  }
-  </script>
-  <style>
-    :root {
-      color-scheme: light dark;
-      --brand: #c41e3a;
-      --brand-dark: #9e1830;
-      --accent: #1a472a;
-      --gold: #d4a843;
-      --bg: #f8f9fa;
-      --bg2: #eef0f2;
-      --card: #ffffff;
-      --text: #1c1c1e;
-      --muted: #6b7280;
-      --border: rgba(0,0,0,.08);
-    }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #111318; --bg2: #0d0f13; --card: #1a1d23;
-        --text: #f2f2f7; --muted: #9aa3a0; --border: rgba(255,255,255,.10);
-        --brand: #e8354d; --brand-dark: #c41e3a; --gold: #e8bf5a;
-      }
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0; color: var(--text);
-      font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background:
-        radial-gradient(1200px 600px at 50% -10%, rgba(196,30,58,.15), transparent 60%),
-        linear-gradient(var(--bg), var(--bg2));
-      background-attachment: fixed;
-    }
-    .wrap { max-width: 880px; margin: 0 auto; padding: 0 1.25rem; }
-    a { color: var(--brand); }
+        <!-- Structured data -->
+        <script type="application/ld+json">
+            {
+                "@context": "https://schema.org",
+                "@graph": [
+                    {
+                        "@type": "SoftwareApplication",
+                        "name": "FIFAWC Scores",
+                        "operatingSystem": "macOS 14.0",
+                        "applicationCategory": "SportsApplication",
+                        "description": "A free, native macOS menu bar app for FIFA World Cup 2026 — live scores, match schedules, goal animations, and auto-updates via Sparkle.",
+                        "url": "https://shafiswapnil.github.io/fifawc-scores/",
+                        "downloadUrl": "https://github.com/shafiswapnil/fifawc-scores/releases/latest",
+                        "softwareVersion": "1.0.0",
+                        "license": "https://github.com/shafiswapnil/fifawc-scores/blob/main/LICENSE",
+                        "author": {
+                            "@type": "Person",
+                            "name": "Swapnil Shafi"
+                        },
+                        "offers": {
+                            "@type": "Offer",
+                            "price": "0",
+                            "priceCurrency": "USD"
+                        }
+                    },
+                    {
+                        "@type": "FAQPage",
+                        "mainEntity": [
+                            {
+                                "@type": "Question",
+                                "name": "Is FIFAWC Scores free?",
+                                "acceptedAnswer": {
+                                    "@type": "Answer",
+                                    "text": "Yes. FIFAWC Scores is completely free and open source under the MIT license — no subscription, no ads, no account."
+                                }
+                            },
+                            {
+                                "@type": "Question",
+                                "name": "Do I need an API key?",
+                                "acceptedAnswer": {
+                                    "@type": "Answer",
+                                    "text": "Yes. The app fetches live data from football-data.org, which requires a free API key. Sign up at football-data.org/client/register, copy your key, and paste it into the Settings tab. The free tier (10 requests/min) is more than enough."
+                                }
+                            },
+                            {
+                                "@type": "Question",
+                                "name": "Does the app work on Apple Silicon and Intel?",
+                                "acceptedAnswer": {
+                                    "@type": "Answer",
+                                    "text": "Yes. FIFAWC Scores is a universal binary that runs natively on both Apple Silicon (M1/M2/M3/M4) and Intel Macs."
+                                }
+                            },
+                            {
+                                "@type": "Question",
+                                "name": "Does it show live scores?",
+                                "acceptedAnswer": {
+                                    "@type": "Answer",
+                                    "text": "Yes. During matches, the app polls football-data.org at a configurable interval (60–300 seconds) and shows live scores, match status, and goal animations."
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        </script>
+        <style>
+            :root {
+                color-scheme: light dark;
+                --brand: #c41e3a;
+                --brand-dark: #9e1830;
+                --accent: #1a472a;
+                --gold: #d4a843;
+                --bg: #f8f9fa;
+                --bg2: #eef0f2;
+                --card: #ffffff;
+                --text: #1c1c1e;
+                --muted: #6b7280;
+                --border: rgba(0, 0, 0, 0.08);
+            }
+            @media (prefers-color-scheme: dark) {
+                :root {
+                    --bg: #111318;
+                    --bg2: #0d0f13;
+                    --card: #1a1d23;
+                    --text: #f2f2f7;
+                    --muted: #9aa3a0;
+                    --border: rgba(255, 255, 255, 0.1);
+                    --brand: #e8354d;
+                    --brand-dark: #c41e3a;
+                    --gold: #e8bf5a;
+                }
+            }
+            * {
+                box-sizing: border-box;
+            }
+            body {
+                margin: 0;
+                color: var(--text);
+                font:
+                    16px/1.65 -apple-system,
+                    BlinkMacSystemFont,
+                    "Segoe UI",
+                    Roboto,
+                    sans-serif;
+                background:
+                    radial-gradient(
+                        1200px 600px at 50% -10%,
+                        rgba(196, 30, 58, 0.15),
+                        transparent 60%
+                    ),
+                    linear-gradient(var(--bg), var(--bg2));
+                background-attachment: fixed;
+            }
+            .wrap {
+                max-width: 880px;
+                margin: 0 auto;
+                padding: 0 1.25rem;
+            }
+            a {
+                color: var(--brand);
+            }
 
-    /* Hero */
-    header { text-align: center; padding: 4.5rem 0 1rem; }
-    header .icon {
-      font-size: 5rem; line-height: 1;
-      filter: drop-shadow(0 8px 24px rgba(196,30,58,.25));
-    }
-    h1 { font-size: 2.6rem; margin: .75rem 0 .25rem; letter-spacing: -.02em; }
-    h1 span { color: var(--brand); }
-    .tagline { color: var(--muted); font-size: 1.2rem; margin: 0 auto 1.75rem; max-width: 34ch; }
+            /* Hero */
+            header {
+                text-align: center;
+                padding: 4.5rem 0 1rem;
+            }
+            header .icon {
+                font-size: 5rem;
+                line-height: 1;
+                filter: drop-shadow(0 8px 24px rgba(196, 30, 58, 0.25));
+            }
+            h1 {
+                font-size: 2.6rem;
+                margin: 0.75rem 0 0.25rem;
+                letter-spacing: -0.02em;
+            }
+            h1 span {
+                color: var(--brand);
+            }
+            .tagline {
+                color: var(--muted);
+                font-size: 1.2rem;
+                margin: 0 auto 1.75rem;
+                max-width: 34ch;
+            }
 
-    .cta { display: flex; gap: .75rem; justify-content: center; flex-wrap: wrap; align-items: center; }
-    .btn {
-      display: inline-flex; align-items: center; gap: .5rem;
-      padding: .8rem 1.5rem; border-radius: 12px; font-weight: 600; text-decoration: none;
-      background: linear-gradient(var(--brand), var(--brand-dark)); color: #fff;
-      box-shadow: 0 6px 18px rgba(196,30,58,.35); transition: transform .12s ease, box-shadow .12s ease;
-    }
-    .btn:hover { transform: translateY(-1px); box-shadow: 0 10px 26px rgba(196,30,58,.45); }
-    .btn.secondary {
-      background: var(--card); color: var(--text); border: 1px solid var(--border);
-      box-shadow: none; font-weight: 500;
-    }
-    .req { color: var(--muted); font-size: .9rem; margin-top: 1rem; }
+            .cta {
+                display: flex;
+                gap: 0.75rem;
+                justify-content: center;
+                flex-wrap: wrap;
+                align-items: center;
+            }
+            .btn {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.5rem;
+                padding: 0.8rem 1.5rem;
+                border-radius: 12px;
+                font-weight: 600;
+                text-decoration: none;
+                background: linear-gradient(var(--brand), var(--brand-dark));
+                color: #fff;
+                box-shadow: 0 6px 18px rgba(196, 30, 58, 0.35);
+                transition:
+                    transform 0.12s ease,
+                    box-shadow 0.12s ease;
+            }
+            .btn:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 10px 26px rgba(196, 30, 58, 0.45);
+            }
+            .btn.secondary {
+                background: var(--card);
+                color: var(--text);
+                border: 1px solid var(--border);
+                box-shadow: none;
+                font-weight: 500;
+            }
+            .req {
+                color: var(--muted);
+                font-size: 0.9rem;
+                margin-top: 1rem;
+            }
 
-    /* Emoji screenshot placeholder */
-    .shot {
-      margin: 2.5rem auto 1rem; text-align: center;
-      background: var(--card); border: 1px solid var(--border); border-radius: 16px;
-      padding: 2rem 1.5rem; max-width: 680px;
-      box-shadow: 0 24px 60px rgba(0,0,0,.12);
-    }
-    .shot .menubar {
-      display: inline-flex; align-items: center; gap: .5rem;
-      background: var(--bg2); border: 1px solid var(--border); border-radius: 8px;
-      padding: .4rem 1rem; font-size: .95rem; font-weight: 500;
-      margin-bottom: 1.25rem;
-    }
-    .shot .panel {
-      display: flex; gap: .5rem; justify-content: center; flex-wrap: wrap;
-      margin-bottom: 1rem;
-    }
-    .shot .tab {
-      padding: .3rem .7rem; border-radius: 20px; font-size: .8rem; font-weight: 500;
-      background: var(--bg2); color: var(--muted); border: 1px solid var(--border);
-    }
-    .shot .tab.active { background: var(--brand); color: #fff; border-color: transparent; }
-    .shot .match {
-      background: var(--bg2); border: 1px solid var(--border); border-radius: 12px;
-      padding: 1rem 1.25rem; display: flex; justify-content: space-between; align-items: center;
-      font-size: .95rem; max-width: 340px; margin: 0 auto;
-    }
-    .shot .match .teams { font-weight: 600; }
-    .shot .match .score { font-size: 1.3rem; font-weight: 700; color: var(--brand); font-variant-numeric: tabular-nums; }
-    .shot .match .status { font-size: .75rem; color: var(--muted); margin-top: .2rem; }
-    .shot .label { color: var(--muted); font-size: .85rem; margin-top: .75rem; }
+            /* Emoji screenshot placeholder */
+            .shot {
+                margin: 2.5rem auto 1rem;
+                text-align: center;
+                background: var(--card);
+                border: 1px solid var(--border);
+                border-radius: 16px;
+                padding: 2rem 1.5rem;
+                max-width: 680px;
+                box-shadow: 0 24px 60px rgba(0, 0, 0, 0.12);
+            }
+            .shot .menubar {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.5rem;
+                background: var(--bg2);
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                padding: 0.4rem 1rem;
+                font-size: 0.95rem;
+                font-weight: 500;
+                margin-bottom: 1.25rem;
+            }
+            .shot .panel {
+                display: flex;
+                gap: 0.5rem;
+                justify-content: center;
+                flex-wrap: wrap;
+                margin-bottom: 1rem;
+            }
+            .shot .tab {
+                padding: 0.3rem 0.7rem;
+                border-radius: 20px;
+                font-size: 0.8rem;
+                font-weight: 500;
+                background: var(--bg2);
+                color: var(--muted);
+                border: 1px solid var(--border);
+            }
+            .shot .tab.active {
+                background: var(--brand);
+                color: #fff;
+                border-color: transparent;
+            }
+            .shot .match {
+                background: var(--bg2);
+                border: 1px solid var(--border);
+                border-radius: 12px;
+                padding: 1rem 1.25rem;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                font-size: 0.95rem;
+                max-width: 340px;
+                margin: 0 auto;
+            }
+            .shot .match .teams {
+                font-weight: 600;
+            }
+            .shot .match .score {
+                font-size: 1.3rem;
+                font-weight: 700;
+                color: var(--brand);
+                font-variant-numeric: tabular-nums;
+            }
+            .shot .match .status {
+                font-size: 0.75rem;
+                color: var(--muted);
+                margin-top: 0.2rem;
+            }
+            .shot .label {
+                color: var(--muted);
+                font-size: 0.85rem;
+                margin-top: 0.75rem;
+            }
 
-    /* Sections */
-    section { padding: 2.5rem 0; }
-    h2 { font-size: 1.5rem; margin: 0 0 1.25rem; letter-spacing: -.01em; }
+            /* Sections */
+            section {
+                padding: 2.5rem 0;
+            }
+            h2 {
+                font-size: 1.5rem;
+                margin: 0 0 1.25rem;
+                letter-spacing: -0.01em;
+            }
 
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; }
-    .feat {
-      background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 1.1rem 1.2rem;
-    }
-    .feat .ic { font-size: 1.4rem; }
-    .feat h3 { margin: .5rem 0 .3rem; font-size: 1.05rem; }
-    .feat p { margin: 0; color: var(--muted); font-size: .94rem; }
+            .grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+                gap: 1rem;
+            }
+            .feat {
+                background: var(--card);
+                border: 1px solid var(--border);
+                border-radius: 14px;
+                padding: 1.1rem 1.2rem;
+            }
+            .feat .ic {
+                font-size: 1.4rem;
+            }
+            .feat h3 {
+                margin: 0.5rem 0 0.3rem;
+                font-size: 1.05rem;
+            }
+            .feat p {
+                margin: 0;
+                color: var(--muted);
+                font-size: 0.94rem;
+            }
 
-    pre {
-      background: var(--card); border: 1px solid var(--border); border-radius: 12px;
-      padding: 1rem 1.1rem; overflow-x: auto; margin: .5rem 0;
-    }
-    code { font: .92em "SF Mono", ui-monospace, Menlo, monospace; }
-    .note {
-      background: rgba(196,30,58,.06); border: 1px solid rgba(196,30,58,.2);
-      border-radius: 12px; padding: 1rem 1.1rem; color: var(--muted); font-size: .94rem;
-    }
-    .note strong { color: var(--text); }
+            pre {
+                background: var(--card);
+                border: 1px solid var(--border);
+                border-radius: 12px;
+                padding: 1rem 1.1rem;
+                overflow-x: auto;
+                margin: 0.5rem 0;
+            }
+            code {
+                font:
+                    0.92em "SF Mono",
+                    ui-monospace,
+                    Menlo,
+                    monospace;
+            }
+            .note {
+                background: rgba(196, 30, 58, 0.06);
+                border: 1px solid rgba(196, 30, 58, 0.2);
+                border-radius: 12px;
+                padding: 1rem 1.1rem;
+                color: var(--muted);
+                font-size: 0.94rem;
+            }
+            .note strong {
+                color: var(--text);
+            }
 
-    footer { text-align: center; color: var(--muted); padding: 2.5rem 0 3.5rem; font-size: .9rem; }
-    footer a { color: var(--muted); }
-  </style>
-</head>
-<body>
-  <div class="wrap">
-    <header>
-      <div class="icon">⚽</div>
-      <h1><span>FIFAWC</span> Scores</h1>
-      <p class="tagline">A free, native macOS menu bar app for FIFA World Cup 2026 — live scores, schedules, and goal animations.</p>
-      <div class="cta">
-        <a class="btn" href="https://github.com/shafiswapnil/fifawc-scores/releases/latest">⬇ Download for macOS</a>
-        <a class="btn secondary" href="https://github.com/shafiswapnil/fifawc-scores">View on GitHub</a>
-      </div>
-      <p class="req">macOS 14 Sonoma or later · Universal (Apple Silicon &amp; Intel) · Free &amp; open source</p>
-    </header>
+            footer {
+                text-align: center;
+                color: var(--muted);
+                padding: 2.5rem 0 3.5rem;
+                font-size: 0.9rem;
+            }
+            footer a {
+                color: var(--muted);
+            }
+        </style>
+    </head>
+    <body>
+        <div class="wrap">
+            <header>
+                <div class="icon">⚽</div>
+                <h1><span>FIFAWC</span> Scores</h1>
+                <p class="tagline">
+                    A free, native macOS menu bar app for FIFA World Cup 2026 —
+                    live scores, schedules, and goal animations.
+                </p>
+                <div class="cta">
+                    <a
+                        class="btn"
+                        href="https://github.com/shafiswapnil/fifawc-scores/releases/latest"
+                        >⬇ Download for macOS</a
+                    >
+                    <a
+                        class="btn secondary"
+                        href="https://github.com/shafiswapnil/fifawc-scores"
+                        >View on GitHub</a
+                    >
+                </div>
+                <p class="req">
+                    macOS 14 Sonoma or later · Universal (Apple Silicon &amp;
+                    Intel) · Free &amp; open source
+                </p>
+            </header>
 
-    <div class="shot">
-      <div class="menubar">⚽ FWC &nbsp;·&nbsp; BRA 2 – 1 ARG &nbsp;·&nbsp; 67'</div>
-      <div class="panel">
-        <span class="tab active">Today</span>
-        <span class="tab">Yesterday</span>
-        <span class="tab">Tomorrow</span>
-        <span class="tab">Schedule</span>
-        <span class="tab">Standings</span>
-        <span class="tab">⚙️</span>
-      </div>
-      <div class="match">
-        <div>
-          <div class="teams">🇧🇷 Brazil &nbsp;vs&nbsp; Argentina 🇦🇷</div>
-          <div class="status">🔴 LIVE — 67'</div>
-        </div>
-        <div class="score">2 – 1</div>
-      </div>
-      <p class="label">↑ Live scores in your menu bar, no Dock icon needed</p>
-    </div>
+            <div class="shot">
+                <div class="menubar">
+                    ⚽ FWC &nbsp;·&nbsp; BRA 2 – 1 ARG &nbsp;·&nbsp; 67'
+                </div>
+                <div class="panel">
+                    <span class="tab active">Today</span>
+                    <span class="tab">Yesterday</span>
+                    <span class="tab">Tomorrow</span>
+                    <span class="tab">Schedule</span>
+                    <span class="tab">Standings</span>
+                    <span class="tab">⚙️</span>
+                </div>
+                <div class="match">
+                    <div>
+                        <div class="teams">
+                            🇧🇷 Brazil &nbsp;vs&nbsp; Argentina 🇦🇷
+                        </div>
+                        <div class="status">🔴 LIVE — 67'</div>
+                    </div>
+                    <div class="score">2 – 1</div>
+                </div>
+                <p class="label">
+                    ↑ Live scores in your menu bar, no Dock icon needed
+                </p>
+            </div>
 
-    <section>
-      <h2>Features</h2>
-      <div class="grid">
-        <div class="feat"><div class="ic">⚽</div><h3>Menu bar at a glance</h3><p>Live scores, upcoming matches, and a goal animation — all from the menu bar. No Dock icon, no main window.</p></div>
-        <div class="feat"><div class="ic">🏆</div><h3>6 tabbed views</h3><p>Today, Yesterday, Tomorrow, Full Schedule, Standings, and Settings — everything organized in one compact panel.</p></div>
-        <div class="feat"><div class="ic">🚨</div><h3>Goal animation</h3><p>A ⚨ slides across the menu bar when a goal is scored, so you never miss a moment.</p></div>
-        <div class="feat"><div class="ic">🎨</div><h3>Dynamic team colors</h3><p>The menu bar accent adapts to the featured match's team colors in real time.</p></div>
-        <div class="feat"><div class="ic">⭐</div><h3>Favorite team</h3><p>Set your favorite team in Settings and it's prioritized in the menu bar when upcoming.</p></div>
-        <div class="feat"><div class="ic">🔄</div><h3>Smart polling</h3><p>Configurable 60–300s interval with a live/idle state machine that minimizes API usage.</p></div>
-        <div class="feat"><div class="ic">⬆️</div><h3>Auto-update</h3><p>Sparkle checks GitHub Releases for new versions. Download, verify, and restart — all automatic.</p></div>
-        <div class="feat"><div class="ic">🪶</div><h3>Lightweight</h3><p>Native SwiftUI, &lt;20 MB RAM, &lt;1% CPU. One dependency (Sparkle). No Electron, no bloat.</p></div>
-      </div>
-    </section>
+            <section>
+                <h2>Features</h2>
+                <div class="grid">
+                    <div class="feat">
+                        <div class="ic">⚽</div>
+                        <h3>Dynamic menu bar label</h3>
+                        <p>
+                            5 states — Idle, Upcoming, Live (with minute
+                            counter), Half-time, and Finished — always visible
+                            without clicking. No Dock icon, no main window.
+                        </p>
+                    </div>
+                    <div class="feat">
+                        <div class="ic">🏆</div>
+                        <h3>6 tabbed views</h3>
+                        <p>
+                            Today, Yesterday, Tomorrow, Full Schedule,
+                            Standings, and Settings — everything organized in
+                            one compact panel.
+                        </p>
+                    </div>
+                    <div class="feat">
+                        <div class="ic">🚨</div>
+                        <h3>GOAL! alert</h3>
+                        <p>
+                            The menu bar label flips to “GOAL!” for 2 seconds
+                            when a goal is scored, then auto-reverts to the live
+                            score.
+                        </p>
+                    </div>
+                    <div class="feat">
+                        <div class="ic">🎨</div>
+                        <h3>Dynamic team colors</h3>
+                        <p>
+                            The menu bar accent adapts to the featured match's
+                            team colors in real time.
+                        </p>
+                    </div>
+                    <div class="feat">
+                        <div class="ic">⭐</div>
+                        <h3>Favorite team</h3>
+                        <p>
+                            Set your favorite team in Settings and it's
+                            prioritized in the menu bar when upcoming.
+                        </p>
+                    </div>
+                    <div class="feat">
+                        <div class="ic">🔄</div>
+                        <h3>Smart polling</h3>
+                        <p>
+                            Configurable 60–300s interval with a live/idle state
+                            machine that minimizes API usage.
+                        </p>
+                    </div>
+                    <div class="feat">
+                        <div class="ic">⬆️</div>
+                        <h3>Auto-update</h3>
+                        <p>
+                            Sparkle checks GitHub Releases for new versions.
+                            Download, verify, and restart — all automatic.
+                        </p>
+                    </div>
+                    <div class="feat">
+                        <div class="ic">🪶</div>
+                        <h3>Lightweight</h3>
+                        <p>
+                            Native SwiftUI, &lt;20 MB RAM, &lt;1% CPU. One
+                            dependency (Sparkle). No Electron, no bloat.
+                        </p>
+                    </div>
+                </div>
+            </section>
 
-    <section>
-      <h2>Get your API key</h2>
-      <p>FIFAWC Scores fetches live data from <a href="https://www.football-data.org">football-data.org</a>. You need a free API key:</p>
-      <ol style="color:var(--muted);font-size:.95rem;">
-        <li>Go to <a href="https://www.football-data.org/client/register">football-data.org/client/register</a> and create a free account</li>
-        <li>Copy your API key from the dashboard</li>
-        <li>Open <strong>FIFAWC Scores</strong> → click the ⚙️ Settings tab → paste your key</li>
-      </ol>
-      <p class="note">
-        <strong>First launch (unsigned build).</strong> macOS may show
-        <em>"FIFAWC Scores" Not Opened</em> and block the app. Go to
-        <strong>System Settings → Privacy &amp; Security</strong> and click
-        <strong>Open Anyway</strong>. (Or run<br>
-        <code>xattr -dr com.apple.quarantine "/Applications/FIFAWC Scores.app"</code><br>
-        in Terminal.)
-      </p>
-    </section>
+            <section>
+                <h2>Get your API key</h2>
+                <p>
+                    FIFAWC Scores fetches live data from
+                    <a href="https://www.football-data.org">football-data.org</a
+                    >. You need a free API key:
+                </p>
+                <ol style="color: var(--muted); font-size: 0.95rem">
+                    <li>
+                        Go to
+                        <a href="https://www.football-data.org/client/register"
+                            >football-data.org/client/register</a
+                        >
+                        and create a free account
+                    </li>
+                    <li>Copy your API key from the dashboard</li>
+                    <li>
+                        Open <strong>FIFAWC Scores</strong> → click the ⚙️
+                        Settings tab → paste your key
+                    </li>
+                </ol>
+                <p class="note">
+                    <strong>First launch (unsigned build).</strong> macOS may
+                    show <em>"FIFAWC Scores" Not Opened</em> and block the app.
+                    Go to
+                    <strong>System Settings → Privacy &amp; Security</strong>
+                    and click <strong>Open Anyway</strong>. (Or run<br />
+                    <code
+                        >xattr -dr com.apple.quarantine "/Applications/FIFAWC
+                        Scores.app"</code
+                    ><br />
+                    in Terminal.)
+                </p>
+            </section>
 
-    <section>
-      <h2>Install (build from source)</h2>
-      <pre><code># Clone
+            <section>
+                <h2>Install (build from source)</h2>
+                <pre><code># Clone
 git clone https://github.com/shafiswapnil/fifawc-scores.git
 cd fifawc-scores
 
@@ -265,34 +571,58 @@ brew install xcodegen
 # Generate Xcode project &amp; open
 xcodegen generate
 open FIFAWCSCORES.xcodeproj</code></pre>
-      <p style="color:var(--muted);font-size:.95rem;">Press <strong>⌘R</strong> to build and run. The app appears in your menu bar.</p>
-    </section>
+                <p style="color: var(--muted); font-size: 0.95rem">
+                    Press <strong>⌘R</strong> to build and run. The app appears
+                    in your menu bar.
+                </p>
+            </section>
 
-    <section>
-      <h2>Frequently asked questions</h2>
-      <div class="feat" style="margin-bottom:1rem">
-        <h3>Is FIFAWC Scores free?</h3>
-        <p>Yes — completely free and open source under the MIT license. No subscription, no ads, no account, no tracking.</p>
-      </div>
-      <div class="feat" style="margin-bottom:1rem">
-        <h3>Do I need an API key?</h3>
-        <p>Yes. The free tier at football-data.org (10 requests/min) is more than enough. Sign up, copy the key, and paste it in the ⚙️ Settings tab.</p>
-      </div>
-      <div class="feat" style="margin-bottom:1rem">
-        <h3>Does it show live scores?</h3>
-        <p>Yes. During matches, the app polls at a configurable interval (60–300s) and shows live scores, match status, and goal animations.</p>
-      </div>
-      <div class="feat">
-        <h3>Does it respect my privacy?</h3>
-        <p>Yes. All data is fetched from football-data.org's public API. There is no tracking, no telemetry, and no ads. Your API key is stored locally in UserDefaults.</p>
-      </div>
-    </section>
+            <section>
+                <h2>Frequently asked questions</h2>
+                <div class="feat" style="margin-bottom: 1rem">
+                    <h3>Is FIFAWC Scores free?</h3>
+                    <p>
+                        Yes — completely free and open source under the MIT
+                        license. No subscription, no ads, no account, no
+                        tracking.
+                    </p>
+                </div>
+                <div class="feat" style="margin-bottom: 1rem">
+                    <h3>Do I need an API key?</h3>
+                    <p>
+                        Yes. The free tier at football-data.org (10
+                        requests/min) is more than enough. Sign up, copy the
+                        key, and paste it in the ⚙️ Settings tab.
+                    </p>
+                </div>
+                <div class="feat" style="margin-bottom: 1rem">
+                    <h3>Does it show live scores?</h3>
+                    <p>
+                        Yes. During matches, the app polls at a configurable
+                        interval (60–300s) and shows live scores, match status,
+                        and goal animations.
+                    </p>
+                </div>
+                <div class="feat">
+                    <h3>Does it respect my privacy?</h3>
+                    <p>
+                        Yes. All data is fetched from football-data.org's public
+                        API. There is no tracking, no telemetry, and no ads.
+                        Your API key is stored locally in UserDefaults.
+                    </p>
+                </div>
+            </section>
 
-    <footer>
-      <a href="https://github.com/shafiswapnil/fifawc-scores">Source</a> ·
-      <a href="https://github.com/shafiswapnil/fifawc-scores/releases">Releases</a> ·
-      MIT licensed © Swapnil Shafi
-    </footer>
-  </div>
-</body>
+            <footer>
+                <a href="https://github.com/shafiswapnil/fifawc-scores"
+                    >Source</a
+                >
+                ·
+                <a href="https://github.com/shafiswapnil/fifawc-scores/releases"
+                    >Releases</a
+                >
+                · MIT licensed © Swapnil Shafi
+            </footer>
+        </div>
+    </body>
 </html>

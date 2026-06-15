@@ -26,7 +26,7 @@
 
 1. **Featured match priority**: Show the match closest to a goal (highest elapsed time)
 2. **Panel views**: Previous day, Today, Tomorrow, Full Schedule, Standings
-3. **Goal animation**: Tiny ⚨ slides left-to-right across menu bar text (keep it simple)
+3. **Goal animation**: Text flips to `GOAL!` for 2 seconds, auto-reverts. No icon animation (`.symbolEffect`, `.scaleEffect` all fail in MenuBarExtra label context). `TimelineView` permanently dropped — hangs the app.
 4. **Polling**:
    - Live matches: 60 seconds (configurable, min 60s)
    - No matches: auto-check at midnight (NOT every hour)
@@ -40,7 +40,11 @@
    - "No API key" error shown in panel header (non-blocking)
    - Link to football-data.org registration in Settings
 10. **Full Schedule tab**: Added with date picker, shows all tournament matches grouped by date
-11. **Goal animation**: Simple text slide first, no complex animations for v1
+11. **Goal animation**: `GOAL!` text flip for 2s. Simple, no complex animations. All animation modifiers fail in MenuBarExtra label — text-state flip is the only viable approach.
+12. **SF Symbol replaces emoji**: `Text("⚽")` consumed full status item width. `Image(systemName: "soccerball")` renders correctly alongside text.
+13. **`minuteTick: Date`** on MatchStore: Task.sleep(60s) loop drives live minute counter. `TimelineView` explicitly avoided — hangs MenuBarExtra labels.
+14. **`allMatches` scoped to 3-day window**: Prevents Schedule tab ±7d data from bleeding into `featuredMatch` and showing future-day matches in menu bar.
+15. **`featuredMatch` priority**: live → today-upcoming → recent-finished → nil. Upcoming restricted to today only.
 
 ### Phase 2 Decisions (Auto-Update + CI/CD)
 

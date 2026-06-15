@@ -84,26 +84,25 @@ Colors adapt to the currently featured match:
 - SF Pro Text, 13px (standard menu bar size).
 - `.monospacedDigit()` for scores and countdowns.
 
+### Icon
+
+- `Image(systemName: "soccerball")` — SF Symbol, not emoji.
+- `Text("⚽")` emoji consumed the full status item width and hid the label text.
+- SF Symbol renders correctly alongside the text label.
+
 ### States
 
 #### Idle (no match today)
 
 ```
-⚽ WC
+⚽ FWC
 ```
 
-- Icon: ⚨ emoji or SF Symbol `figure.soccer`
-- Text: "WC" in `.secondary` color
-
-#### Upcoming
+#### Upcoming (today only)
 
 ```
 ⚽ BRA vs ARG · 3:00 PM
 ```
-
-- Icon: ⚽
-- Team names in home team primary color
-- Time in `.secondary`
 
 #### Live
 
@@ -111,9 +110,45 @@ Colors adapt to the currently featured match:
 ⚽ BRA 2 - 1 ARG · 67'
 ```
 
-- Score in bold
-- Live minute with pulsing dot
-- Home team color accent
+- Minute ticks every 60s via `store.minuteTick: Date` on MatchStore.
+
+#### Half-time
+
+```
+⚽ BRA 0 - 0 ARG · HT
+```
+
+- `effectiveStatus == .paused` → display `HT` instead of minute counter.
+
+#### Finished
+
+```
+⚽ SWE 5 - 1 TUN · FT
+```
+
+#### Goal (2-second flash)
+
+```
+⚽ GOAL!
+```
+
+- Label text flips to `GOAL!` for exactly 2 seconds, then auto-reverts.
+- `triggerGoal()` on MatchStore sets `goalScored = true` + schedules 2s reset.
+- **No icon animation** — `.symbolEffect(.bounce)`, `.scaleEffect`, offset/opacity
+  overlays all fail silently inside MenuBarExtra label context.
+
+### Real-Time Ticking
+
+- `minuteTick: Date` on MatchStore — updated every 60s by a `Task.sleep` loop.
+- MenuBarLabel reads `store.minuteTick` to force SwiftUI re-renders.
+- `TimelineView` is explicitly NOT used — it hangs MenuBarExtra label on macOS.
+
+### Hallucination Prevention
+
+- `allMatches` scoped to 3-day window (yesterday/today/tomorrow) — Schedule tab
+  data (±7 days) never bleeds into `featuredMatch` or `liveMatches`.
+- `featuredMatch` priority: live → today-upcoming → recent-finished → nil.
+- Upcoming matches restricted to **today only** — never shows future days.
 
 ---
 
@@ -163,41 +198,28 @@ Colors adapt to the currently featured match:
 
 ### Concept
 
-When a goal is detected, a tiny football emoji slides across the menu bar
-text area — a subtle but delightful "goal!" moment.
+When a goal is detected, the menu bar label text flips to `GOAL!` for 2 seconds,
+then auto-reverts to the live score. No icon animation, no sliding elements —
+text-state flip is the only approach that works in MenuBarExtra label context.
 
 ### Implementation
 
-```swift
-struct GoalAnimation: View {
-    @State private var offset: CGFloat = -20
-    @State private var opacity: Double = 0
+1. Score change detected in `MatchStore.detectGoals()` (compares previous scores).
+2. `triggerGoal()` sets `goalScored = true`.
+3. `MenuBarLabel` reads `store.goalScored` → text switches to `"GOAL!"`.
+4. After exactly 2 seconds, `Task.sleep(for: .seconds(2.0))` expires → `goalScored = false`.
+5. Label text reverts to the normal `labelText(at:)` output.
 
-    var body: some View {
-        Text("⚽")
-            .font(.system(size: 11))
-            .offset(x: offset)
-            .opacity(opacity)
-            .onAppear {
-                withAnimation(.easeInOut(duration: 1.5)) {
-                    offset = 200
-                    opacity = 1
-                }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                    withAnimation { opacity = 0 }
-                }
-            }
-    }
-}
-```
+### What Failed
 
-### Timing
+- `.symbolEffect(.bounce)` — no effect in MenuBarExtra label
+- `.scaleEffect` + `.animation(value:)` — no effect in MenuBarExtra label
+- Sliding ⚽ offset + opacity overlay — no effect in MenuBarExtra label
+- `TimelineView` wrapping — hangs the app entirely
 
-1. Score change detected in `PollController`.
-2. `MatchStore.goalScored` flag set to `true`.
-3. `MenuBarLabel` shows `GoalAnimation` overlay.
-4. After 1.5s, animation auto-removes.
-5. Flag reset after animation completes.
+### Testing
+
+- `#if DEBUG` "Test Goal ⚽" button in MenuBarPanel footer calls `store.triggerGoal()`.
 
 ---
 

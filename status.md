@@ -5,7 +5,7 @@
 
 ## Current Stage
 
-**Phase 1 complete (M1–M18). Phase 2 complete (M15–M18). Phase 3 complete (M19).** Full UI/UX redesign: glass material panel, 520px height, horizontal day pills, 12-team grid with search, live match experience with pulsing dot + team colors, hidden scrollbars, ±7 day schedule fetching. **Bug fixes**: PollController idle state now polls every 120s (was waiting until midnight). FetchService uses dedicated URLSession with no cache + Cache-Control: no-cache header (was using URLSession.shared which cached stale TIMED responses). **API compliance**: MatchStatus includes EXTRA_TIME + PENALTY_SHOOTOUT. Response-header-aware rate limiting (X-RequestsAvailable, X-RequestCounter-Reset). **CRITICAL FIX**: football-data.org free tier returns stale match status — API showed TIMED while match was actually LIVE for 32+ min. Implemented client-side status inference (`effectiveStatus`) that overrides stale API status using match clock logic (0–135 min after kickoff → infer IN_PLAY). **STABLE REVERT**: Reverted menu bar changes from Prompts 24–27 to restore panel stability. Menu bar label is now plain system default color (no team colors, no animations). **TIMEZONE FIX**: `dateString()` now uses local timezone for correct tab grouping. All tabs match Google's local date grouping. **PANEL HEIGHT**: Panel now shrinks to content when list is short (footer pulls up), caps at 520px when content exceeds. Schedule tab also fixed to use local timezone.
+**Phase 1 complete (M1–M18). Phase 2 complete (M15–M18). Phase 3 complete (M19). Dynamic MenuBarLabel complete (Prompt 33).** MenuBarLabel rebuilt with 5 states (idle/upcoming/live/HT/finished), 60s minute ticking via `minuteTick: Date` on MatchStore, and `GOAL!` 2s text flash animation. SF Symbol icon (`soccerball`) replaces emoji. `TimelineView` permanently dropped — hangs MenuBarExtra label. `allMatches` scoped to 3-day window to prevent Schedule tab data bleeding into core label logic. Full UI/UX redesign: glass material panel, 520px height, horizontal day pills, 12-team grid with search, live match experience with pulsing dot + team colors, hidden scrollbars, ±7 day schedule fetching. **Bug fixes**: PollController idle state now polls every 120s (was waiting until midnight). FetchService uses dedicated URLSession with no cache + Cache-Control: no-cache header (was using URLSession.shared which cached stale TIMED responses). **API compliance**: MatchStatus includes EXTRA_TIME + PENALTY_SHOOTOUT. Response-header-aware rate limiting (X-RequestsAvailable, X-RequestCounter-Reset). **CRITICAL FIX**: football-data.org free tier returns stale match status — API showed TIMED while match was actually LIVE for 32+ min. Implemented client-side status inference (`effectiveStatus`) that overrides stale API status using match clock logic (0–135 min after kickoff → infer IN_PLAY). **STABLE REVERT**: Reverted menu bar changes from Prompts 24–27 to restore panel stability. **TIMEZONE FIX**: `dateString()` now uses local timezone for correct tab grouping. **PANEL HEIGHT**: Panel now shrinks to content when list is short (footer pulls up), caps at 520px when content exceeds.
 
 ## Milestone Tracker
 
@@ -16,8 +16,8 @@
 | M3  | API Client (FetchService)   | ✅ Done | 88a5c5a | football-data.org v4, URLSession, rate limiter                                                                  |
 | M4  | MatchStore (Central State)  | ✅ Done | 102e099 | @Observable @MainActor, goal detection, computed props                                                          |
 | M5  | PollController (Scheduling) | ✅ Done | 102e099 | State machine: idle→live→idle, midnight rollover                                                                |
-| M6  | MenuBarLabel                | ✅ Done | 9a90463 | 3 states: idle/upcoming/live, dynamic team colors                                                               |
-| M7  | Goal Animation              | ✅ Done | 9a90463 | ⚨ slide left→right (1.5s ease-in-out)                                                                           |
+| M6  | MenuBarLabel                | ✅ Done | 9a90463 | 5 states: idle/upcoming/live/HT/finished; SF Symbol icon; 60s tick via `minuteTick`                             |
+| M7  | Goal Animation              | ✅ Done | 9a90463 | `GOAL!` text for 2s, auto-dismiss via `triggerGoal()`; sliding emoji dropped (broken in MenuBarExtra label)     |
 | M8  | MenuBarPanel                | ✅ Done | b310017 | Tabs, MatchCards, GroupStandingCards, footer                                                                    |
 | M9  | Settings (In-Panel)         | ✅ Done | 2a19c7b | Poll interval slider, favorite team picker                                                                      |
 | M10 | Polish & Testing            | ✅ Done | 0d5b386 | Cleaned duplicate TLA keys, all files compile clean                                                             |
@@ -80,9 +80,19 @@
 | 2026-06-16 | Client-side status inference (`effectiveStatus`)            | football-data.org free tier returns stale TIMED status even when match is LIVE; clock-based inference overrides stale API data       |
 | 2026-06-16 | Reverted: removed clock tick, restored stable menu bar      | Multiple wobble fix attempts (Prompts 24–27) each introduced new problems. Reverted to stable state at d82dc21 for panel stability.  |     | 2026-06-16 | Timezone fix: dateString() uses local timezone | UTC grouping caused matches to appear in wrong tabs (CIV vs ECU in Yesterday instead of Today). Now matches Google's local grouping. |
 | 2026-06-16 | Menu bar: plain system default color (like prayer app)      | Removed labelColor, GoalAnimationView, .contentTransition, .animation. Just ⚽ + text, zero modifiers.                               |
+| 2026-06-16 | Menu bar: TimelineView for real-time minute ticking          | Wraps label content; fires every 60s; elapsedMinute() now takes date param from context.date instead of Date()                      |
+| 2026-06-16 | Goal animation: ghost ⚽ ZStack overlay                      | Static ⚽ never moves; ghost snaps visible then animates offset+30px/opacity→0 over 1.5s easeOut. No layout shift.                   |
 | 2026-06-16 | Panel height: maxHeight + layoutPriority(-1) on content     | Panel shrinks to content when short (footer pulls up), caps at 520px when content exceeds. Schedule tab timezone also fixed.         |
 | 2026-06-16 | Panel polish: scroll, scrollbar, settings, hover, Sparkle   | Threshold >4, Settings in ScrollView, rounded hover, version badge replaces Check for Updates                                        |
+| 2026-06-16 | MenuBarLabel rebuilt: TimelineView + goal animation          | 5 states (idle/HT/live/finished/upcoming), 60s tick via TimelineView, ghost ⚽ slides 30px right + fades (1.5s easeOut) on goal      |
 | 2026-06-15 | `.scrollIndicators(.hidden)` for macOS 14 compat            | `.scrollIndicatorsVisibility` was macOS 15+ only; renamed to `.scrollIndicators(.hidden)` (available since macOS 10.15)              |
+| 2026-06-16 | `TimelineView` dropped from MenuBarExtra label              | Confirmed to hang the app when used inside MenuBarExtra label context; replaced with `minuteTick: Date` Task.sleep loop             |
+| 2026-06-16 | `Text("⚽")` emoji replaced with SF Symbol `soccerball`       | Emoji as `Text` consumed full status item width, hiding label text; `Image(systemName: "soccerball")` works correctly               |
+| 2026-06-16 | Goal animation: `GOAL!` text 2s, no sliding emoji            | `.symbolEffect`, `.scaleEffect`, offset/opacity overlays all fail silently in MenuBarExtra label; text-state flip is the only option |
+| 2026-06-16 | `triggerGoal()` public method on MatchStore                  | Centralises goal state management; sets `goalScored = true` + schedules 2s Task reset; used by `detectGoals()` + debug button       |
+| 2026-06-16 | `allMatches` scoped to 3-day window                          | Was pulling from all `matchesByDate` including ±7d Schedule data → `featuredMatch` showed tomorrow's games; fixed to yesterday/today/tomorrow only |
+| 2026-06-16 | `featuredMatch` priority: live → today-upcoming → recent-FT  | Never shows future-day matches in menu bar label; upcoming restricted to today only                                                  |
+| 2026-06-16 | `minuteTick: Date` on MatchStore for 60s re-renders          | Task.sleep(60s) loop updates `minuteTick`; MenuBarLabel observes it to tick live minute counter without `TimelineView`               |
 
 ## Architecture Quick Reference
 
@@ -91,6 +101,10 @@
 - **API**: football-data.org v4, URLSession, X-Auth-Token header
 - **API Key**: User-configurable in Settings tab, stored in UserDefaults
 - **Polling**: Task-based state machine (idle ↔ live), 120s idle polling, no-cache URLSession
+- **MenuBarLabel**: 5 states (idle/upcoming/live/HT/finished) + `GOAL!` 2s flash; SF Symbol icon; ticks every 60s via `store.minuteTick`
+- **minuteTick**: `private(set) var minuteTick: Date` on MatchStore, updated by `startMinuteTicker()` Task.sleep(60s) loop; avoids TimelineView (hangs MenuBarExtra)
+- **triggerGoal()**: public MatchStore method — sets `goalScored = true`, schedules 2s Task reset; called by `detectGoals()` and DEBUG button
+- **allMatches**: scoped to `[yesterdayKey, todayKey, tomorrowKey]` — prevents Schedule tab ±7d data bleeding into `featuredMatch` logic
 - **Status Inference**: `Match.effectiveStatus` overrides stale API status using match clock logic (0–135 min after kickoff → IN_PLAY)
 - **Panel Height**: 520px max, shrinks to content when fewer matches (footer pulls up). `.layoutPriority(-1)` on content. Scroll threshold: >4 matches.
 - **Scrollbar**: `.scrollIndicators(.hidden)` on ALL ScrollViews (macOS 14+ compatible).
@@ -117,7 +131,7 @@ Sources/
     MatchStore.swift           # @Observable @MainActor — central state, goal detection
     PollController.swift       # @MainActor class — polling state machine
   Views/
-    MenuBarLabel.swift         # Compact menu bar (3 states + goal animation)
+    MenuBarLabel.swift         # Compact menu bar (5 states + GOAL! animation, minuteTick-driven)
     MenuBarPanel.swift         # Expanded panel (6 tabs: Today/Yesterday/Tomorrow/Schedule/Standings/Settings)
   Resources/
     Info.plist                 # LSUIElement = true (no Dock icon)

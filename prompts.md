@@ -630,3 +630,48 @@ User reported 10 compile errors: `.scrollIndicatorsVisibility` has no member on 
 **Verified**: Footer pull-up behavior is unaffected. Footer is a sibling in the top-level VStack (outside ScrollViews). `.layoutPriority(-1)` on content + `.frame(maxHeight: 520)` on panel — content sizes naturally when short (footer pulls up), caps at 520px when content exceeds (content scrolls inside).
 
 **Summary:** All 6 `.scrollIndicatorsVisibility(.hidden)` → `.scrollIndicators(.hidden)`. macOS 14 compatible. Scrollbars still hide. Footer pull-up + ScrollView coexist. All files compile clean.
+
+---
+
+## Prompt 33 — Rebuild Dynamic MenuBarLabel (5 States + GOAL! Animation + minuteTick)
+
+**Problem**: MenuBarLabel was broken from prior incomplete attempts. The label was not dynamically showing match state. Goal animation and live minute ticking were non-functional.
+
+**Goal**: Show live World Cup match state at all times in the macOS menu bar — no click needed. Modeled after the prayer-times-macos pattern.
+
+**Key decisions made**:
+- Tick interval: 60s
+- Icon: SF Symbol (`soccerball`) — not emoji (emoji as `Text` consumed all status item width)
+- Goal state: text-only `GOAL!` for 2s then auto-dismiss (sliding emoji animation does not work in MenuBarExtra label)
+- Featured match priority: live → today-upcoming → recent-finished (never future days)
+- Build immediately, no waiting
+
+**What was discovered during debugging**:
+1. **`TimelineView` hangs MenuBarExtra label** — confirmed by incremental testing. The label freezes and the app becomes unresponsive. Dropped entirely.
+2. **`Text("⚽")` emoji consumes full status item width** — text label disappears. Fixed by using `Image(systemName: "soccerball")` SF Symbol.
+3. **Goal animation modifiers fail silently in MenuBarExtra label** — `.symbolEffect(.bounce)`, `.scaleEffect` + `.animation`, and offset/opacity overlays all produce no effect. Final solution: text state flips to `GOAL!` for 2s, auto-reverts.
+4. **`featuredMatch` showed tomorrow's matches** — `allMatches` was pulling from all of `matchesByDate` including ±7 day Schedule tab data. Fixed by scoping `allMatches` to 3-day window (yesterday/today/tomorrow) and restricting upcoming to today-only.
+
+**What was built**:
+
+`Sources/Views/MenuBarLabel.swift` — fully rebuilt:
+- 5 states: Idle (`⊕ FWC`), Upcoming (`⊕ ESP vs CPV · 10:00 PM`), Live (`⊕ ESP 1-0 CPV · 67'`), HT (`⊕ ESP 1-0 CPV · HT`), Finished (`⊕ SWE 5-1 TUN · FT`)
+- Icon: `Image(systemName: "soccerball")` — works correctly alongside text
+- Goal state: label switches to `GOAL!` for 2s, auto-reverts via `triggerGoal()`
+- Ticking: reads `store.minuteTick` (a `Date` property on MatchStore, updated every 60s) to force re-renders
+- No `TimelineView` — it hangs MenuBarExtra
+
+`Sources/Services/MatchStore.swift` — key additions:
+- `private(set) var minuteTick: Date = .now` — observed by MenuBarLabel for 60s re-renders
+- `private var tickTask: Task<Void, Never>?` — holds the ticker
+- `startMinuteTicker()` — simple `Task.sleep(60s)` loop
+- `startPolling()` now also calls `startMinuteTicker()`; `stopPolling()` cancels `tickTask`
+- `triggerGoal()` public method — sets `goalScored = true` + schedules 2s reset via `Task`
+- `detectGoals()` now calls `triggerGoal()` instead of inline management
+- `allMatches` scoped to `[yesterdayKey, todayKey, tomorrowKey]` only
+- `featuredMatch` priority: live → today-upcoming → recent-finished
+
+`Sources/Views/MenuBarPanel.swift` — added `#if DEBUG` "Test Goal ⚽" button in footer calling `store.triggerGoal()`
+
+**Summary**: Dynamic MenuBarLabel is fully working with 5 states, 60s minute ticking via `minuteTick`, and a 2s `GOAL!` text animation. SF Symbol icon resolves the emoji width issue. `TimelineView` permanently dropped from this context.
+

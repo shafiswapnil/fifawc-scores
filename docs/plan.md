@@ -45,20 +45,25 @@
 
 ### M6: MenuBarLabel
 
-- Compact menu bar view with three states:
-  - No match: `⚽ FWC`
-  - Upcoming: `⚽ BRA vs ARG · 3:00 PM`
-  - Live: `⚽ BRA 2 - 1 ARG · 67'`
-- Dynamic team-color accent
-- Live match minute counter
+- Compact menu bar view with five states:
+  - Idle: `⚽ FWC` (no data or no match today)
+  - Upcoming: `⚽ ESP vs CPV · 10:00 PM` (today only)
+  - Live: `⚽ ESP 1-0 CPV · 67'`
+  - Half-time: `⚽ ESP 1-0 CPV · HT`
+  - Finished: `⚽ SWE 5-1 TUN · FT`
+- Icon: `Image(systemName: "soccerball")` SF Symbol (emoji as `Text` consumed full status item width)
+- Live minute counter ticks every 60s via `store.minuteTick: Date` (Task.sleep loop on MatchStore)
+- `TimelineView` explicitly NOT used — hangs MenuBarExtra label on macOS
+- `featuredMatch` priority: live → today-upcoming → recent-finished (never future days)
+- `allMatches` scoped to 3-day window to prevent Schedule tab data bleeding in
 
 ### M7: Goal Animation
 
-- Score change detection (compare previous poll to current)
-- Tiny ⚨ slides left-to-right across menu bar text
-- Duration: 1.5s, ease-in-out
-- Score text pulse effect
-- On-demand creation, auto-destroy
+- Score change detection via `detectGoals()` on MatchStore
+- `triggerGoal()` public method: sets `goalScored = true`, schedules 2s Task reset
+- Menu bar label text flips to `GOAL!` for 2 seconds, then auto-reverts to score
+- Sliding emoji animation dropped — all animation modifiers (`.symbolEffect`, `.scaleEffect`, offset/opacity overlays) fail silently inside MenuBarExtra label
+- `#if DEBUG` "Test Goal ⚽" button in MenuBarPanel footer for manual testing
 
 ### M8: MenuBarPanel
 

@@ -12,7 +12,7 @@
 Cup 2026 match schedules, live scores, and goal animations. Menu bar agent
 (no Dock icon). All interaction happens in the menu bar — no main window.
 
-**Current status:** Phase 1 complete (M1–M14). Phase 2 complete (M15–M18). Phase 3 complete (M19 — full UI/UX redesign).
+**Current status:** Phase 1 complete (M1–M14). Phase 2 complete (M15–M18). Phase 3 complete (M19 — full UI/UX redesign). **MenuBarLabel complete**: 5 states (idle/upcoming/live/HT/finished) + 60s real-time ticking via `minuteTick: Date` on MatchStore (Task.sleep loop) + `GOAL!` 2s text flash via `triggerGoal()`. SF Symbol `soccerball` icon. `TimelineView` dropped — confirmed to hang MenuBarExtra label. `allMatches` scoped to 3-day window.
 Post-phase 2 polish: tab scroll hints, Settings in footer, auto-show Settings on
 first launch, Sparkle warnings suppressed, GitHub Pages site created.
 macOS 14 compatibility fix: replaced `.scrollIndicatorsVisibility` (macOS 15+)
@@ -159,6 +159,11 @@ for syntax validation. Full builds require Xcode.
   to child views inside `MenuBarExtra { } label: { }`, not to the scene itself.
 - **`PRODUCT_MODULE_NAME`** must be set explicitly when `PRODUCT_NAME`
   differs from the import module name (tests `import FIFAWCSCORES`).
+- **`TimelineView` hangs MenuBarExtra label.** Do not use `TimelineView` inside
+  a `MenuBarExtra { } label: { }` closure — it freezes the label and the app
+  becomes unresponsive. Use an `@Observable` property (e.g. `minuteTick: Date`)
+  updated by a `Task { while true { try? await Task.sleep(...); self.minuteTick = .now } }`
+  loop instead. MenuBarLabel observes the property and SwiftUI re-renders on change.
 
 ---
 
@@ -173,7 +178,9 @@ FIFAWCScoresApp (@main)
        ├─ matchesByDate            ← [String: [Match]] grouped by date
        ├─ standings                ← [GroupStanding] (groups A–H)
        └─ settings                 ← apiKey, pollInterval, favoriteTeam (UserDefaults)
-            ├─ MenuBarLabel        ← compact: ⚽ FWC / ⚽ BRA vs ARG · 3PM / ⚽ BRA 2-1 ARG · 67'
+            ├─ MenuBarLabel        ← 5 states: idle(⚽ FWC) / upcoming(⚽ ESP vs CPV · 10PM) / live(⚽ ESP 1-0 CPV · 67') / HT(⚽ ESP 1-0 CPV · HT) / finished(⚽ SWE 5-1 TUN · FT)
+            |                       real-time tick via store.minuteTick (Task.sleep 60s loop)
+            |                       GOAL!: text flips to "GOAL!" for 2s via triggerGoal()
             └─ MenuBarPanel        ← 6 tabs: Today/Yesterday/Tomorrow/Schedule/Standings/Settings
                  ├─ MatchCard      ← team flags, score, status, group
                  ├─ GroupStandingCard ← group table with positions

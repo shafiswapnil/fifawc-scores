@@ -41,7 +41,11 @@ Requirements: **macOS 14 Sonoma or later** · Universal (Apple Silicon + Intel).
 
 ## Features
 
-- **Menu bar at a glance** — live scores, upcoming matches in the macOS menu bar
+- **Dynamic menu bar label** — always visible without clicking: live score with minute counter, half-time, upcoming match, GOAL! alert
+- **5 label states** — Idle, Upcoming (today only), Live (with elapsed minute), Half-time, Finished
+- **GOAL! alert** — label text flips to `GOAL!` for 2 seconds on each goal, auto-reverts
+- **Real-time minute counter** — ticks every 60s via an observable `minuteTick` property on MatchStore (no `TimelineView` — it hangs in MenuBarExtra)
+- **Smart featured match** — shows most relevant match only; priority: live → today-upcoming → recent-finished; never shows future days
 - **6 tabbed views** — Today, Yesterday, Tomorrow, Full Schedule, Standings, Settings
 - **Live experience** — pulsing red dot, team colors on match cards, clock-based status inference
 - **Favorite team** — 12 popular teams + search for any nation, prioritized in menu bar
@@ -105,12 +109,14 @@ xcodebuild -project FIFAWCSCORES.xcodeproj -scheme FIFAWCSCORES \
 
 ### Menu Bar Display
 
-| State    | Example                          |
-| -------- | -------------------------------- |
-| Idle     | `⚽ FWC`                         |
-| Upcoming | `⚽ BRA vs ARG · 3:00 PM`        |
-| Live     | `⚽ BRA 2 - 1 ARG · 67'`         |
-| Goal     | `⚽ BRA 2 - 1 ARG` + ⚨ animation |
+| State     | Example                              | Notes                    |
+| --------- | ------------------------------------ | ------------------------ |
+| Idle      | `⚽ FWC`                              | No match data / no matches today |
+| Upcoming  | `⚽ ESP vs CPV · 10:00 PM`           | Today's next match only  |
+| Live      | `⚽ ESP 1-0 CPV · 67'`               | Ticks every 60s          |
+| Half-time | `⚽ ESP 1-0 CPV · HT`               |                          |
+| Finished  | `⚽ SWE 5-1 TUN · FT`               | Most recent result       |
+| Goal      | `⚽ GOAL!`                            | 2 seconds, auto-dismisses |
 
 ### Panel Tabs
 
@@ -167,6 +173,8 @@ scripts/
 - **Swift 6 strict concurrency** (`SWIFT_STRICT_CONCURRENCY=complete`)
 - **XcodeGen** for project generation (`project.yml` → `.xcodeproj`)
 - **Sparkle** for auto-updates (GitHub Releases as feed)
+- **`minuteTick: Date`** on MatchStore drives label re-renders every 60s via a `Task.sleep` loop — `TimelineView` is explicitly avoided as it hangs the app when used inside `MenuBarExtra` label context
+- **`allMatches`** scoped to a 3-day window (yesterday/today/tomorrow) — prevents the Schedule tab’s ±7d data from bleeding into `featuredMatch` logic and showing future-day matches in the label
 
 ## Settings
 
