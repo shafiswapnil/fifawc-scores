@@ -92,6 +92,8 @@ Colors adapt to the currently featured match:
 
 ### States
 
+All states render as: `[soccerball]` SF Symbol + text.
+
 #### Idle (no match today)
 
 ```
@@ -219,7 +221,7 @@ text-state flip is the only approach that works in MenuBarExtra label context.
 
 ### Testing
 
-- `#if DEBUG` "Test Goal ⚽" button in MenuBarPanel footer calls `store.triggerGoal()`.
+- `#if DEBUG` "Test Goal" button (SF Symbol `soccerball`) in MenuBarPanel footer calls `store.triggerGoal()`.
 
 ---
 

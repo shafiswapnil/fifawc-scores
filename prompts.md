@@ -675,3 +675,28 @@ User reported 10 compile errors: `.scrollIndicatorsVisibility` has no member on 
 
 **Summary**: Dynamic MenuBarLabel is fully working with 5 states, 60s minute ticking via `minuteTick`, and a 2s `GOAL!` text animation. SF Symbol icon resolves the emoji width issue. `TimelineView` permanently dropped from this context.
 
+---
+
+## Prompt 34 — Emoji Audit & ⚽ Cleanup
+
+**Problem**: ⚽ emoji remained in several source files and doc comments despite the SF Symbol migration. Inconsistent icon usage across menu bar (SF Symbol) and panel (emoji). `Team.crest` was dead code.
+
+**Goal**: Remove all ⚽ from source code, clean up doc comments, fix panel consistency.
+
+**What was found**:
+1. `Team.swift:13` — `flagEmoji` fallback was `"⚽"`. Changed to `"🏳️"`.
+2. `MenuBarPanel.swift:120` — `Text("⚽ Match Hub")`. Changed to `HStack { Image(systemName: "soccerball"); Text("Match Hub") }` for consistency with menu bar.
+3. `MenuBarPanel.swift:394` — Favorite team picker fallback was `"⚽"`. Changed to `"🏳️"`.
+4. `MenuBarPanel.swift:613` — Debug button `Label("Test Goal ⚽", systemImage: "flame")`. Changed to `Label("Test Goal", systemImage: "soccerball")`.
+5. `MenuBarLabel.swift:6-10` — Doc comments used ⚽ in state examples. Cleaned up formatting.
+6. `docs/design.md` — Updated debug button description to reflect new label.
+
+**What was NOT changed** (intentional):
+- `docs/notes.md` — ⚽ in historical decision log (records what was true at the time)
+- `status.md` — ⚽ in historical milestone log
+- `docs/index.html` — ⚽ in HTML page (web emoji, renders fine in browser)
+- `CLAUDE.md` / `README.md` — ⚽ in example strings showing user-visible output (menu bar label examples)
+- `prompts.md` — ⚽ in previous prompt entries (historical record)
+
+**Summary**: All ⚽ removed from Swift source code. Panel header uses SF Symbol for consistency. Debug button uses SF Symbol. Doc comments cleaned. Historical docs preserved as-is. `Team.crest` noted as dead code (low priority, can be used later for team logos).
+
