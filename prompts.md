@@ -504,6 +504,7 @@ After multiple rounds of attempts to fix the menu bar wobble (Prompts 24–27), 
 3. **`MatchStore.swift`** — Removed the `now` property and `startTick()`/`stopTick()` clock mechanism entirely. No 1-second re-render trigger.
 
 **What was KEPT (not reverted — all part of d82dc21):**
+
 - `effectiveStatus` computed property on Match model (client-side status inference)
 - `EXTRA_TIME` and `PENALTY_SHOOTOUT` cases in MatchStatus
 - FetchService no-cache URLSession + Cache-Control header
@@ -513,11 +514,13 @@ After multiple rounds of attempts to fix the menu bar wobble (Prompts 24–27), 
 - All test changes
 
 **Design principle for next attempt**: The menu bar label can have colors and animations, but the UPDATE MECHANISM must not cause layout thrashing. The stable state at d82dc21 worked because:
+
 - Data only loaded when panel opened (polling in panel's `.task`)
 - No clock tick → label body only re-rendered on data fetch
 - When it DID re-render, `labelColor` + animations were fine because it was rare
 
 **Next steps**: To make the menu bar show live data WITHOUT wobble:
+
 - Move `startPolling()` to label's `.task` (so data loads on launch)
 - BUT do NOT add a clock tick — instead, rely on poll intervals to refresh data
 - The label will update when new data arrives, not every second
