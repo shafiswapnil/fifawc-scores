@@ -592,3 +592,24 @@ User said: "we definitely did specify a strict height for the panel. but keep th
 - Empty: panel shrinks to just header + tabs + footer + empty state
 
 **Summary:** Panel now dynamically sizes to content. Added `.layoutPriority(-1)` to content view so it takes natural height when list is short, allowing footer to pull up. Caps at 520px when content exceeds. Schedule tab also fixed to use local timezone for date grouping.
+
+---
+
+## Prompt 31 — Panel Polish: Scroll, Settings, Hover, Sparkle, Version
+
+User requested 5 improvements:
+
+1. **Schedule tab header/footer cut** on 5-match days — threshold lowered from `>5` to `>4` for both `matchList()` and `fullScheduleView`. 5 matches now gets a ScrollView.
+2. **Hide all scrollbars** — every ScrollView changed from `.scrollIndicators(.hidden)` to `.scrollIndicatorsVisibility(.hidden)` (macOS 14+ API, force-hides regardless of system "Show scroll bars" preference).
+3. **Settings tab wrapped in ScrollView** — was a plain VStack that overflowed. Now `ScrollView(.vertical, showsIndicators: false)` + `.scrollIndicatorsVisibility(.hidden)`. No more header/footer clipping.
+4. **Hover highlight rounded corners** — `MenuRowHighlight` modifier changed from plain `Color` background to `RoundedRectangle(cornerRadius: 6)` for professional-looking hover on Settings/Sync/Quit.
+5. **Sparkle auto-check + version badge** — `startingUpdater: false` → `true` (auto-checks on launch). "Check for Updates…" button removed (Sparkle handles silently). Replaced with version status line: `FIFAWC Scores v{version}` + `latest` in green.
+
+**Design decisions:**
+- Scroll threshold: ≤4 no scroll (footer pulls up), >4 scrolls
+- Settings: always scrollable (too much content for any threshold)
+- Hover: RoundedRectangle(cornerRadius: 6)
+- Sparkle: background auto-check, default Sparkle dialog for updates
+- Version: muted text replacing Check for Updates button, reads from bundle
+
+**Summary:** Panel polish pass. Scroll thresholds lowered to >4, all scrollbars force-hidden via `.scrollIndicatorsVisibility(.hidden)`, Settings wrapped in ScrollView, hover highlights rounded (cornerRadius: 6), Check for Updates replaced with version status line, Sparkle auto-checks on launch.
