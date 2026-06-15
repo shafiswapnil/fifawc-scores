@@ -640,6 +640,7 @@ User reported 10 compile errors: `.scrollIndicatorsVisibility` has no member on 
 **Goal**: Show live World Cup match state at all times in the macOS menu bar — no click needed. Modeled after the prayer-times-macos pattern.
 
 **Key decisions made**:
+
 - Tick interval: 60s
 - Icon: SF Symbol (`soccerball`) — not emoji (emoji as `Text` consumed all status item width)
 - Goal state: text-only `GOAL!` for 2s then auto-dismiss (sliding emoji animation does not work in MenuBarExtra label)
@@ -647,6 +648,7 @@ User reported 10 compile errors: `.scrollIndicatorsVisibility` has no member on 
 - Build immediately, no waiting
 
 **What was discovered during debugging**:
+
 1. **`TimelineView` hangs MenuBarExtra label** — confirmed by incremental testing. The label freezes and the app becomes unresponsive. Dropped entirely.
 2. **`Text("⚽")` emoji consumes full status item width** — text label disappears. Fixed by using `Image(systemName: "soccerball")` SF Symbol.
 3. **Goal animation modifiers fail silently in MenuBarExtra label** — `.symbolEffect(.bounce)`, `.scaleEffect` + `.animation`, and offset/opacity overlays all produce no effect. Final solution: text state flips to `GOAL!` for 2s, auto-reverts.
@@ -655,6 +657,7 @@ User reported 10 compile errors: `.scrollIndicatorsVisibility` has no member on 
 **What was built**:
 
 `Sources/Views/MenuBarLabel.swift` — fully rebuilt:
+
 - 5 states: Idle (`⊕ FWC`), Upcoming (`⊕ ESP vs CPV · 10:00 PM`), Live (`⊕ ESP 1-0 CPV · 67'`), HT (`⊕ ESP 1-0 CPV · HT`), Finished (`⊕ SWE 5-1 TUN · FT`)
 - Icon: `Image(systemName: "soccerball")` — works correctly alongside text
 - Goal state: label switches to `GOAL!` for 2s, auto-reverts via `triggerGoal()`
@@ -662,6 +665,7 @@ User reported 10 compile errors: `.scrollIndicatorsVisibility` has no member on 
 - No `TimelineView` — it hangs MenuBarExtra
 
 `Sources/Services/MatchStore.swift` — key additions:
+
 - `private(set) var minuteTick: Date = .now` — observed by MenuBarLabel for 60s re-renders
 - `private var tickTask: Task<Void, Never>?` — holds the ticker
 - `startMinuteTicker()` — simple `Task.sleep(60s)` loop
@@ -684,6 +688,7 @@ User reported 10 compile errors: `.scrollIndicatorsVisibility` has no member on 
 **Goal**: Remove all ⚽ from source code, clean up doc comments, fix panel consistency.
 
 **What was found**:
+
 1. `Team.swift:13` — `flagEmoji` fallback was `"⚽"`. Changed to `"🏳️"`.
 2. `MenuBarPanel.swift:120` — `Text("⚽ Match Hub")`. Changed to `HStack { Image(systemName: "soccerball"); Text("Match Hub") }` for consistency with menu bar.
 3. `MenuBarPanel.swift:394` — Favorite team picker fallback was `"⚽"`. Changed to `"🏳️"`.
@@ -692,6 +697,7 @@ User reported 10 compile errors: `.scrollIndicatorsVisibility` has no member on 
 6. `docs/design.md` — Updated debug button description to reflect new label.
 
 **What was NOT changed** (intentional):
+
 - `docs/notes.md` — ⚽ in historical decision log (records what was true at the time)
 - `status.md` — ⚽ in historical milestone log
 - `docs/index.html` — ⚽ in HTML page (web emoji, renders fine in browser)
@@ -699,4 +705,43 @@ User reported 10 compile errors: `.scrollIndicatorsVisibility` has no member on 
 - `prompts.md` — ⚽ in previous prompt entries (historical record)
 
 **Summary**: All ⚽ removed from Swift source code. Panel header uses SF Symbol for consistency. Debug button uses SF Symbol. Doc comments cleaned. Historical docs preserved as-is. `Team.crest` noted as dead code (low priority, can be used later for team logos).
+
+---
+
+## Prompt 35 - Recovery
+
+you are so bad mimo. you just reverted all everything. now i dont have any chat history to restore. shit! you deleted a working application. why dude! i just told you to read the claudesession.md, look into the md file: see our chat history, see how claude fixed everything. we talked, we took new decisions, his codes were in unstaged version. and you deleted all everything! you even reverted my prompts.md too.. now you have to recode everything.
+
+look at the claudesession.md file:
+- throughly read our conversation > see prompts i gave > there will be multiple prompts > then i came to a decision, claude came to a decision! and in the last we fixed everything. as far as i remember, we solved the menubar issue. see the starting prompt > i told claude to fix it > then we found out its the emoji we are using in the menubar was troubling > so we took prayer repos inspirataion > and used a character of soccer in the menubar! we also figured out the what we will be showing on menubar > when FWC > when what...
+- then comes to GOAL animations. finally we made sure that > we will not use any animation there > we will just show soccer character + GOAL! so just 2 sec when goal happens. thats it.
+- then you will find my prompt: "its runnning clean. no hang. but sometimes it hallucinates. see todays match, but its showing bra vs hai. i dont know why sometimes it hallucinates. this hallucinates must stop. its sometimes because of the cheap api we are using maybe. but still, hallcinations break users trust. fix it.", "i can give you api secret: you can curl to debug and go deep! api secret: c9ada3b0e81b4b56b5f74592323f341d. but yeah to your concerns: the menubar should show latest match of latest time, the logic was this from the ground up. not from future or anything.", "can you teach me here how timings are getting handled? how api is giving us time? how are calculating it? are you respecting our timezone first? discuss with me. so that we can go deep inside and fix. and also tell me all the logics, like we are fixing, we should show latest match of latest date on menubar. this type of how many condittions are even set? lets revise.", "yes, tight it. but maybe it was coded this way because when we visited the schedules tab, we would only get today, yesterday, tomorrows data, not of futures dates there. so do you think for fixing that this was coded this way? or how should we approach so that two things work separately and nicely! no errors, all glow." > from this claude fixed me like this: "featuredMatch priority
+─────────────────────────────────────────────────────────
+1. Live       → any match IN_PLAY/PAUSED/ET/PSO (3-day window)
+2. Today upcoming → todayMatches, !hasStarted, utcDate > now
+3. Recent finished → allMatches (3-day window only), newest first
+4. nil        → label shows "FWC"
+
+allMatches scope
+─────────────────────────────────────────────────────────
+Before fix: ALL of matchesByDate (could include ±7 days from Schedule tab)
+After fix:  [yesterdayKey, todayKey, tomorrowKey] only ← isolated
+
+Schedule tab
+─────────────────────────────────────────────────────────
+Still writes to matchesByDate freely (fetchScheduleAround unchanged)
+Still reads store.matchesByDate[key] directly (unchanged)
+Never touches allMatches → zero interference ✅
+
+Timezone handling
+─────────────────────────────────────────────────────────
+API dates    → always UTC (Z suffix)
+Date objects → UTC internally, no timezone embedded
+dateString() → uses TimeZone.current (Bangladesh UTC+6) for tab grouping
+formattedTime() → uses TimeZone.current for display
+effectiveStatus → Date() - utcDate, both UTC, always correct
+"
+- you will find every code changse decisions and or maybe codes in the claudesession.md file.
+- we fixed everything > and here i told you to just update whats we did > just the docs > and you reverted the whole thing assuming previously we were good > BUT NO! previously we were broken! you just undid a 5hour work!
+- now take responsibility > create extensive plan > ask me with your plan > then i will let you move forward!!! READ THE SESSION THROUGHLY!
 
