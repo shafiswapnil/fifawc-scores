@@ -10,7 +10,7 @@ final class TeamTests: XCTestCase {
 
     func testFlagEmojiUnknown() {
         let team = Team(id: 99, name: "Atlantis", shortName: "Atlantis", tla: "ATL", crest: nil)
-        XCTAssertEqual(team.flagEmoji, "⚽")
+        XCTAssertEqual(team.flagEmoji, "🏳️")
     }
 
     func testAllTLAsHaveFlags() {

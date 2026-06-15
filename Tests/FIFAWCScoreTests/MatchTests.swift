@@ -78,7 +78,18 @@ final class MatchTests: XCTestCase {
     }
 
     func testDisplayTextScheduledShowsTime() {
-        let match = makeMatch(status: .scheduled)
+        // Use a future date so effectiveStatus stays .scheduled (not inferred as .inPlay)
+        let futureDate = Date().addingTimeInterval(3600 * 5)
+        let match = Match(
+            id: 1, utcDate: futureDate, status: .scheduled, matchday: 1,
+            stage: nil, group: "GROUP_A",
+            homeTeam: Team(id: 1, name: "Brazil", shortName: "Brazil", tla: "BRA", crest: nil),
+            awayTeam: Team(id: 2, name: "Argentina", shortName: "Argentina", tla: "ARG", crest: nil),
+            score: Score(winner: nil, duration: "REGULAR",
+                fullTime: ScoreValues(home: nil, away: nil),
+                halfTime: ScoreValues(home: nil, away: nil)),
+            venue: "MetLife Stadium"
+        )
         // Should return a time string (e.g. "3:00 PM"), not a score
         XCTAssertFalse(match.displayText.contains(" - "))
     }
