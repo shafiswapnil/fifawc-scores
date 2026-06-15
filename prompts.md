@@ -527,3 +527,42 @@ After multiple rounds of attempts to fix the menu bar wobble (Prompts 24–27), 
 - This gives live scores in menu bar without wobble
 
 **Summary:** Reverted FIFAWCScoresApp.swift, MenuBarLabel.swift, and MatchStore.swift to the stable state at commit d82dc21. All effectiveStatus, cache, and poll fixes are preserved. The panel is stable again. Menu bar label will need a separate, careful approach for live data updates.
+
+---
+
+## Prompt 29 — Fix Timezone Grouping + Plain Menu Bar
+
+User reported: "the whole panel is live pulsing but theres no match is live showing there. but in yesterday, its showing its live." CIV vs ECU was live at 77' but appeared in Yesterday instead of Today.
+
+**Root cause — timezone mismatch in `dateString()`**:
+
+`dateString(for:)` used UTC (`TimeZone(secondsFromGMT: 0)`), but `todayKey`/`yesterdayKey`/`tomorrowKey` use `Calendar.current` which is local timezone. This caused:
+
+- CIV vs ECU: `utcDate: 2026-06-14T23:00:00Z` = BD June 15 05:00 AM (TODAY), but `dateString()` returned "2026-06-14" (UTC date) → went into Yesterday
+- BEL vs EGY, KSA vs URY: `utcDate: 2026-06-15T19:00:00Z` and `2026-06-15T22:00:00Z` = BD June 16 01:00 and 04:00 (TOMORROW), but `dateString()` returned "2026-06-15" → went into Today
+
+**Fix**: Changed `dateString()` to use `TimeZone.current` (local timezone). Now all tabs match Google's grouping for the user's timezone.
+
+**Results verified with curl**:
+
+- Yesterday (BD June 14): QAT, BRA, HAI, AUS, GER ✅
+- Today (BD June 15): NED, CIV (LIVE), SWE, ESP ✅
+- Tomorrow (BD June 16): BEL, KSA, IRN ✅
+
+**Menu bar: stripped to plain default color** (like prayer-times-macos):
+
+User said: "lets keep it clean plain color default. no changes on color in menubar when team or match changes."
+
+Removed from MenuBarLabel:
+
+- `labelColor` computed property (team color switching)
+- `GoalAnimationView` overlay
+- `.contentTransition(.numericText())`
+- `.animation(.default, value: labelText)`
+- `foregroundStyle(labelColor)`
+
+Now: just `Text("⚽")` + `Text(labelText)` with system default color. Zero modifiers. Exactly like the prayer app's label.
+
+**Design principle confirmed**: Menu bar = plain, stable, system default. Panel = rich, animated, team colors.
+
+**Summary:** Fixed critical timezone bug in `dateString()` (UTC → local). Menu bar label stripped to plain system default color like prayer-times-macos. All tabs now correctly grouped by local date. CIV vs ECU live match now appears in Today tab.

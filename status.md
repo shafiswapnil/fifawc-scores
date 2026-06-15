@@ -5,7 +5,7 @@
 
 ## Current Stage
 
-**Phase 1 complete (M1–M18). Phase 2 complete (M15–M18). Phase 3 complete (M19).** Full UI/UX redesign: glass material panel, 520px height, horizontal day pills, 12-team grid with search, live match experience with pulsing dot + team colors, hidden scrollbars, ±7 day schedule fetching. **Bug fixes**: PollController idle state now polls every 120s (was waiting until midnight). FetchService uses dedicated URLSession with no cache + Cache-Control: no-cache header (was using URLSession.shared which cached stale TIMED responses). **API compliance**: MatchStatus includes EXTRA_TIME + PENALTY_SHOOTOUT. Response-header-aware rate limiting (X-RequestsAvailable, X-RequestCounter-Reset). **CRITICAL FIX**: football-data.org free tier returns stale match status — API showed TIMED while match was actually LIVE for 32+ min. Implemented client-side status inference (`effectiveStatus`) that overrides stale API status using match clock logic (0–135 min after kickoff → infer IN_PLAY). **STABLE REVERT**: Reverted menu bar changes from Prompts 24–27 to restore panel stability. Menu bar label has team colors + goal animation; polling starts on panel open.
+**Phase 1 complete (M1–M18). Phase 2 complete (M15–M18). Phase 3 complete (M19).** Full UI/UX redesign: glass material panel, 520px height, horizontal day pills, 12-team grid with search, live match experience with pulsing dot + team colors, hidden scrollbars, ±7 day schedule fetching. **Bug fixes**: PollController idle state now polls every 120s (was waiting until midnight). FetchService uses dedicated URLSession with no cache + Cache-Control: no-cache header (was using URLSession.shared which cached stale TIMED responses). **API compliance**: MatchStatus includes EXTRA_TIME + PENALTY_SHOOTOUT. Response-header-aware rate limiting (X-RequestsAvailable, X-RequestCounter-Reset). **CRITICAL FIX**: football-data.org free tier returns stale match status — API showed TIMED while match was actually LIVE for 32+ min. Implemented client-side status inference (`effectiveStatus`) that overrides stale API status using match clock logic (0–135 min after kickoff → infer IN_PLAY). **STABLE REVERT**: Reverted menu bar changes from Prompts 24–27 to restore panel stability. Menu bar label is now plain system default color (no team colors, no animations). **TIMEZONE FIX**: `dateString()` now uses local timezone for correct tab grouping. All tabs match Google's local date grouping.
 
 ## Milestone Tracker
 
@@ -34,7 +34,7 @@
 ## Key Decisions Log
 
 | Date       | Decision                                                    | Rationale                                                                                                                            |
-| ---------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | --- | ---------- | ---------------------------- | ------------------------------------------------------------------------------- |
+| ---------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | --- | ---------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
 | 2026-06-15 | football-data.org as primary API                            | Free, reliable, live scores, WC support                                                                                              |
 | 2026-06-15 | Zero third-party dependencies                               | Tiny footprint, URLSession sufficient                                                                                                |
 | 2026-06-15 | 60s poll interval (configurable, min 60s)                   | Balance between freshness and API limits                                                                                             |
@@ -56,7 +56,7 @@
 | 2026-06-15 | Task wrapping for actor-isolated calls in didSet            | didSet is synchronous; actor calls need Task { await ... }                                                                           |
 | 2026-06-15 | Environment injected inside MenuBarExtra label              | .environment() on Scene is invalid; apply to View children only                                                                      |
 | 2026-06-15 | PRODUCT_MODULE_NAME set explicitly                          | PRODUCT_NAME "FIFAWC Scores" creates module "FIFAWC_Scores"; tests import "FIFAWCSCORES"                                             |
-| 2026-06-15 | App renamed from WC Scores → FIFAWC Scores                  | Full rename across project, source, tests, CI/CD, docs, README. Bundle: com.fifawcscores.app                                         |     | 2026-06-15 | Tab row scroll hint gradient | Trailing LinearGradient when tabs overflow 340px panel — hints at scrollability |
+| 2026-06-15 | App renamed from WC Scores → FIFAWC Scores                  | Full rename across project, source, tests, CI/CD, docs, README. Bundle: com.fifawcscores.app                                         |     | 2026-06-15 | Tab row scroll hint gradient                   | Trailing LinearGradient when tabs overflow 340px panel — hints at scrollability                                                      |
 | 2026-06-15 | Settings button added to footer (above Sync)                | Always-reachable shortcut to ⚙️ Settings tab, even when tab row is scrolled                                                          |
 | 2026-06-15 | Auto-show Settings tab on first launch                      | When no API key is set, panel opens on ⚙️ Settings so user can paste key immediately                                                 |
 | 2026-06-15 | Sparkle startingUpdater = false                             | Suppresses EdDSA + appcast 404 warnings in console; manual check via "Check for Updates…"                                            |
@@ -78,7 +78,8 @@
 | 2026-06-16 | MatchStatus: added EXTRA_TIME + PENALTY_SHOOTOUT            | API returns these for extra time/penalties; missing cases caused JSON decode failures                                                |
 | 2026-06-16 | Response-header rate limiting (X-RequestsAvailable)         | API email warned about throttling; now reads X-RequestsAvailable + X-RequestCounter-Reset headers                                    |
 | 2026-06-16 | Client-side status inference (`effectiveStatus`)            | football-data.org free tier returns stale TIMED status even when match is LIVE; clock-based inference overrides stale API data       |
-| 2026-06-16 | Reverted: removed clock tick, restored stable menu bar      | Multiple wobble fix attempts (Prompts 24–27) each introduced new problems. Reverted to stable state at d82dc21 for panel stability.  |
+| 2026-06-16 | Reverted: removed clock tick, restored stable menu bar      | Multiple wobble fix attempts (Prompts 24–27) each introduced new problems. Reverted to stable state at d82dc21 for panel stability.  |     | 2026-06-16 | Timezone fix: dateString() uses local timezone | UTC grouping caused matches to appear in wrong tabs (CIV vs ECU in Yesterday instead of Today). Now matches Google's local grouping. |
+| 2026-06-16 | Menu bar: plain system default color (like prayer app)      | Removed labelColor, GoalAnimationView, .contentTransition, .animation. Just ⚽ + text, zero modifiers.                               |
 
 ## Architecture Quick Reference
 
@@ -88,7 +89,7 @@
 - **API Key**: User-configurable in Settings tab, stored in UserDefaults
 - **Polling**: Task-based state machine (idle ↔ live), 120s idle polling, no-cache URLSession
 - **Status Inference**: `Match.effectiveStatus` overrides stale API status using match clock logic (0–135 min after kickoff → IN_PLAY)
-- **Menu Bar**: Label with team colors + goal animation; polling starts when panel opens (not on launch)
+- **Menu Bar**: Plain system default color (no team colors, no animations). Label: ⚽ + text. Polling starts on panel open.
 - **Rate Limiting**: Response-header-aware (X-RequestsAvailable, X-RequestCounter-Reset) + local sliding window
 - **Build**: XcodeGen (`project.yml`), Swift 6, strict concurrency
 
