@@ -606,10 +606,27 @@ User requested 5 improvements:
 5. **Sparkle auto-check + version badge** — `startingUpdater: false` → `true` (auto-checks on launch). "Check for Updates…" button removed (Sparkle handles silently). Replaced with version status line: `FIFAWC Scores v{version}` + `latest` in green.
 
 **Design decisions:**
+
 - Scroll threshold: ≤4 no scroll (footer pulls up), >4 scrolls
 - Settings: always scrollable (too much content for any threshold)
 - Hover: RoundedRectangle(cornerRadius: 6)
 - Sparkle: background auto-check, default Sparkle dialog for updates
 - Version: muted text replacing Check for Updates button, reads from bundle
 
-**Summary:** Panel polish pass. Scroll thresholds lowered to >4, all scrollbars force-hidden via `.scrollIndicatorsVisibility(.hidden)`, Settings wrapped in ScrollView, hover highlights rounded (cornerRadius: 6), Check for Updates replaced with version status line, Sparkle auto-checks on launch.
+**Summary:** Panel polish pass. Scroll thresholds lowered to >4, all scrollbars force-hidden, Settings wrapped in ScrollView, hover highlights rounded (cornerRadius: 6), Check for Updates replaced with version status line, Sparkle auto-checks on launch.
+
+---
+
+## Prompt 32 — Fix macOS 15 API for macOS 14 Compatibility
+
+User reported 10 compile errors: `.scrollIndicatorsVisibility` has no member on `ScrollView<some View>`.
+
+**Root cause**: `.scrollIndicatorsVisibility(.hidden)` was introduced in macOS 15 / iOS 18. The project targets macOS 14.0. All 6 occurrences of this API in `MenuBarPanel.swift` fail to compile on macOS 14 SDK.
+
+**Fix**: Renamed all 6 `.scrollIndicatorsVisibility(.hidden)` to `.scrollIndicators(.hidden)` — the original SwiftUI API available since macOS 10.15. Same behavior: hides scroll indicators. 1:1 API swap.
+
+**Investigation**: Scanned entire codebase for other macOS 15+ APIs (scrollClipDisabled, scrollTargetLayout, scrollTargetBehavior, contentMargins). None found — `.scrollIndicatorsVisibility` was the only one.
+
+**Verified**: Footer pull-up behavior is unaffected. Footer is a sibling in the top-level VStack (outside ScrollViews). `.layoutPriority(-1)` on content + `.frame(maxHeight: 520)` on panel — content sizes naturally when short (footer pulls up), caps at 520px when content exceeds (content scrolls inside).
+
+**Summary:** All 6 `.scrollIndicatorsVisibility(.hidden)` → `.scrollIndicators(.hidden)`. macOS 14 compatible. Scrollbars still hide. Footer pull-up + ScrollView coexist. All files compile clean.

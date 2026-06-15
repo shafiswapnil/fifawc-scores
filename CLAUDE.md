@@ -14,8 +14,9 @@ Cup 2026 match schedules, live scores, and goal animations. Menu bar agent
 
 **Current status:** Phase 1 complete (M1–M14). Phase 2 complete (M15–M18). Phase 3 complete (M19 — full UI/UX redesign).
 Post-phase 2 polish: tab scroll hints, Settings in footer, auto-show Settings on
-first launch, Sparkle warnings suppressed, GitHub Pages site created. Read
-`status.md` for exact milestone state.
+first launch, Sparkle warnings suppressed, GitHub Pages site created.
+macOS 14 compatibility fix: replaced `.scrollIndicatorsVisibility` (macOS 15+)
+with `.scrollIndicators` (macOS 10.15+). Read `status.md` for exact milestone state.
 
 ---
 

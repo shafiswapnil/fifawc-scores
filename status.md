@@ -80,8 +80,9 @@
 | 2026-06-16 | Client-side status inference (`effectiveStatus`)            | football-data.org free tier returns stale TIMED status even when match is LIVE; clock-based inference overrides stale API data       |
 | 2026-06-16 | Reverted: removed clock tick, restored stable menu bar      | Multiple wobble fix attempts (Prompts 24–27) each introduced new problems. Reverted to stable state at d82dc21 for panel stability.  |     | 2026-06-16 | Timezone fix: dateString() uses local timezone | UTC grouping caused matches to appear in wrong tabs (CIV vs ECU in Yesterday instead of Today). Now matches Google's local grouping. |
 | 2026-06-16 | Menu bar: plain system default color (like prayer app)      | Removed labelColor, GoalAnimationView, .contentTransition, .animation. Just ⚽ + text, zero modifiers.                               |
-| 2026-06-16 | Panel height: maxHeight + layoutPriority(-1) on content    | Panel shrinks to content when short (footer pulls up), caps at 520px when content exceeds. Schedule tab timezone also fixed.          |
-| 2026-06-16 | Panel polish: scroll, scrollbar, settings, hover, Sparkle   | Threshold >4, .scrollIndicatorsVisibility(.hidden), Settings in ScrollView, rounded hover, version badge replaces Check for Updates      |
+| 2026-06-16 | Panel height: maxHeight + layoutPriority(-1) on content     | Panel shrinks to content when short (footer pulls up), caps at 520px when content exceeds. Schedule tab timezone also fixed.         |
+| 2026-06-16 | Panel polish: scroll, scrollbar, settings, hover, Sparkle   | Threshold >4, Settings in ScrollView, rounded hover, version badge replaces Check for Updates                                        |
+| 2026-06-15 | `.scrollIndicators(.hidden)` for macOS 14 compat            | `.scrollIndicatorsVisibility` was macOS 15+ only; renamed to `.scrollIndicators(.hidden)` (available since macOS 10.15)              |
 
 ## Architecture Quick Reference
 
@@ -92,7 +93,7 @@
 - **Polling**: Task-based state machine (idle ↔ live), 120s idle polling, no-cache URLSession
 - **Status Inference**: `Match.effectiveStatus` overrides stale API status using match clock logic (0–135 min after kickoff → IN_PLAY)
 - **Panel Height**: 520px max, shrinks to content when fewer matches (footer pulls up). `.layoutPriority(-1)` on content. Scroll threshold: >4 matches.
-- **Scrollbar**: `.scrollIndicatorsVisibility(.hidden)` on ALL ScrollViews (force-hidden, ignores system preference).
+- **Scrollbar**: `.scrollIndicators(.hidden)` on ALL ScrollViews (macOS 14+ compatible).
 - **Settings**: Wrapped in ScrollView (too tall for single view).
 - **Hover**: Rounded corners (cornerRadius: 6) on footer/button highlights.
 - **Sparkle**: Auto-checks on launch (`startingUpdater: true`). Version badge replaces Check for Updates button.

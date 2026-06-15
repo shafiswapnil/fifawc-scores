@@ -41,12 +41,15 @@ Requirements: **macOS 14 Sonoma or later** · Universal (Apple Silicon + Intel).
 
 ## Features
 
-- **Menu bar at a glance** — live scores, upcoming matches, goal animations
+- **Menu bar at a glance** — live scores, upcoming matches in the macOS menu bar
 - **6 tabbed views** — Today, Yesterday, Tomorrow, Full Schedule, Standings, Settings
-- **Goal animation** — ⚨ slides across the menu bar when a goal is scored
-- **Dynamic team colors** — menu bar accent adapts to the featured match
-- **Favorite team** — prioritize your team in the menu bar display
+- **Live experience** — pulsing red dot, team colors on match cards, clock-based status inference
+- **Favorite team** — 12 popular teams + search for any nation, prioritized in menu bar
+- **Schedule** — horizontal day pills (today ± 7 days), fetches ±7 days per selection
+- **Glass material** — native macOS frosted glass panel and cards (ultraThinMaterial)
+- **Dynamic team colors** — card borders tinted with home team color
 - **Live polling** — configurable interval (60–300s), smart idle/live state machine
+- **Client-side status inference** — overrides stale API status using match clock logic
 - **Auto-update** — Sparkle framework checks GitHub Releases for new versions
 - **Lightweight** — tiny RAM/CPU footprint, native SwiftUI, no Electron
 - **One dependency** — [Sparkle](https://github.com/sparkle-project/Sparkle) (~2MB), everything else is native
@@ -111,14 +114,14 @@ xcodebuild -project FIFAWCSCORES.xcodeproj -scheme FIFAWCSCORES \
 
 ### Panel Tabs
 
-| Tab             | Description                                              |
-| --------------- | -------------------------------------------------------- |
-| **Today**       | Today's matches, live first                              |
-| **Yesterday**   | Yesterday's results                                      |
-| **Tomorrow**    | Upcoming fixtures                                        |
-| **Schedule**    | Full tournament schedule with date picker                |
-| **Standings**   | Group tables (A–H)                                       |
-| **⚙️ Settings** | API key, poll interval, favorite team, check for updates |
+| Tab             | Description                                            |
+| --------------- | ------------------------------------------------------ |
+| **Today**       | Today's matches, live first                            |
+| **Yesterday**   | Yesterday's results                                    |
+| **Tomorrow**    | Upcoming fixtures                                      |
+| **Schedule**    | Horizontal day pills, ±7 days of matches per selection |
+| **Standings**   | Group tables (A–H)                                     |
+| **⚙️ Settings** | API key, poll interval, favorite team, version status  |
 
 ## Architecture
 
@@ -142,7 +145,7 @@ Sources/
 └── Resources/
     └── Info.plist                # LSUIElement, SUFeedURL (Sparkle)
 Tests/
-└── WCScoreTests/                 # XCTest suite
+└── FIFAWCScoreTests/             # XCTest suite
     ├── MatchTests.swift
     ├── MatchStatusTests.swift
     ├── TeamTests.swift
@@ -167,12 +170,12 @@ scripts/
 
 ## Settings
 
-| Setting           | Default | Description                              |
-| ----------------- | ------- | ---------------------------------------- |
-| API Key           | (empty) | Your football-data.org API key           |
-| Poll Interval     | 60s     | How often to fetch live scores (60–300s) |
-| Favorite Team     | None    | Prioritized in menu bar display          |
-| Check for Updates | —       | Manually check GitHub for new releases   |
+| Setting        | Default | Description                              |
+| -------------- | ------- | ---------------------------------------- |
+| API Key        | (empty) | Your football-data.org API key           |
+| Poll Interval  | 60s     | How often to fetch live scores (60–300s) |
+| Favorite Team  | None    | Prioritized in menu bar display          |
+| Version Status | —       | Current version (Sparkle auto-updates)   |
 
 ## API
 
@@ -185,16 +188,16 @@ This app uses the [football-data.org](https://www.football-data.org/docs/v4/) AP
 
 ## Tech Stack
 
-| Component   | Technology                                 |
-| ----------- | ------------------------------------------ |
-| UI          | SwiftUI (MenuBarExtra + MenuBarLabelStyle) |
-| Networking  | URLSession                                 |
-| State       | @Observable + @MainActor                   |
-| Concurrency | Swift 6 strict concurrency                 |
-| Project     | XcodeGen                                   |
-| API         | football-data.org v4                       |
-| Auto-update | Sparkle (GitHub Releases feed)             |
-| CI/CD       | GitHub Actions (build, sign, notarize)     |
+| Component   | Technology                             |
+| ----------- | -------------------------------------- |
+| UI          | SwiftUI (MenuBarExtra + .window style) |
+| Networking  | URLSession                             |
+| State       | @Observable + @MainActor               |
+| Concurrency | Swift 6 strict concurrency             |
+| Project     | XcodeGen                               |
+| API         | football-data.org v4                   |
+| Auto-update | Sparkle (GitHub Releases feed)         |
+| CI/CD       | GitHub Actions (build, sign, notarize) |
 
 ## Releasing
 
