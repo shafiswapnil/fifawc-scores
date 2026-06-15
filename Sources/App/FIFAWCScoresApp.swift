@@ -12,7 +12,7 @@ struct FIFAWCScoresApp: App {
         // Sparkle: automatic background checks enabled by default.
         // Feed URL is set via SUFeedURL in Info.plist → GitHub Releases API.
         updaterController = SPUStandardUpdaterController(
-            startingUpdater: false,
+            startingUpdater: true,
             updaterDelegate: nil,
             userDriverDelegate: nil
         )
@@ -20,7 +20,7 @@ struct FIFAWCScoresApp: App {
 
     var body: some Scene {
         MenuBarExtra {
-            MenuBarPanel(checkForUpdates: { updaterController.checkForUpdates(nil) })
+            MenuBarPanel()
                 .environment(store)
                 .task {
                     store.startPolling()
