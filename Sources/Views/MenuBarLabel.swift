@@ -31,8 +31,6 @@ struct MenuBarLabel: View {
                 .monospacedDigit()
                 .foregroundStyle(labelColor)
         }
-        .contentTransition(.numericText())
-        .animation(.default, value: labelText)
         .onReceive(timer) { _ in
             // Toggle tick to force SwiftUI to re-evaluate labelText.
             // This catches: (1) elapsed minute updates for live matches,

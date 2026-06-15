@@ -420,3 +420,15 @@ The panel was working perfectly (LIVE CIV 0-0 ECU with pulsing dot), but the men
    - Data arriving after initial fetch completes
 
 **Summary:** Menu bar label now shows match data on launch (not just after opening panel) and refreshes every 30 seconds for live minute updates. All files compile clean, project regenerated.
+
+---
+
+## Prompt 25 — Fix Menu Bar Label Wobble Animation
+
+User said: "look at this wobble behavior! wth! its coming down, going up, from left to right, continous! what are you doin!"
+
+**Root cause**: `.contentTransition(.numericText())` + `.animation(.default, value: labelText)` on the menu bar label. Every 30s the timer fires, `labelText` is re-evaluated (reads `Date()` for elapsed minute), returns a slightly different string, and the animation system smoothly transitions the old text to the new text. In the tiny menu bar space, this smooth transition causes a visible wobble/bounce effect — the label slides up/down/left/right trying to animate character differences.
+
+**Fix**: Removed `.contentTransition(.numericText())` and `.animation(.default, value: labelText)`. Menu bar text should just snap to new values — smooth transitions in that tiny space create visual noise, not polish.
+
+**Summary:** Removed animation modifiers from MenuBarLabel. Text now snaps cleanly to new values without wobble. All files compile clean.
