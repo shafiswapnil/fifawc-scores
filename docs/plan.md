@@ -63,7 +63,6 @@
 - `triggerGoal()` public method: sets `goalScored = true`, schedules 2s Task reset
 - Menu bar label text flips to `GOAL!` for 2 seconds, then auto-reverts to score
 - Sliding emoji animation dropped — all animation modifiers (`.symbolEffect`, `.scaleEffect`, offset/opacity overlays) fail silently inside MenuBarExtra label
-- `#if DEBUG` "Test Goal ⚽" button in MenuBarPanel footer for manual testing
 
 ### M8: MenuBarPanel
 

@@ -221,7 +221,7 @@ text-state flip is the only approach that works in MenuBarExtra label context.
 
 ### Testing
 
-- `#if DEBUG` "Test Goal" button (SF Symbol `soccerball`) in MenuBarPanel footer calls `store.triggerGoal()`.
+- `triggerGoal()` is called programmatically by `detectGoals()` when a goal is scored.
 
 ---
 
