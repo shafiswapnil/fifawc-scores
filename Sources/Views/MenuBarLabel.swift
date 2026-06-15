@@ -3,11 +3,11 @@ import SwiftUI
 /// The compact menu bar label. Always visible in the menu bar — no click needed.
 ///
 /// **States (priority order):**
-/// - **Live**:     `⚽ BRA 2 - 1 ARG · 67'`
-/// - **HT**:       `⚽ BRA 0 - 0 ARG · HT`
-/// - **Finished**: `⚽ BRA 2 - 1 ARG · FT`
-/// - **Upcoming**: `⚽ BRA vs ARG · 3:00 PM`
-/// - **Idle**:     `⚽ FWC`
+/// - **Live**:     ⚽ BRA 2 - 1 ARG · 67'
+/// - **HT**:       ⚽ BRA 0 - 0 ARG · HT
+/// - **Finished**: ⚽ BRA 2 - 1 ARG · FT
+/// - **Upcoming**: ⚽ BRA vs ARG · 3:00 PM
+/// - **Idle**:     ⚽ FWC
 ///
 /// Real-time minute ticking comes from `store.minuteTick` — an `@Observable`
 /// Date property on MatchStore updated every 60 s by a Task loop.

@@ -8,9 +8,9 @@ struct Team: Codable, Sendable, Identifiable, Hashable {
     let tla: String          // Three-letter abbreviation (e.g. "BRA")
     let crest: String?       // URL to team crest/logo image
 
-    /// Country flag emoji derived from TLA. Falls back to ⚽ if unknown.
+    /// Country flag emoji derived from TLA. Falls back to 🏳️ if unknown.
     var flagEmoji: String {
-        TeamFlags.flags[tla] ?? "⚽"
+        TeamFlags.flags[tla] ?? "🏳️"
     }
 }
 

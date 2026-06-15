@@ -117,8 +117,11 @@ struct MenuBarPanel: View {
                         }
                     }
                 } else {
-                    Text("⚽ Match Hub")
-                        .font(.title3.weight(.semibold))
+                    HStack(spacing: 4) {
+                        Image(systemName: "soccerball")
+                        Text("Match Hub")
+                    }
+                    .font(.title3.weight(.semibold))
                 }
             }
             Spacer()
@@ -391,7 +394,7 @@ struct MenuBarPanel: View {
                         Button {
                             store.favoriteTeam = tla
                         } label: {
-                            Text("\(TeamFlags.flags[tla] ?? "⚽") \(tla)")
+                            Text("\(TeamFlags.flags[tla] ?? "🏳️") \(tla)")
                                 .font(.caption2)
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 4)
@@ -607,7 +610,7 @@ struct MenuBarPanel: View {
             Button {
                 store.triggerGoal()
             } label: {
-                Label("Test Goal ⚽", systemImage: "flame")
+                Label("Test Goal", systemImage: "soccerball")
                     .font(.caption.weight(.medium))
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.vertical, 5)
