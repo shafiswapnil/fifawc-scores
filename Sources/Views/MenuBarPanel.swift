@@ -156,7 +156,7 @@ struct MenuBarPanel: View {
             .padding(.horizontal, 8)
             .padding(.vertical, 4)
         }
-        .scrollIndicators(.hidden)
+        .scrollIndicatorsVisibility(.hidden)
     }
 
     // MARK: - Content
@@ -230,7 +230,7 @@ struct MenuBarPanel: View {
                         matchContent
                             .padding(.vertical, 6)
                     }
-                    .scrollIndicators(.hidden)
+                    .scrollIndicatorsVisibility(.hidden)
                 } else {
                     // Few matches — size to content, no scroll
                     matchContent
@@ -264,7 +264,7 @@ struct MenuBarPanel: View {
                     }
                     .padding(.vertical, 6)
                 }
-                .scrollIndicators(.hidden)
+                .scrollIndicatorsVisibility(.hidden)
             }
         }
         .padding(.horizontal, 8)
@@ -275,159 +275,160 @@ struct MenuBarPanel: View {
     private var settingsView: some View {
         ScrollView(.vertical, showsIndicators: false) {
             VStack(alignment: .leading, spacing: 12) {
-                // API Key
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack {
-                        Text("API Key")
-                            .font(.caption.weight(.medium))
-                        if store.hasApiKey {
-                            Image(systemName: "checkmark.circle.fill")
-                                .foregroundStyle(.green)
-                                .font(.caption2)
-                        } else {
-                            Image(systemName: "exclamationmark.triangle.fill")
-                                .foregroundStyle(.orange)
-                                .font(.caption2)
-                        }
-                    }
-                    TextField("Paste your API key here", text: Binding(
-                        get: { store.apiKey },
-                        set: { store.apiKey = $0 }
-                    ))
-                    .textFieldStyle(.roundedBorder)
-                    .font(.caption)
-                    HStack(spacing: 4) {
-                        Text("Free at")
-                            .font(.caption2)
-                        Link("football-data.org", destination: URL(string: "https://www.football-data.org/client/register")!)
-                            .font(.caption2)
-                    }
-                    .foregroundStyle(.tertiary)
-                }
-
-                Divider().opacity(0.3)
-
-                // Poll interval
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack {
-                        Text("Live Poll Interval")
-                            .font(.caption.weight(.medium))
-                        Spacer()
-                        Text("\(Int(store.pollInterval))s")
-                            .font(.caption.monospacedDigit())
-                            .foregroundStyle(.secondary)
-                    }
-                    Slider(
-                        value: Binding(
-                            get: { store.pollInterval },
-                            set: { store.pollInterval = $0 }
-                        ),
-                        in: 60...300,
-                        step: 30
-                    )
-                    Text("Min 60s · Higher = less API usage")
-                        .font(.caption2)
-                        .foregroundStyle(.tertiary)
-                }
-
-                Divider().opacity(0.3)
-
-                // Favorite team — 12 popular teams + search
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("Favorite Team")
-                        .font(.caption.weight(.medium))
-
-                    Text("Prioritized in menu bar when upcoming")
-                        .font(.caption2)
-                        .foregroundStyle(.tertiary)
-
-                    // Search field for TLA
-                    HStack(spacing: 4) {
-                        Image(systemName: "magnifyingglass")
-                            .foregroundStyle(.tertiary)
-                            .font(.caption2)
-                        TextField("Search team (e.g. KOR, MEX)…", text: $favoriteTeamSearch)
-                            .textFieldStyle(.plain)
-                            .font(.caption2)
-                        if !favoriteTeamSearch.isEmpty {
-                            Button {
-                                favoriteTeamSearch = ""
-                            } label: {
-                                Image(systemName: "xmark.circle.fill")
-                                    .foregroundStyle(.tertiary)
-                                    .font(.caption2)
-                            }
-                            .buttonStyle(.plain)
-                        }
-                    }
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 5)
-                    .background(
-                        RoundedRectangle(cornerRadius: 6)
-                            .fill(Color.primary.opacity(0.06))
-                    )
-
-                    // None button
-                    Button {
-                        store.favoriteTeam = nil
-                    } label: {
-                        Text("None")
-                            .font(.caption2)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 4)
-                            .background(
-                                Capsule()
-                                    .fill(store.favoriteTeam == nil
-                                          ? Color.accentColor
-                                          : Color.primary.opacity(0.06))
-                            )
-                            .foregroundStyle(store.favoriteTeam == nil ? .white : .secondary)
-                    }
-                    .buttonStyle(.plain)
-
-                    // 3-column grid of team pills
-                    LazyVGrid(columns: favoriteGridColumns, spacing: 4) {
-                        ForEach(teamsToShow, id: \.self) { tla in
-                            Button {
-                                store.favoriteTeam = tla
-                            } label: {
-                                Text("\(TeamFlags.flags[tla] ?? "⚽") \(tla)")
-                                    .font(.caption2)
-                                    .padding(.horizontal, 6)
-                                    .padding(.vertical, 4)
-                                    .frame(maxWidth: .infinity)
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 6)
-                                            .fill(store.favoriteTeam == tla
-                                                  ? Color.accentColor
-                                                  : Color.primary.opacity(0.06))
-                                    )
-                                    .foregroundStyle(store.favoriteTeam == tla ? .white : .secondary)
-                            }
-                            .buttonStyle(.plain)
-                        }
-                    }
-                }
-
-                Divider().opacity(0.3)
-
-                // App info — version + update status
+            // API Key
+            VStack(alignment: .leading, spacing: 4) {
                 HStack {
-                    let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
-                    Text("FIFAWC Scores v\(version) · Latest")
-                        .font(.caption2)
-                        .foregroundStyle(.tertiary)
-                    Spacer()
-                    if let lastFetch = store.lastFetchTime {
-                        Text("Updated \(lastFetch, style: .relative) ago")
+                    Text("API Key")
+                        .font(.caption.weight(.medium))
+                    if store.hasApiKey {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundStyle(.green)
                             .font(.caption2)
-                            .foregroundStyle(.tertiary)
+                    } else {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundStyle(.orange)
+                            .font(.caption2)
+                    }
+                }
+                TextField("Paste your API key here", text: Binding(
+                    get: { store.apiKey },
+                    set: { store.apiKey = $0 }
+                ))
+                .textFieldStyle(.roundedBorder)
+                .font(.caption)
+                HStack(spacing: 4) {
+                    Text("Free at")
+                        .font(.caption2)
+                    Link("football-data.org", destination: URL(string: "https://www.football-data.org/client/register")!)
+                        .font(.caption2)
+                }
+                .foregroundStyle(.tertiary)
+            }
+
+            Divider().opacity(0.3)
+
+            // Poll interval
+            VStack(alignment: .leading, spacing: 4) {
+                HStack {
+                    Text("Live Poll Interval")
+                        .font(.caption.weight(.medium))
+                    Spacer()
+                    Text("\(Int(store.pollInterval))s")
+                        .font(.caption.monospacedDigit())
+                        .foregroundStyle(.secondary)
+                }
+                Slider(
+                    value: Binding(
+                        get: { store.pollInterval },
+                        set: { store.pollInterval = $0 }
+                    ),
+                    in: 60...300,
+                    step: 30
+                )
+                Text("Min 60s · Higher = less API usage")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+            }
+
+            Divider().opacity(0.3)
+
+            // Favorite team — 12 popular teams + search
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Favorite Team")
+                    .font(.caption.weight(.medium))
+
+                Text("Prioritized in menu bar when upcoming")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+
+                // Search field for TLA
+                HStack(spacing: 4) {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundStyle(.tertiary)
+                        .font(.caption2)
+                    TextField("Search team (e.g. KOR, MEX)…", text: $favoriteTeamSearch)
+                        .textFieldStyle(.plain)
+                        .font(.caption2)
+                    if !favoriteTeamSearch.isEmpty {
+                        Button {
+                            favoriteTeamSearch = ""
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundStyle(.tertiary)
+                                .font(.caption2)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .padding(.horizontal, 8)
+                .padding(.vertical, 5)
+                .background(
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(Color.primary.opacity(0.06))
+                )
+
+                // None button
+                Button {
+                    store.favoriteTeam = nil
+                } label: {
+                    Text("None")
+                        .font(.caption2)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 4)
+                        .background(
+                            Capsule()
+                                .fill(store.favoriteTeam == nil
+                                      ? Color.accentColor
+                                      : Color.primary.opacity(0.06))
+                        )
+                        .foregroundStyle(store.favoriteTeam == nil ? .white : .secondary)
+                }
+                .buttonStyle(.plain)
+
+                // 3-column grid of team pills
+                LazyVGrid(columns: favoriteGridColumns, spacing: 4) {
+                    ForEach(teamsToShow, id: \.self) { tla in
+                        Button {
+                            store.favoriteTeam = tla
+                        } label: {
+                            Text("\(TeamFlags.flags[tla] ?? "⚽") \(tla)")
+                                .font(.caption2)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 4)
+                                .frame(maxWidth: .infinity)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 6)
+                                        .fill(store.favoriteTeam == tla
+                                              ? Color.accentColor
+                                              : Color.primary.opacity(0.06))
+                                )
+                                .foregroundStyle(store.favoriteTeam == tla ? .white : .secondary)
+                        }
+                        .buttonStyle(.plain)
                     }
                 }
             }
-            .padding(.horizontal, 8)
-            .padding(.vertical, 6)
+
+            Divider().opacity(0.3)
+
+            // Version status
+            let appVersion = Bundle.main.object(
+                forInfoDictionaryKey: "CFBundleShortVersionString"
+            ) as? String
+            HStack {
+                Text("FIFAWC Scores v\(appVersion ?? "?")")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+                Spacer()
+                Text("latest")
+                    .font(.caption2)
+                    .foregroundStyle(.green)
+            }
         }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 6)
+        }
+        .scrollIndicatorsVisibility(.hidden)
     }
 
     // MARK: - Full Schedule
@@ -472,9 +473,7 @@ struct MenuBarPanel: View {
                 .padding(.horizontal, 8)
                 .padding(.top, 6)
             }
-            .scrollIndicators(.hidden)
-
-            // Matches for selected date
+        .scrollIndicatorsVisibility(.hidden)
             if isLoadingSchedule {
                 VStack(spacing: 8) {
                     ProgressView()
@@ -505,7 +504,7 @@ struct MenuBarPanel: View {
                             .padding(.horizontal, 8)
                             .padding(.vertical, 6)
                     }
-                    .scrollIndicators(.hidden)
+                    .scrollIndicatorsVisibility(.hidden)
                 } else {
                     scheduleContent
                         .padding(.horizontal, 8)
