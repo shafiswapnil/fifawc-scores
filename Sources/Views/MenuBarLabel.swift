@@ -9,11 +9,6 @@ import SwiftUI
 struct MenuBarLabel: View {
     @Environment(MatchStore.self) private var store
 
-    /// Force re-render every 30s for live minute updates + catch data loads.
-    /// MenuBarExtra labels are notoriously slow to re-render with @Observable.
-    @State private var tick = false
-    private let timer = Timer.publish(every: 30, on: .main, in: .common).autoconnect()
-
     var body: some View {
         HStack(spacing: 4) {
             // Goal animation overlay
@@ -30,13 +25,6 @@ struct MenuBarLabel: View {
                 .font(.system(size: 13))
                 .monospacedDigit()
                 .foregroundStyle(labelColor)
-        }
-        .onReceive(timer) { _ in
-            // Toggle tick to force SwiftUI to re-evaluate labelText.
-            // This catches: (1) elapsed minute updates for live matches,
-            // (2) TIMED→IN_PLAY transitions via effectiveStatus clock logic,
-            // (3) data arriving after initial fetch completes.
-            tick.toggle()
         }
     }
 
@@ -93,8 +81,11 @@ struct MenuBarLabel: View {
     }
 
     /// Calculate elapsed minute for a live match (approximate, based on UTC times).
+    /// Reads store.now so @Observable tracks the dependency — when the
+    /// tick fires, SwiftUI re-evaluates body → labelText → this method.
     private func elapsedMinute(_ match: Match) -> Int {
-        let elapsed = Date().timeIntervalSince(match.utcDate)
+        let _ = store.now  // Register @Observable dependency
+        let elapsed = store.now.timeIntervalSince(match.utcDate)
         let minutes = Int(elapsed / 60)
         return max(1, min(minutes, 120)) // Clamp 1–120 (extra time)
     }
