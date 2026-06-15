@@ -432,3 +432,34 @@ User said: "look at this wobble behavior! wth! its coming down, going up, from l
 **Fix**: Removed `.contentTransition(.numericText())` and `.animation(.default, value: labelText)`. Menu bar text should just snap to new values — smooth transitions in that tiny space create visual noise, not polish.
 
 **Summary:** Removed animation modifiers from MenuBarLabel. Text now snaps cleanly to new values without wobble. All files compile clean.
+
+---
+
+## Prompt 26 — Proper Menu Bar Live Updates via @Observable Clock Tick
+
+User said: "so i get it, you killed those, but the problem isnt solved right? will i still can see the score on menubar? point of my showing you the wobbling behavior was yes: you have to fix the wobble but you still had to figure out how could you solve the score, animations, all other menubar things in the menubar?"
+
+**Research**: Studied prayer-times-macos (`PrayerClock`) and Uber-style menu bar apps. Key insight: the prayer-times app uses `PrayerClock.now` — an `@Observable` property updated every 1 second via `Task.sleep`. When `MenuBarLabel` reads `clock.secondsUntilNext` (which depends on `clock.now`), SwiftUI automatically re-renders the label every second. No `Timer.publish`, no `NSStatusBar` manipulation, no `.contentTransition` hacks.
+
+**Root cause of our problem**: `MenuBarLabel.elapsedMinute()` called `Date()` — a plain function call, not an `@Observable` property. SwiftUI had no idea time passed. The 30s `Timer.publish` + `tick` toggle was a band-aid that didn't work with `MenuBarExtra` label caching, and adding `.contentTransition` animations to make it visible caused the wobble.
+
+**Fix — MatchStore clock tick (matching PrayerClock pattern)**:
+
+1. **Added `now` property + tick loop to `MatchStore`**: `var now = Date()` updated every 1 second via `Task.sleep(for: .seconds(1))`. Started/stopped with polling via `startTick()`/`stopTick()`.
+
+2. **`MenuBarLabel.elapsedMinute()` reads `store.now`**: Instead of `Date()`, it reads `store.now` — an `@Observable` property. When `now` updates → `@Observable` notifies → SwiftUI re-evaluates `body` → `labelText` → `elapsedMinute` → fresh minute count. The entire chain is declarative.
+
+3. **Removed all hacks from MenuBarLabel**: No `Timer.publish`, no `@State tick`, no `.onChange`, no `.contentTransition`, no `.animation`. Pure `@Observable` observation.
+
+**The flow**:
+
+```
+MatchStore.tickTask (every 1s)
+  → self.now = Date()
+  → @Observable notifies all observers
+  → MenuBarLabel.body re-evaluates
+  → labelText reads store.now via elapsedMinute()
+  → Fresh text: "CIV 0 - 0 ECU · 45'"
+```
+
+**Summary:** Menu bar label now updates every second via @Observable clock tick — same pattern as prayer-times-macos. No hacks, no animations, no wobble. Live score + elapsed minute shown in menu bar. All files compile clean.

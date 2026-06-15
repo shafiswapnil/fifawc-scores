@@ -78,6 +78,7 @@
 | 2026-06-16 | MatchStatus: added EXTRA_TIME + PENALTY_SHOOTOUT            | API returns these for extra time/penalties; missing cases caused JSON decode failures                                                |
 | 2026-06-16 | Response-header rate limiting (X-RequestsAvailable)         | API email warned about throttling; now reads X-RequestsAvailable + X-RequestCounter-Reset headers                                    |
 | 2026-06-16 | Client-side status inference (`effectiveStatus`)            | football-data.org free tier returns stale TIMED status even when match is LIVE; clock-based inference overrides stale API data       |
+| 2026-06-16 | @Observable clock tick on MatchStore (1s)                   | MenuBarLabel needs live minute updates; PrayerClock pattern — store.now updates every 1s, @Observable forces SwiftUI re-render       |
 
 ## Architecture Quick Reference
 
@@ -86,6 +87,7 @@
 - **API**: football-data.org v4, URLSession, X-Auth-Token header
 - **API Key**: User-configurable in Settings tab, stored in UserDefaults
 - **Polling**: Task-based state machine (idle ↔ live), 120s idle polling, no-cache URLSession
+- **Clock Tick**: `MatchStore.now` updated every 1s → @Observable notifies → MenuBarLabel re-renders live score + minute (prayer-times-macos pattern)
 - **Status Inference**: `Match.effectiveStatus` overrides stale API status using match clock logic (0–135 min after kickoff → IN_PLAY)
 - **Rate Limiting**: Response-header-aware (X-RequestsAvailable, X-RequestCounter-Reset) + local sliding window
 - **Build**: XcodeGen (`project.yml`), Swift 6, strict concurrency
