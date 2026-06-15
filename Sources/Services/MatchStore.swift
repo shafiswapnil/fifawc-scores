@@ -33,15 +33,6 @@ final class MatchStore {
     /// Goal animation trigger. Set when a score change is detected.
     var goalScored = false
 
-    // MARK: - Clock Tick
-
-    /// Current time, updated every second. Reading this from any
-    /// @Observable-dependent view forces SwiftUI to re-render —
-    /// this is how the menu bar label gets live minute updates.
-    var now = Date()
-
-    private var tickTask: Task<Void, Never>?
-
     // MARK: - Polling
 
     private var pollController: PollController?
@@ -208,48 +199,23 @@ final class MatchStore {
 
     // MARK: - Public API
 
-    /// Start the poll controller and the 1-second clock tick.
-    /// Call once after init.
+    /// Start the poll controller. Call once after init.
     func startPolling() {
         guard pollController == nil else { return }
         let controller = PollController(store: self, interval: pollInterval)
         self.pollController = controller
         controller.start()
-        startTick()
     }
 
-    /// Stop polling and the clock tick.
+    /// Stop polling.
     func stopPolling() {
         pollController?.stop()
         pollController = nil
-        stopTick()
     }
 
     /// Force an immediate data fetch (manual sync).
     func sync() async {
         await fetchAllData()
-    }
-
-    // MARK: - Clock Tick
-
-    /// Updates `now` every second. Reading `now` from any @Observable-
-    /// dependent view forces SwiftUI to re-render — this is how the
-    /// menu bar label gets live minute updates and status transitions.
-    /// Inspired by prayer-times-macos's PrayerClock tick pattern.
-    private func startTick() {
-        guard tickTask == nil else { return }
-        tickTask = Task { [weak self] in
-            while !Task.isCancelled {
-                guard let self else { break }
-                self.now = Date()
-                try? await Task.sleep(for: .seconds(1))
-            }
-        }
-    }
-
-    private func stopTick() {
-        tickTask?.cancel()
-        tickTask = nil
     }
 
     /// Fetch matches for the schedule tab (±7 days around a date).

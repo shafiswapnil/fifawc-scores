@@ -22,12 +22,12 @@ struct FIFAWCScoresApp: App {
         MenuBarExtra {
             MenuBarPanel(checkForUpdates: { updaterController.checkForUpdates(nil) })
                 .environment(store)
-        } label: {
-            MenuBarLabel()
-                .environment(store)
                 .task {
                     store.startPolling()
                 }
+        } label: {
+            MenuBarLabel()
+                .environment(store)
         }
         .menuBarExtraStyle(.window)
     }
