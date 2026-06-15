@@ -566,3 +566,29 @@ Now: just `Text("⚽")` + `Text(labelText)` with system default color. Zero modi
 **Design principle confirmed**: Menu bar = plain, stable, system default. Panel = rich, animated, team colors.
 
 **Summary:** Fixed critical timezone bug in `dateString()` (UTC → local). Menu bar label stripped to plain system default color like prayer-times-macos. All tabs now correctly grouped by local date. CIV vs ECU live match now appears in Today tab.
+
+---
+
+## Prompt 30 — Panel Height Shrinks to Content
+
+User said: "we definitely did specify a strict height for the panel. but keep the strict height as > when the list exceeds that strict height keep maintaining the height > but when the list isn't exceeding the strict height pull the footer up > you know what i meant."
+
+**Problem**: Panel always filled 520px even when there were only 4 matches, leaving a gap above the footer.
+
+**Root cause**: `maxHeight: 520` on the outer VStack + child ScrollViews always expanding to fill available space. SwiftUI distributes extra space to children, so the content area inflated to fill the 520px cap.
+
+**Fix — 3 changes in MenuBarPanel.swift**:
+
+1. **`content.layoutPriority(-1)`**: Added `.layoutPriority(-1)` to the content view inside the VStack. This tells SwiftUI to give content its natural size first, only expanding into extra space if other views (header, footer, dividers) don't need it. When content is short, it takes its natural height. When tall, it expands into the available space up to `maxHeight: 520`.
+
+2. **Schedule tab timezone**: `dateStringForSchedule()` changed from UTC to `TimeZone.current` (same fix as MatchStore).
+
+3. **Schedule conditional scroll**: Same pattern as matchList — only wraps in `ScrollView` when `scheduleMatches.count > 5`. Few matches = no scroll, natural size.
+
+**Result**:
+
+- 4 matches: panel shrinks, footer sits right below cards
+- 10 matches: panel hits 520px, content scrolls inside
+- Empty: panel shrinks to just header + tabs + footer + empty state
+
+**Summary:** Panel now dynamically sizes to content. Added `.layoutPriority(-1)` to content view so it takes natural height when list is short, allowing footer to pull up. Caps at 520px when content exceeds. Schedule tab also fixed to use local timezone for date grouping.
