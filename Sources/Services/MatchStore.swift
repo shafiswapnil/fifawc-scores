@@ -327,7 +327,7 @@ final class MatchStore {
     private func dateString(for date: Date) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
-        formatter.timeZone = TimeZone(secondsFromGMT: 0) // UTC for API consistency
+        formatter.timeZone = TimeZone.current  // User's local timezone for correct tab grouping
         return formatter.string(from: date)
     }
 }

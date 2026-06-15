@@ -2,6 +2,11 @@ import SwiftUI
 
 /// The compact menu bar label. Shows the match status in the menu bar area.
 ///
+/// **Design rule**: The menu bar label is MINIMAL. No color changes, no
+/// animations, no dynamic layout. Just ⚽ + static text. All visual
+/// richness lives in the panel (MatchCard, pulsing dot, team colors).
+/// Plain system default color — like the prayer-times-macos app.
+///
 /// Three states:
 /// - **Idle**: `⚽ FWC` (no match today or no data yet)
 /// - **Upcoming**: `⚽ BRA vs ARG · 3:00 PM`
@@ -11,23 +16,13 @@ struct MenuBarLabel: View {
 
     var body: some View {
         HStack(spacing: 4) {
-            // Goal animation overlay
-            ZStack(alignment: .leading) {
-                Text("⚽")
-                    .font(.system(size: 13))
-                if store.goalScored {
-                    GoalAnimationView()
-                        .allowsHitTesting(false)
-                }
-            }
+            Text("⚽")
+                .font(.system(size: 13))
 
             Text(labelText)
                 .font(.system(size: 13))
                 .monospacedDigit()
-                .foregroundStyle(labelColor)
         }
-        .contentTransition(.numericText())
-        .animation(.default, value: labelText)
     }
 
     // MARK: - Label Text
@@ -58,20 +53,6 @@ struct MenuBarLabel: View {
         }
     }
 
-    // MARK: - Label Color
-
-    private var labelColor: Color {
-        guard let match = store.featuredMatch else {
-            return .primary
-        }
-
-        if match.isLive {
-            return TeamColors.forTeam(match.homeTeam.tla).primary
-        }
-
-        return .primary
-    }
-
     // MARK: - Helpers
 
     /// Format kickoff time in user's local timezone.
@@ -82,36 +63,12 @@ struct MenuBarLabel: View {
         return formatter.string(from: date)
     }
 
-    /// Calculate elapsed minute for a live match (approximate, based on UTC times).
+    /// Elapsed minute for a live match.
+    /// Uses Date() directly to avoid triggering @Observable re-renders.
     private func elapsedMinute(_ match: Match) -> Int {
         let elapsed = Date().timeIntervalSince(match.utcDate)
         let minutes = Int(elapsed / 60)
         return max(1, min(minutes, 120)) // Clamp 1–120 (extra time)
-    }
-}
-
-// MARK: - Goal Animation
-
-/// Tiny football emoji that slides left-to-right across the menu bar text.
-/// Appears when a goal is detected and auto-removes after 1.5s.
-struct GoalAnimationView: View {
-    @State private var offset: CGFloat = -20
-    @State private var opacity: Double = 0
-
-    var body: some View {
-        Text("⚽")
-            .font(.system(size: 11))
-            .offset(x: offset)
-            .opacity(opacity)
-            .onAppear {
-                withAnimation(.easeInOut(duration: 1.5)) {
-                    offset = 200
-                    opacity = 1
-                }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                    withAnimation { opacity = 0 }
-                }
-            }
     }
 }
 
