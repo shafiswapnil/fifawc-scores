@@ -62,12 +62,14 @@ struct MenuBarPanel: View {
             tabRow
             Divider().opacity(0.3)
             content
+                .layoutPriority(-1)
             Divider().opacity(0.4)
             footer
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 12)
-        .frame(width: 360, height: 520)
+        .frame(width: 360)
+        .frame(maxHeight: 520)
         .background(.ultraThinMaterial, ignoresSafeAreaEdges: .all)
         .onAppear {
             if !hasAppeared {
@@ -194,39 +196,48 @@ struct MenuBarPanel: View {
                 }
                 .frame(maxWidth: .infinity, minHeight: 120)
             } else {
-                ScrollView {
-                    LazyVStack(spacing: 6) {
-                        // Live matches first
-                        let live = matches.filter { $0.isLive }
-                        if !live.isEmpty {
-                            ForEach(live) { match in
-                                MatchCard(match: match, isLiveHighlight: true)
-                            }
-                        }
-
-                        // Upcoming matches (sorted by time)
-                        let upcoming = matches
-                            .filter { !$0.effectiveStatus.hasStarted }
-                            .sorted { $0.utcDate < $1.utcDate }
-                        if !upcoming.isEmpty {
-                            ForEach(upcoming) { match in
-                                MatchCard(match: match, isLiveHighlight: false)
-                            }
-                        }
-
-                        // Finished matches (most recent first)
-                        let finished = matches
-                            .filter { $0.isFinished }
-                            .sorted { $0.utcDate > $1.utcDate }
-                        if !finished.isEmpty {
-                            ForEach(finished) { match in
-                                MatchCard(match: match, isLiveHighlight: false)
-                            }
+                let matchContent = VStack(spacing: 6) {
+                    // Live matches first
+                    let live = matches.filter { $0.isLive }
+                    if !live.isEmpty {
+                        ForEach(live) { match in
+                            MatchCard(match: match, isLiveHighlight: true)
                         }
                     }
-                    .padding(.vertical, 6)
+
+                    // Upcoming matches (sorted by time)
+                    let upcoming = matches
+                        .filter { !$0.effectiveStatus.hasStarted }
+                        .sorted { $0.utcDate < $1.utcDate }
+                    if !upcoming.isEmpty {
+                        ForEach(upcoming) { match in
+                            MatchCard(match: match, isLiveHighlight: false)
+                        }
+                    }
+
+                    // Finished matches (most recent first)
+                    let finished = matches
+                        .filter { $0.isFinished }
+                        .sorted { $0.utcDate > $1.utcDate }
+                    if !finished.isEmpty {
+                        ForEach(finished) { match in
+                            MatchCard(match: match, isLiveHighlight: false)
+                        }
+                    }
                 }
-                .scrollIndicators(.hidden)
+
+                if matches.count > 5 {
+                    // Many matches — scrollable
+                    ScrollView {
+                        matchContent
+                            .padding(.vertical, 6)
+                    }
+                    .scrollIndicators(.hidden)
+                } else {
+                    // Few matches — size to content, no scroll
+                    matchContent
+                        .padding(.vertical, 6)
+                }
             }
         }
         .padding(.horizontal, 8)
@@ -501,16 +512,23 @@ struct MenuBarPanel: View {
                 }
                 .frame(maxWidth: .infinity, minHeight: 120)
             } else {
-                ScrollView {
-                    LazyVStack(spacing: 6) {
-                        ForEach(scheduleMatches) { match in
-                            MatchCard(match: match, isLiveHighlight: match.isLive)
-                        }
+                let scheduleContent = VStack(spacing: 6) {
+                    ForEach(scheduleMatches) { match in
+                        MatchCard(match: match, isLiveHighlight: match.isLive)
                     }
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 6)
                 }
-                .scrollIndicators(.hidden)
+                if scheduleMatches.count > 5 {
+                    ScrollView {
+                        scheduleContent
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 6)
+                    }
+                    .scrollIndicators(.hidden)
+                } else {
+                    scheduleContent
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 6)
+                }
             }
         }
         .task {
@@ -623,7 +641,7 @@ struct MenuBarPanel: View {
     private func dateStringForSchedule(_ date: Date) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
-        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        formatter.timeZone = TimeZone.current  // Local timezone for correct tab grouping
         return formatter.string(from: date)
     }
 }
