@@ -33,10 +33,17 @@ final class MatchStore {
     /// Goal animation trigger. Set when a score change is detected.
     var goalScored = false
 
+    /// Ticks every 60 s so MenuBarLabel re-renders the live minute counter.
+    /// Updated by a lightweight Task loop started in startPolling().
+    /// This is the @Observable alternative to TimelineView (which hangs in
+    /// MenuBarExtra label context on macOS).
+    private(set) var minuteTick: Date = .now
+
     // MARK: - Polling
 
     private var pollController: PollController?
     private var fetchService: FetchService
+    private var tickTask: Task<Void, Never>?
 
     // MARK: - Settings (persisted)
 
@@ -134,9 +141,15 @@ final class MatchStore {
         matchesByDate[tomorrowKey] ?? []
     }
 
-    /// All matches across all dates, sorted by date (newest first).
+    /// Core matches: yesterday + today + tomorrow only, sorted newest first.
+    /// Intentionally scoped to the 3-day window so that Schedule tab data
+    /// (written into matchesByDate via fetchScheduleAround) never bleeds
+    /// into featuredMatch, liveMatches, or any other core logic.
+    /// The Schedule tab reads matchesByDate[key] directly and is unaffected.
     var allMatches: [Match] {
-        matchesByDate.values.flatMap { $0 }.sorted { $0.utcDate > $1.utcDate }
+        [yesterdayKey, todayKey, tomorrowKey]
+            .flatMap { matchesByDate[$0] ?? [] }
+            .sorted { $0.utcDate > $1.utcDate }
     }
 
     /// Currently live matches, sorted by elapsed time (most elapsed first).
@@ -168,14 +181,24 @@ final class MatchStore {
     }
 
     /// The "featured" match — the one shown in the menu bar label.
-    /// Priority: live match (most elapsed) > next upcoming > most recent finished.
+    ///
+    /// Priority:
+    /// 1. Live match (most elapsed first)
+    /// 2. Next upcoming match **today only** — never shows tomorrow/future
+    /// 3. Most recent finished match (any day)
+    /// 4. nil → label shows idle "FWC"
     var featuredMatch: Match? {
-        if let live = liveMatches.first {
-            return live
-        }
-        if let next = nextMatch {
-            return next
-        }
+        // 1. Live
+        if let live = liveMatches.first { return live }
+
+        // 2. Soonest upcoming match TODAY only
+        let now = Date()
+        let todayUpcoming = todayMatches
+            .filter { !$0.effectiveStatus.hasStarted && $0.utcDate > now }
+            .sorted { $0.utcDate < $1.utcDate }
+        if let next = todayUpcoming.first { return next }
+
+        // 3. Most recent finished (today first, then older)
         return allMatches
             .filter { $0.isFinished }
             .sorted { $0.utcDate > $1.utcDate }
@@ -205,12 +228,37 @@ final class MatchStore {
         let controller = PollController(store: self, interval: pollInterval)
         self.pollController = controller
         controller.start()
+        startMinuteTicker()
     }
 
     /// Stop polling.
     func stopPolling() {
         pollController?.stop()
         pollController = nil
+        tickTask?.cancel()
+        tickTask = nil
+    }
+
+    /// Fires every 60 s to update minuteTick, causing MenuBarLabel to
+    /// re-render the live elapsed-minute counter in real time.
+    private func startMinuteTicker() {
+        guard tickTask == nil else { return }
+        tickTask = Task { [weak self] in
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(60))
+                guard !Task.isCancelled else { break }
+                self?.minuteTick = .now
+            }
+        }
+    }
+
+    /// Trigger goal animation. Sets goalScored = true and auto-resets after 2 s.
+    func triggerGoal() {
+        goalScored = true
+        Task { [weak self] in
+            try? await Task.sleep(for: .seconds(2.0))
+            self?.goalScored = false
+        }
     }
 
     /// Force an immediate data fetch (manual sync).
@@ -308,12 +356,7 @@ final class MatchStore {
                 let awayScored = (newAway ?? 0) > (prev.away ?? 0)
 
                 if homeScored || awayScored {
-                    goalScored = true
-                    // Auto-reset after animation duration
-                    Task {
-                        try? await Task.sleep(for: .seconds(2.0))
-                        goalScored = false
-                    }
+                    triggerGoal()
                 }
             }
 

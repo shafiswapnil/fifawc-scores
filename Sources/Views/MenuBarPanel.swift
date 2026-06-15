@@ -603,6 +603,21 @@ struct MenuBarPanel: View {
             .menuRowHighlight()
             .disabled(store.isFetching)
 
+            #if DEBUG
+            Button {
+                store.triggerGoal()
+            } label: {
+                Label("Test Goal ⚽", systemImage: "flame")
+                    .font(.caption.weight(.medium))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.vertical, 5)
+                    .padding(.horizontal, 8)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .menuRowHighlight()
+            #endif
+
             Button { NSApplication.shared.terminate(nil) } label: {
                 Label("Quit", systemImage: "power")
                     .font(.caption.weight(.medium))
