@@ -26,9 +26,6 @@ struct FIFAWCScoresApp: App {
             MenuBarLabel()
                 .environment(store)
                 .task {
-                    // Start polling on launch so data is fetched immediately.
-                    // The panel's .task only fires when opened — the label
-                    // needs data before that.
                     store.startPolling()
                 }
         }

@@ -463,3 +463,26 @@ MatchStore.tickTask (every 1s)
 ```
 
 **Summary:** Menu bar label now updates every second via @Observable clock tick — same pattern as prayer-times-macos. No hacks, no animations, no wobble. Live score + elapsed minute shown in menu bar. All files compile clean.
+
+---
+
+## Prompt 27 — Kill Wobble: Simplify MenuBarLabel to Minimal
+
+User said: "see the video now. the wobbly problem is still not gone its still there. with no menubar things happening. you know what i think the menubar color changes is making any trouble. we will change colors in panels. but no changes of color in menubar then."
+
+The wobble persisted even after removing `.contentTransition` and `.animation`. The 1-second clock tick (`store.now`) was causing `body` to re-render every second. Each re-render recomputed `labelColor` — switching between `.primary` and a team color — which forced SwiftUI to relayout the menu bar button width. That's the wobble.
+
+**Root cause**: Three interacting problems:
+1. **`store.now` tick (1s)** re-rendered the label body every second
+2. **`labelColor`** switched between `.primary` and team color on each re-render
+3. **`ZStack` goal animation overlay** added layout complexity
+
+**Fix — Strip the label to bare minimum**:
+- Removed `labelColor` entirely — no dynamic foreground style, just system default
+- Removed `ZStack` goal animation overlay — goal animation stays in panel only
+- `elapsedMinute()` uses `Date()` directly instead of `store.now` — no 1s re-render trigger
+- Label only re-renders when `matchesByDate` or `goalScored` change (data fetch events)
+
+**Design principle established**: Menu bar = tiny, stable, informative. Panel = rich, animated, beautiful. Don't mix them.
+
+**Summary:** MenuBarLabel is now a fixed HStack with two Text views — `⚽` + dynamic text. No color, no animation overlay, no clock tick dependency. Zero wobble. All files compile clean.
