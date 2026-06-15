@@ -5,7 +5,7 @@
 
 ## Current Stage
 
-**Phase 1 complete (M1–M18). Phase 2 complete (M15–M18). Phase 3 complete (M19).** Full UI/UX redesign: glass material panel, 520px height, horizontal day pills, 12-team grid with search, live match experience with pulsing dot + team colors, hidden scrollbars, ±7 day schedule fetching. **Bug fixes**: PollController idle state now polls every 120s (was waiting until midnight). FetchService uses dedicated URLSession with no cache + Cache-Control: no-cache header (was using URLSession.shared which cached stale TIMED responses). **API compliance**: MatchStatus includes EXTRA_TIME + PENALTY_SHOOTOUT. Response-header-aware rate limiting (X-RequestsAvailable, X-RequestCounter-Reset). **CRITICAL FIX**: football-data.org free tier returns stale match status — API showed TIMED while match was actually LIVE for 32+ min. Implemented client-side status inference (`effectiveStatus`) that overrides stale API status using match clock logic (0–135 min after kickoff → infer IN_PLAY).
+**Phase 1 complete (M1–M18). Phase 2 complete (M15–M18). Phase 3 complete (M19).** Full UI/UX redesign: glass material panel, 520px height, horizontal day pills, 12-team grid with search, live match experience with pulsing dot + team colors, hidden scrollbars, ±7 day schedule fetching. **Bug fixes**: PollController idle state now polls every 120s (was waiting until midnight). FetchService uses dedicated URLSession with no cache + Cache-Control: no-cache header (was using URLSession.shared which cached stale TIMED responses). **API compliance**: MatchStatus includes EXTRA_TIME + PENALTY_SHOOTOUT. Response-header-aware rate limiting (X-RequestsAvailable, X-RequestCounter-Reset). **CRITICAL FIX**: football-data.org free tier returns stale match status — API showed TIMED while match was actually LIVE for 32+ min. Implemented client-side status inference (`effectiveStatus`) that overrides stale API status using match clock logic (0–135 min after kickoff → infer IN_PLAY). **STABLE REVERT**: Reverted menu bar changes from Prompts 24–27 to restore panel stability. Menu bar label has team colors + goal animation; polling starts on panel open.
 
 ## Milestone Tracker
 
@@ -78,7 +78,7 @@
 | 2026-06-16 | MatchStatus: added EXTRA_TIME + PENALTY_SHOOTOUT            | API returns these for extra time/penalties; missing cases caused JSON decode failures                                                |
 | 2026-06-16 | Response-header rate limiting (X-RequestsAvailable)         | API email warned about throttling; now reads X-RequestsAvailable + X-RequestCounter-Reset headers                                    |
 | 2026-06-16 | Client-side status inference (`effectiveStatus`)            | football-data.org free tier returns stale TIMED status even when match is LIVE; clock-based inference overrides stale API data       |
-| 2026-06-16 | @Observable clock tick on MatchStore (1s)                   | MenuBarLabel needs live minute updates; PrayerClock pattern — store.now updates every 1s, @Observable forces SwiftUI re-render       |
+| 2026-06-16 | Reverted: removed clock tick, restored stable menu bar      | Multiple wobble fix attempts (Prompts 24–27) each introduced new problems. Reverted to stable state at d82dc21 for panel stability.  |
 
 ## Architecture Quick Reference
 
@@ -87,8 +87,8 @@
 - **API**: football-data.org v4, URLSession, X-Auth-Token header
 - **API Key**: User-configurable in Settings tab, stored in UserDefaults
 - **Polling**: Task-based state machine (idle ↔ live), 120s idle polling, no-cache URLSession
-- **Clock Tick**: `MatchStore.now` updated every 1s → @Observable notifies → MenuBarLabel re-renders live score + minute (prayer-times-macos pattern)
 - **Status Inference**: `Match.effectiveStatus` overrides stale API status using match clock logic (0–135 min after kickoff → IN_PLAY)
+- **Menu Bar**: Label with team colors + goal animation; polling starts when panel opens (not on launch)
 - **Rate Limiting**: Response-header-aware (X-RequestsAvailable, X-RequestCounter-Reset) + local sliding window
 - **Build**: XcodeGen (`project.yml`), Swift 6, strict concurrency
 
