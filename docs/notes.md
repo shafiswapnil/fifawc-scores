@@ -116,6 +116,15 @@
 
 ## Technical Notes
 
+### CI/CD Release Pipeline (Verified 2026-06-16)
+
+- `softprops/action-gh-release@v2` creates GitHub Releases from tag-triggered workflows.
+- `actions/checkout@v4` on tag trigger creates **detached HEAD** — `git push` fails with exit code 128.
+- Fix: `fetch-depth: 0` → `git fetch origin main && git checkout -f -B main origin/main` → commit → `git push origin HEAD:main`.
+- Save artifacts to `$RUNNER_TEMP` before switching branches (can't write to repo on detached HEAD).
+- Must delete existing GitHub Release before re-creating (API call in CI) — otherwise `softprops/action-gh-release` returns 422.
+- Sparkle auto-update: `docs/appcast.xml` served via GitHub Pages. CI writes the updated file directly to `main`.
+
 ### Memory Management
 
 - Don't download team logos — use emoji flags only

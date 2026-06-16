@@ -713,19 +713,21 @@ User reported 10 compile errors: `.scrollIndicatorsVisibility` has no member on 
 you are so bad mimo. you just reverted all everything. now i dont have any chat history to restore. shit! you deleted a working application. why dude! i just told you to read the claudesession.md, look into the md file: see our chat history, see how claude fixed everything. we talked, we took new decisions, his codes were in unstaged version. and you deleted all everything! you even reverted my prompts.md too.. now you have to recode everything.
 
 look at the claudesession.md file:
+
 - throughly read our conversation > see prompts i gave > there will be multiple prompts > then i came to a decision, claude came to a decision! and in the last we fixed everything. as far as i remember, we solved the menubar issue. see the starting prompt > i told claude to fix it > then we found out its the emoji we are using in the menubar was troubling > so we took prayer repos inspirataion > and used a character of soccer in the menubar! we also figured out the what we will be showing on menubar > when FWC > when what...
 - then comes to GOAL animations. finally we made sure that > we will not use any animation there > we will just show soccer character + GOAL! so just 2 sec when goal happens. thats it.
 - then you will find my prompt: "its runnning clean. no hang. but sometimes it hallucinates. see todays match, but its showing bra vs hai. i dont know why sometimes it hallucinates. this hallucinates must stop. its sometimes because of the cheap api we are using maybe. but still, hallcinations break users trust. fix it.", "i can give you api secret: you can curl to debug and go deep! api secret: c9ada3b0e81b4b56b5f74592323f341d. but yeah to your concerns: the menubar should show latest match of latest time, the logic was this from the ground up. not from future or anything.", "can you teach me here how timings are getting handled? how api is giving us time? how are calculating it? are you respecting our timezone first? discuss with me. so that we can go deep inside and fix. and also tell me all the logics, like we are fixing, we should show latest match of latest date on menubar. this type of how many condittions are even set? lets revise.", "yes, tight it. but maybe it was coded this way because when we visited the schedules tab, we would only get today, yesterday, tomorrows data, not of futures dates there. so do you think for fixing that this was coded this way? or how should we approach so that two things work separately and nicely! no errors, all glow." > from this claude fixed me like this: "featuredMatch priority
-─────────────────────────────────────────────────────────
-1. Live       → any match IN_PLAY/PAUSED/ET/PSO (3-day window)
+  ─────────────────────────────────────────────────────────
+
+1. Live → any match IN_PLAY/PAUSED/ET/PSO (3-day window)
 2. Today upcoming → todayMatches, !hasStarted, utcDate > now
 3. Recent finished → allMatches (3-day window only), newest first
-4. nil        → label shows "FWC"
+4. nil → label shows "FWC"
 
 allMatches scope
 ─────────────────────────────────────────────────────────
 Before fix: ALL of matchesByDate (could include ±7 days from Schedule tab)
-After fix:  [yesterdayKey, todayKey, tomorrowKey] only ← isolated
+After fix: [yesterdayKey, todayKey, tomorrowKey] only ← isolated
 
 Schedule tab
 ─────────────────────────────────────────────────────────
@@ -735,12 +737,13 @@ Never touches allMatches → zero interference ✅
 
 Timezone handling
 ─────────────────────────────────────────────────────────
-API dates    → always UTC (Z suffix)
+API dates → always UTC (Z suffix)
 Date objects → UTC internally, no timezone embedded
 dateString() → uses TimeZone.current (Bangladesh UTC+6) for tab grouping
 formattedTime() → uses TimeZone.current for display
 effectiveStatus → Date() - utcDate, both UTC, always correct
 "
+
 - you will find every code changse decisions and or maybe codes in the claudesession.md file.
 - we fixed everything > and here i told you to just update whats we did > just the docs > and you reverted the whole thing assuming previously we were good > BUT NO! previously we were broken! you just undid a 5hour work!
 - now take responsibility > create extensive plan > ask me with your plan > then i will let you move forward!!! READ THE SESSION THROUGHLY!
@@ -779,10 +782,10 @@ btw how much are you confident on building this? tell me number. by confidence i
 
 Dec A: go for A3. but be confident in doing.
 Dec B: go for B2.
-Dec C: Do it.
-4. Fav team - yes.
+Dec C: Do it. 4. Fav team - yes.
 
 for the fav team behaviors do all:
+
 - Pin your team's matches to the top of the Today tab.
 - Highlight your team's matches with a special border/glow.
 - Filter the Schedule tab to only show your team.
@@ -798,6 +801,7 @@ now before releasing, we need to do some serious documentation and update index.
 i got some screenshots for the readme makeover as its necessary. i pasted the screenshots inside assets folder here. so see them yourself, use in readme and index.html.
 
 then,
+
 - move the prompts.md, status.md file under docs/ directory.
 - update all docs, follow agent rules.
 - commit and push to github and tell me to monitor the build. if all succeeds,
@@ -805,3 +809,10 @@ then,
 
 ---
 
+## Prompt 39 - Fix CI Release Workflow
+
+**User:** again read the documentations online official ones and learn by yourself again code. AND error again, raw log: [CI log showing detached HEAD exit code 128]
+
+**Summary:** Fixed the release.yml CI failure. Root cause: `actions/checkout@v4` on tag trigger creates a detached HEAD — `git push` fails with `exit code 128`. Fix pattern (learned from `tareq1988/prayer-times-macos`): (1) `fetch-depth: 0` for full history, (2) save appcast to `$RUNNER_TEMP` while on detached tag, (3) `git fetch origin main && git checkout -f -B main origin/main`, (4) copy appcast to repo, commit, `git push origin HEAD:main`. Also added `set -euo pipefail` to all bash steps, and a safety step to delete existing GitHub Release before re-creating (prevents 422 on re-tags). v1.0.0 released successfully — CI built the zip, created GitHub Release, pushed appcast.xml to main. Sparkle auto-update is live. All docs updated to reflect RELEASED state.
+
+---
