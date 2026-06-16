@@ -1,19 +1,19 @@
 <?xml version="1.0" standalone="yes"?>
 <rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
-    <channel>
-        <title>FIFAWC Scores</title>
-        <item>
-            <title>v1.0.0</title>
-            <pubDate>Mon, 15 Jun 2026 00:00:00 +0000</pubDate>
-            <sparkle:version>1</sparkle:version>
-            <sparkle:shortVersionString>1.0.0</sparkle:shortVersionString>
-            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-            <enclosure
-                url="https://github.com/shafiswapnil/fifawc-scores/releases/download/v1.0.0/FIFAWCSCORES-1.0.0.zip"
-                length="0"
-                type="application/octet-stream"
-                sparkle:edSignature=""
-            />
-        </item>
-    </channel>
+  <channel>
+    <title>FIFAWC Scores</title>
+    <item>
+      <title>v1.0.0</title>
+      <pubDate>Tue, 16 Jun 2026 03:33:27 +0000</pubDate>
+      <sparkle:version>1</sparkle:version>
+      <sparkle:shortVersionString>1.0.0</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+      <enclosure
+        url="https://github.com/shafiswapnil/fifawc-scores/releases/download/v1.0.0/FIFAWCSCORES-1.0.0.zip"
+        length="4518534"
+        type="application/octet-stream"
+        sparkle:edSignature=""
+      />
+    </item>
+  </channel>
 </rss>
