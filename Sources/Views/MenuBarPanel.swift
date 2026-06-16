@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// The `.window`-style panel shown when the menu bar item is clicked.
-/// Glass-material design with tabbed navigation for Today, Yesterday, Tomorrow, Schedule, Standings.
+/// TRIONDA redesign — dark glass material with orange/violet brand accents.
 struct MenuBarPanel: View {
     @Environment(MatchStore.self) private var store
 
@@ -56,19 +56,21 @@ struct MenuBarPanel: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             header
-            Divider().opacity(0.4)
+            Divider().opacity(0.2)
             tabRow
-            Divider().opacity(0.3)
+            Divider().opacity(0.15)
             content
                 .layoutPriority(-1)
-            Divider().opacity(0.4)
+            Divider().opacity(0.2)
             footer
         }
-        .padding(.horizontal, 10)
+        .padding(.horizontal, 12)
         .padding(.vertical, 12)
-        .frame(width: 360)
-        .frame(maxHeight: 520)
+        .frame(width: 380)
+        .frame(minHeight: selectedTab == .settings ? 420 : nil,
+               maxHeight: selectedTab == .settings ? 420 : 480)
         .background(.ultraThinMaterial, ignoresSafeAreaEdges: .all)
+        .overlay { DarkModeBridge().allowsHitTesting(false) }
         .onAppear {
             if !hasAppeared {
                 hasAppeared = true
@@ -86,7 +88,7 @@ struct MenuBarPanel: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text("FIFA WORLD CUP 2026")
                     .font(.caption2.weight(.semibold))
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Theme.textSecondary)
                     .tracking(0.5)
 
                 if store.isFetching {
@@ -95,21 +97,21 @@ struct MenuBarPanel: View {
                         Text("Syncing…")
                     }
                     .font(.caption)
-                    .foregroundStyle(.tertiary)
+                    .foregroundStyle(Theme.textSecondary)
                 } else if let error = store.errorMessage {
                     Text(error)
                         .font(.caption)
                         .foregroundStyle(.red)
                         .lineLimit(1)
                 } else if let match = store.featuredMatch, match.isLive {
-                    HStack(spacing: 4) {
+                    HStack(spacing: 5) {
                         Circle()
-                            .fill(.red)
+                            .fill(Theme.live)
                             .frame(width: 6, height: 6)
                             .opacity(livePulse ? 1.0 : 0.3)
                         Text("LIVE")
                             .font(.caption.weight(.bold))
-                            .foregroundStyle(.red)
+                            .foregroundStyle(Theme.live)
                     }
                     .onAppear {
                         withAnimation(.easeInOut(duration: 1.0).repeatForever(autoreverses: true)) {
@@ -122,6 +124,7 @@ struct MenuBarPanel: View {
                         Text("Match Hub")
                     }
                     .font(.title3.weight(.semibold))
+                    .foregroundStyle(Theme.textPrimary)
                 }
             }
             Spacer()
@@ -130,34 +133,36 @@ struct MenuBarPanel: View {
         .padding(.bottom, 8)
     }
 
-    // MARK: - Tab Row
+    // MARK: - Tab Row (underline style)
 
     private var tabRow: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 6) {
+            HStack(spacing: 4) {
                 ForEach(PanelTab.allCases, id: \.self) { tab in
                     Button {
                         withAnimation(.easeInOut(duration: 0.15)) {
                             selectedTab = tab
                         }
                     } label: {
-                        Text(tab.rawValue)
-                            .font(.caption.weight(.medium))
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 5)
-                            .background(
-                                Capsule()
-                                    .fill(selectedTab == tab
-                                          ? Color.accentColor
-                                          : Color.primary.opacity(0.06))
-                            )
-                            .foregroundStyle(selectedTab == tab ? .white : .secondary)
+                        VStack(spacing: 0) {
+                            Text(tab.rawValue)
+                                .font(.caption.weight(.medium))
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 5)
+                                .foregroundStyle(selectedTab == tab ? Theme.orange : Theme.textSecondary)
+
+                            // Underline indicator
+                            RoundedRectangle(cornerRadius: 1)
+                                .fill(selectedTab == tab ? Theme.orange : Color.clear)
+                                .frame(height: 2)
+                                .frame(width: 24)
+                        }
                     }
                     .buttonStyle(.plain)
                 }
             }
             .padding(.horizontal, 8)
-            .padding(.vertical, 4)
+            .padding(.vertical, 6)
         }
         .scrollIndicators(.hidden)
     }
@@ -184,58 +189,79 @@ struct MenuBarPanel: View {
 
     // MARK: - Match List
 
+    /// Sort matches into (live, upcoming, finished) buckets.
+    private func bucketMatches(_ matches: [Match]) -> (live: [Match], upcoming: [Match], finished: [Match]) {
+        let live = matches.filter { $0.isLive }
+        let upcoming = matches.filter { !$0.effectiveStatus.hasStarted }.sorted { $0.utcDate < $1.utcDate }
+        let finished = matches.filter { $0.isFinished }.sorted { $0.utcDate > $1.utcDate }
+        return (live, upcoming, finished)
+    }
+
     private func matchList(_ matches: [Match], emptyText: String) -> some View {
         Group {
             if matches.isEmpty {
                 VStack(spacing: 8) {
                     Image(systemName: "calendar")
                         .font(.title2)
-                        .foregroundStyle(.tertiary)
+                        .foregroundStyle(Theme.textSecondary)
                     Text(emptyText)
                         .font(.callout)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Theme.textSecondary)
                 }
                 .frame(maxWidth: .infinity, minHeight: 120)
             } else {
+                let fav = store.favoriteTeam
+                let favSet = matches.filter { fav != nil && ($0.homeTeam.tla == fav || $0.awayTeam.tla == fav) }
+                let otherSet = fav != nil ? matches.filter { $0.homeTeam.tla != fav && $0.awayTeam.tla != fav } : matches
+                let favB = bucketMatches(favSet)
+                let otherB = bucketMatches(otherSet)
+                let hasFav = !favSet.isEmpty
+
                 let matchContent = VStack(spacing: 6) {
-                    // Live matches first
-                    let live = matches.filter { $0.isLive }
-                    if !live.isEmpty {
-                        ForEach(live) { match in
-                            MatchCard(match: match, isLiveHighlight: true)
+                    // Fav team matches pinned to top
+                    if hasFav {
+                        ForEach(favB.live) { match in
+                            MatchCard(match: match, isLiveHighlight: true, isFavoriteHighlight: true)
+                        }
+                        ForEach(favB.upcoming) { match in
+                            MatchCard(match: match, isLiveHighlight: false, isFavoriteHighlight: true)
+                        }
+                        ForEach(favB.finished) { match in
+                            MatchCard(match: match, isLiveHighlight: false, isFavoriteHighlight: true)
                         }
                     }
 
-                    // Upcoming matches (sorted by time)
-                    let upcoming = matches
-                        .filter { !$0.effectiveStatus.hasStarted }
-                        .sorted { $0.utcDate < $1.utcDate }
-                    if !upcoming.isEmpty {
-                        ForEach(upcoming) { match in
-                            MatchCard(match: match, isLiveHighlight: false)
+                    // Separator between fav and other sections
+                    if hasFav && (!otherB.live.isEmpty || !otherB.upcoming.isEmpty || !otherB.finished.isEmpty) {
+                        HStack(spacing: 6) {
+                            Rectangle().fill(Theme.glassStroke).frame(height: 0.5)
+                            Text("Other Matches")
+                                .font(.caption2)
+                                .foregroundStyle(Theme.textSecondary)
+                            Rectangle().fill(Theme.glassStroke).frame(height: 0.5)
                         }
+                        .padding(.vertical, 2)
                     }
 
-                    // Finished matches (most recent first)
-                    let finished = matches
-                        .filter { $0.isFinished }
-                        .sorted { $0.utcDate > $1.utcDate }
-                    if !finished.isEmpty {
-                        ForEach(finished) { match in
-                            MatchCard(match: match, isLiveHighlight: false)
-                        }
+                    // Other matches
+                    ForEach(otherB.live) { match in
+                        MatchCard(match: match, isLiveHighlight: true, isFavoriteHighlight: false)
+                    }
+                    ForEach(otherB.upcoming) { match in
+                        MatchCard(match: match, isLiveHighlight: false, isFavoriteHighlight: false)
+                    }
+                    ForEach(otherB.finished) { match in
+                        MatchCard(match: match, isLiveHighlight: false, isFavoriteHighlight: false)
                     }
                 }
 
                 if matches.count > 4 {
-                    // Many matches — scrollable
                     ScrollView {
                         matchContent
                             .padding(.vertical, 6)
                     }
                     .scrollIndicators(.hidden)
                 } else {
-                    // Few matches — size to content, no scroll
                     matchContent
                         .padding(.vertical, 6)
                 }
@@ -252,10 +278,10 @@ struct MenuBarPanel: View {
                 VStack(spacing: 8) {
                     Image(systemName: "list.number")
                         .font(.title2)
-                        .foregroundStyle(.tertiary)
+                        .foregroundStyle(Theme.textSecondary)
                     Text("No standings available")
                         .font(.callout)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Theme.textSecondary)
                 }
                 .frame(maxWidth: .infinity, minHeight: 120)
             } else {
@@ -278,158 +304,174 @@ struct MenuBarPanel: View {
     private var settingsView: some View {
         ScrollView(.vertical, showsIndicators: false) {
             VStack(alignment: .leading, spacing: 12) {
-            // API Key
-            VStack(alignment: .leading, spacing: 4) {
-                HStack {
-                    Text("API Key")
-                        .font(.caption.weight(.medium))
-                    if store.hasApiKey {
-                        Image(systemName: "checkmark.circle.fill")
-                            .foregroundStyle(.green)
+                // API Key
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack {
+                        Text("API Key")
+                            .font(.caption.weight(.medium))
+                            .foregroundStyle(Theme.textPrimary)
+                        if store.hasApiKey {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundStyle(.green)
+                                .font(.caption2)
+                        } else {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundStyle(Theme.orange)
+                                .font(.caption2)
+                        }
+                    }
+                    TextField("Paste your API key here", text: Binding(
+                        get: { store.apiKey },
+                        set: { store.apiKey = $0 }
+                    ))
+                    .textFieldStyle(.roundedBorder)
+                    .font(.caption)
+                    HStack(spacing: 4) {
+                        Text("Free at")
                             .font(.caption2)
-                    } else {
-                        Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundStyle(.orange)
+                        Link("football-data.org", destination: URL(string: "https://www.football-data.org/client/register")!)
                             .font(.caption2)
                     }
+                    .foregroundStyle(Theme.textSecondary)
                 }
-                TextField("Paste your API key here", text: Binding(
-                    get: { store.apiKey },
-                    set: { store.apiKey = $0 }
-                ))
-                .textFieldStyle(.roundedBorder)
-                .font(.caption)
-                HStack(spacing: 4) {
-                    Text("Free at")
+
+                Divider().opacity(0.2)
+
+                // Poll interval
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack {
+                        Text("Live Poll Interval")
+                            .font(.caption.weight(.medium))
+                            .foregroundStyle(Theme.textPrimary)
+                        Spacer()
+                        Text("\(Int(store.pollInterval))s")
+                            .font(.caption.monospacedDigit())
+                            .foregroundStyle(Theme.textSecondary)
+                    }
+                    Slider(
+                        value: Binding(
+                            get: { store.pollInterval },
+                            set: { store.pollInterval = $0 }
+                        ),
+                        in: 60...300,
+                        step: 30
+                    )
+                    .tint(Theme.orange)
+                    Text("Min 60s · Higher = less API usage")
                         .font(.caption2)
-                    Link("football-data.org", destination: URL(string: "https://www.football-data.org/client/register")!)
-                        .font(.caption2)
+                        .foregroundStyle(Theme.textSecondary)
                 }
-                .foregroundStyle(.tertiary)
-            }
 
-            Divider().opacity(0.3)
+                Divider().opacity(0.2)
 
-            // Poll interval
-            VStack(alignment: .leading, spacing: 4) {
-                HStack {
-                    Text("Live Poll Interval")
+                // Favorite team — 12 popular teams + search
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Favorite Team")
                         .font(.caption.weight(.medium))
+                        .foregroundStyle(Theme.textPrimary)
+
+                    Text("Prioritized in menu bar when upcoming")
+                        .font(.caption2)
+                        .foregroundStyle(Theme.textSecondary)
+
+                    // Search field for TLA
+                    HStack(spacing: 4) {
+                        Image(systemName: "magnifyingglass")
+                            .foregroundStyle(Theme.textSecondary)
+                            .font(.caption2)
+                        TextField("Search team (e.g. KOR, MEX)…", text: $favoriteTeamSearch)
+                            .textFieldStyle(.plain)
+                            .font(.caption2)
+                            .foregroundStyle(Theme.textPrimary)
+                        if !favoriteTeamSearch.isEmpty {
+                            Button {
+                                favoriteTeamSearch = ""
+                            } label: {
+                                Image(systemName: "xmark.circle.fill")
+                                    .foregroundStyle(Theme.textSecondary)
+                                    .font(.caption2)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 5)
+                    .background(
+                        RoundedRectangle(cornerRadius: 6)
+                            .fill(Theme.surfaceSubtle)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 6)
+                                    .stroke(Theme.glassStroke, lineWidth: 0.5)
+                            )
+                    )
+
+                    // None button — underline style like tabs
+                    Button {
+                        store.favoriteTeam = nil
+                    } label: {
+                        Text("None")
+                            .font(.caption2)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 4)
+                            .background(
+                                Capsule()
+                                    .fill(store.favoriteTeam == nil
+                                          ? Theme.orange
+                                          : Theme.tabInactiveBackground)
+                            )
+                            .foregroundStyle(store.favoriteTeam == nil ? .white : Theme.textSecondary)
+                    }
+                    .buttonStyle(.plain)
+
+                    // 3-column grid of team pills — glass border treatment
+                    LazyVGrid(columns: favoriteGridColumns, spacing: 4) {
+                        ForEach(teamsToShow, id: \.self) { tla in
+                            Button {
+                                store.favoriteTeam = tla
+                            } label: {
+                                Text("\(TeamFlags.flags[tla] ?? "🏳️") \(tla)")
+                                    .font(.caption2)
+                                    .padding(.horizontal, 6)
+                                    .padding(.vertical, 4)
+                                    .frame(maxWidth: .infinity)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 6)
+                                            .fill(store.favoriteTeam == tla
+                                                  ? Theme.orange
+                                                  : Theme.surfaceSubtle)
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: 6)
+                                                    .stroke(store.favoriteTeam == tla
+                                                            ? Theme.orange.opacity(0.4)
+                                                            : Theme.glassStroke,
+                                                            lineWidth: 0.5)
+                                            )
+                                    )
+                                    .foregroundStyle(store.favoriteTeam == tla ? .white : Theme.textSecondary)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                }
+
+                Divider().opacity(0.2)
+
+                // Version status
+                let appVersion = Bundle.main.object(
+                    forInfoDictionaryKey: "CFBundleShortVersionString"
+                ) as? String
+                HStack {
+                    Text("FIFAWC Scores v\(appVersion ?? "?")")
+                        .font(.caption2)
+                        .foregroundStyle(Theme.textSecondary)
                     Spacer()
-                    Text("\(Int(store.pollInterval))s")
-                        .font(.caption.monospacedDigit())
-                        .foregroundStyle(.secondary)
-                }
-                Slider(
-                    value: Binding(
-                        get: { store.pollInterval },
-                        set: { store.pollInterval = $0 }
-                    ),
-                    in: 60...300,
-                    step: 30
-                )
-                Text("Min 60s · Higher = less API usage")
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
-            }
-
-            Divider().opacity(0.3)
-
-            // Favorite team — 12 popular teams + search
-            VStack(alignment: .leading, spacing: 6) {
-                Text("Favorite Team")
-                    .font(.caption.weight(.medium))
-
-                Text("Prioritized in menu bar when upcoming")
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
-
-                // Search field for TLA
-                HStack(spacing: 4) {
-                    Image(systemName: "magnifyingglass")
-                        .foregroundStyle(.tertiary)
+                    Text("latest")
                         .font(.caption2)
-                    TextField("Search team (e.g. KOR, MEX)…", text: $favoriteTeamSearch)
-                        .textFieldStyle(.plain)
-                        .font(.caption2)
-                    if !favoriteTeamSearch.isEmpty {
-                        Button {
-                            favoriteTeamSearch = ""
-                        } label: {
-                            Image(systemName: "xmark.circle.fill")
-                                .foregroundStyle(.tertiary)
-                                .font(.caption2)
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
-                .padding(.horizontal, 8)
-                .padding(.vertical, 5)
-                .background(
-                    RoundedRectangle(cornerRadius: 6)
-                        .fill(Color.primary.opacity(0.06))
-                )
-
-                // None button
-                Button {
-                    store.favoriteTeam = nil
-                } label: {
-                    Text("None")
-                        .font(.caption2)
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 4)
-                        .background(
-                            Capsule()
-                                .fill(store.favoriteTeam == nil
-                                      ? Color.accentColor
-                                      : Color.primary.opacity(0.06))
-                        )
-                        .foregroundStyle(store.favoriteTeam == nil ? .white : .secondary)
-                }
-                .buttonStyle(.plain)
-
-                // 3-column grid of team pills
-                LazyVGrid(columns: favoriteGridColumns, spacing: 4) {
-                    ForEach(teamsToShow, id: \.self) { tla in
-                        Button {
-                            store.favoriteTeam = tla
-                        } label: {
-                            Text("\(TeamFlags.flags[tla] ?? "🏳️") \(tla)")
-                                .font(.caption2)
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 4)
-                                .frame(maxWidth: .infinity)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 6)
-                                        .fill(store.favoriteTeam == tla
-                                              ? Color.accentColor
-                                              : Color.primary.opacity(0.06))
-                                )
-                                .foregroundStyle(store.favoriteTeam == tla ? .white : .secondary)
-                        }
-                        .buttonStyle(.plain)
-                    }
+                        .foregroundStyle(.green)
                 }
             }
-
-            Divider().opacity(0.3)
-
-            // Version status
-            let appVersion = Bundle.main.object(
-                forInfoDictionaryKey: "CFBundleShortVersionString"
-            ) as? String
-            HStack {
-                Text("FIFAWC Scores v\(appVersion ?? "?")")
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
-                Spacer()
-                Text("latest")
-                    .font(.caption2)
-                    .foregroundStyle(.green)
-            }
-        }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 6)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 6)
         }
         .scrollIndicators(.hidden)
     }
@@ -438,7 +480,6 @@ struct MenuBarPanel: View {
 
     private var fullScheduleView: some View {
         VStack(alignment: .leading, spacing: 8) {
-            // Day pills — horizontal scrollable row of date capsules
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 6) {
                     ForEach(scheduleDateRange, id: \.self) { date in
@@ -457,18 +498,23 @@ struct MenuBarPanel: View {
                             VStack(spacing: 2) {
                                 Text(dayName)
                                     .font(.system(size: 9, weight: .medium))
+                                    .foregroundStyle(isSelected ? Theme.orange : Theme.textSecondary)
                                 Text(dayNum)
                                     .font(.system(size: 13, weight: .semibold, design: .rounded))
+                                    .foregroundStyle(isSelected ? Theme.orange : Theme.textPrimary)
                             }
                             .frame(width: 42)
                             .padding(.vertical, 6)
                             .background(
                                 RoundedRectangle(cornerRadius: 10)
                                     .fill(isSelected
-                                          ? Color.accentColor
-                                          : Color.primary.opacity(0.06))
+                                          ? Theme.tabActiveBackground
+                                          : Color.clear)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 10)
+                                            .stroke(isSelected ? Theme.orange.opacity(0.3) : Theme.glassStroke, lineWidth: 0.5)
+                                    )
                             )
-                            .foregroundStyle(isSelected ? .white : .secondary)
                         }
                         .buttonStyle(.plain)
                     }
@@ -476,29 +522,38 @@ struct MenuBarPanel: View {
                 .padding(.horizontal, 8)
                 .padding(.top, 6)
             }
-        .scrollIndicators(.hidden)
+            .scrollIndicators(.hidden)
+
             if isLoadingSchedule {
                 VStack(spacing: 8) {
                     ProgressView()
                     Text("Loading matches…")
                         .font(.caption)
-                        .foregroundStyle(.tertiary)
+                        .foregroundStyle(Theme.textSecondary)
                 }
                 .frame(maxWidth: .infinity, minHeight: 120)
             } else if scheduleMatches.isEmpty {
                 VStack(spacing: 8) {
                     Image(systemName: "calendar.badge.exclamationmark")
                         .font(.title2)
-                        .foregroundStyle(.tertiary)
+                        .foregroundStyle(Theme.textSecondary)
                     Text("No matches on this day")
                         .font(.callout)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Theme.textSecondary)
                 }
                 .frame(maxWidth: .infinity, minHeight: 120)
             } else {
+                // Filter by favorite team if set
+                let displayMatches: [Match] = {
+                    guard let fav = store.favoriteTeam else { return scheduleMatches }
+                    let filtered = scheduleMatches.filter { $0.homeTeam.tla == fav || $0.awayTeam.tla == fav }
+                    return filtered.isEmpty ? scheduleMatches : filtered
+                }()
                 let scheduleContent = VStack(spacing: 6) {
-                    ForEach(scheduleMatches) { match in
-                        MatchCard(match: match, isLiveHighlight: match.isLive)
+                    ForEach(displayMatches) { match in
+                        MatchCard(match: match, isLiveHighlight: match.isLive,
+                                  isFavoriteHighlight: store.favoriteTeam != nil &&
+                                    (match.homeTeam.tla == store.favoriteTeam || match.awayTeam.tla == store.favoriteTeam))
                     }
                 }
                 if scheduleMatches.count > 4 {
@@ -520,7 +575,7 @@ struct MenuBarPanel: View {
         }
     }
 
-    /// Range of dates for the day pills: today ± 14 days
+    /// Range of dates for the day pills: today ± 7 days
     private var scheduleDateRange: [Date] {
         let cal = Calendar.current
         let start = cal.date(byAdding: .day, value: -7, to: Date()) ?? Date()
@@ -550,16 +605,13 @@ struct MenuBarPanel: View {
     private func loadScheduleForDate(_ date: Date) async {
         isLoadingSchedule = true
 
-        // If we already have matches stored for this date, show them immediately
         let key = dateStringForSchedule(date)
         if let existing = store.matchesByDate[key] {
             scheduleMatches = existing
         }
 
-        // Fetch ±7 days around the date
         await store.fetchScheduleAround(date)
 
-        // Refresh from store after fetch
         let updated = store.matchesByDate[key] ?? []
         scheduleMatches = updated
 
@@ -577,6 +629,7 @@ struct MenuBarPanel: View {
             } label: {
                 Label("Settings", systemImage: "gearshape")
                     .font(.caption.weight(.medium))
+                    .foregroundStyle(Theme.textSecondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.vertical, 5)
                     .padding(.horizontal, 8)
@@ -597,6 +650,7 @@ struct MenuBarPanel: View {
                     Text("Sync")
                 }
                 .font(.caption.weight(.medium))
+                .foregroundStyle(Theme.textSecondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.vertical, 5)
                 .padding(.horizontal, 8)
@@ -609,6 +663,7 @@ struct MenuBarPanel: View {
             Button { NSApplication.shared.terminate(nil) } label: {
                 Label("Quit", systemImage: "power")
                     .font(.caption.weight(.medium))
+                    .foregroundStyle(Theme.textSecondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.vertical, 5)
                     .padding(.horizontal, 8)
@@ -625,7 +680,7 @@ struct MenuBarPanel: View {
     private func dateStringForSchedule(_ date: Date) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
-        formatter.timeZone = TimeZone.current  // Local timezone for correct tab grouping
+        formatter.timeZone = TimeZone.current
         return formatter.string(from: date)
     }
 }
@@ -633,9 +688,11 @@ struct MenuBarPanel: View {
 // MARK: - Match Card
 
 /// A glass card showing one match with flags, scores, status, and group.
+/// TRIONDA: dark charcoal fill, 1px glass stroke, orange live indicators.
 struct MatchCard: View {
     let match: Match
     let isLiveHighlight: Bool
+    let isFavoriteHighlight: Bool
 
     @State private var scorePulse: Bool = false
 
@@ -649,7 +706,9 @@ struct MatchCard: View {
                         .font(.system(size: 15))
                     Text(match.homeTeam.tla)
                         .font(.caption.weight(.semibold))
-                        .foregroundStyle(isLiveHighlight ? TeamColors.forTeam(match.homeTeam.tla).primary : .primary)
+                        .foregroundStyle(isLiveHighlight
+                                         ? TeamColors.forTeam(match.homeTeam.tla).primary
+                                         : Theme.textPrimary)
                 }
                 .frame(minWidth: 60, alignment: .leading)
 
@@ -658,7 +717,7 @@ struct MatchCard: View {
                 // Score or time
                 Text(match.displayText)
                     .font(.system(.callout, design: .monospaced).weight(.bold))
-                    .foregroundStyle(isLiveHighlight ? .red : .primary)
+                    .foregroundStyle(isLiveHighlight ? Theme.orange : Theme.textPrimary)
                     .contentTransition(.numericText())
 
                 Spacer()
@@ -667,7 +726,9 @@ struct MatchCard: View {
                 HStack(spacing: 4) {
                     Text(match.awayTeam.tla)
                         .font(.caption.weight(.semibold))
-                        .foregroundStyle(isLiveHighlight ? TeamColors.forTeam(match.awayTeam.tla).primary : .primary)
+                        .foregroundStyle(isLiveHighlight
+                                         ? TeamColors.forTeam(match.awayTeam.tla).primary
+                                         : Theme.textPrimary)
                     Text(match.awayTeam.flagEmoji)
                         .font(.system(size: 15))
                 }
@@ -679,11 +740,11 @@ struct MatchCard: View {
                 if match.isLive {
                     HStack(spacing: 4) {
                         Circle()
-                            .fill(.red)
+                            .fill(Theme.orange)
                             .frame(width: 5, height: 5)
                             .opacity(scorePulse ? 1.0 : 0.3)
                         Text(match.effectiveStatus.displayName)
-                            .foregroundStyle(.red)
+                            .foregroundStyle(Theme.orange)
                             .font(.caption2.weight(.medium))
                     }
                     .onAppear {
@@ -694,7 +755,7 @@ struct MatchCard: View {
                 } else if match.isFinished {
                     Text("FT")
                         .font(.caption2.weight(.medium))
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Theme.textSecondary)
                 } else {
                     HStack(spacing: 2) {
                         Image(systemName: "clock")
@@ -702,6 +763,7 @@ struct MatchCard: View {
                         Text(match.effectiveStatus.displayName)
                     }
                     .font(.caption2)
+                    .foregroundStyle(Theme.textSecondary)
                 }
 
                 if let group = match.groupDisplay {
@@ -714,30 +776,23 @@ struct MatchCard: View {
                 if let venue = match.venue {
                     Text(venue)
                         .font(.caption2)
-                        .foregroundStyle(.tertiary)
+                        .foregroundStyle(Theme.textSecondary)
                         .lineLimit(1)
                 }
             }
             .font(.caption2)
-            .foregroundStyle(.secondary)
+            .foregroundStyle(Theme.textSecondary)
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 8)
         .background(
             RoundedRectangle(cornerRadius: 8)
-                .fill(.regularMaterial)
+                .fill(isFavoriteHighlight ? Theme.favHighlight : Theme.cardBackground)
                 .overlay(
                     RoundedRectangle(cornerRadius: 8)
-                        .fill(isLiveHighlight
-                              ? TeamColors.forTeam(match.homeTeam.tla).primary.opacity(0.06)
-                              : Color.clear)
+                        .stroke(isFavoriteHighlight ? Theme.favBorder : Theme.glassStroke,
+                                lineWidth: isFavoriteHighlight ? 1 : 0.5)
                 )
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 8)
-                .stroke(isLiveHighlight
-                        ? TeamColors.forTeam(match.homeTeam.tla).primary.opacity(0.2)
-                        : Color.clear, lineWidth: 0.5)
         )
     }
 }
@@ -745,6 +800,7 @@ struct MatchCard: View {
 // MARK: - Group Standing Card
 
 /// A mini group table showing team positions, points, and goal difference.
+/// TRIONDA: dark card with glass stroke border.
 struct GroupStandingCard: View {
     let group: GroupStanding
 
@@ -753,7 +809,7 @@ struct GroupStandingCard: View {
             // Group header
             Text(group.displayName)
                 .font(.caption.weight(.semibold))
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Theme.textSecondary)
                 .padding(.horizontal, 4)
 
             // Table header
@@ -775,7 +831,7 @@ struct GroupStandingCard: View {
                     .frame(width: 28)
             }
             .font(.system(size: 9, weight: .medium, design: .monospaced))
-            .foregroundStyle(.tertiary)
+            .foregroundStyle(Theme.textSecondary)
             .padding(.horizontal, 4)
 
             // Team rows
@@ -783,7 +839,7 @@ struct GroupStandingCard: View {
                 HStack(spacing: 0) {
                     Text("\(entry.position).")
                         .font(.system(size: 10, design: .monospaced))
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Theme.textSecondary)
                         .frame(width: 16, alignment: .trailing)
 
                     Text(entry.team.flagEmoji)
@@ -791,6 +847,7 @@ struct GroupStandingCard: View {
 
                     Text(entry.team.tla)
                         .font(.system(size: 10, weight: .semibold))
+                        .foregroundStyle(Theme.textPrimary)
                         .frame(width: 36, alignment: .leading)
 
                     Spacer()
@@ -806,23 +863,28 @@ struct GroupStandingCard: View {
                     Text(entry.goalDifferenceText)
                         .frame(width: 28)
                         .foregroundStyle(entry.goalDifference > 0 ? .green
-                                         : entry.goalDifference < 0 ? .red : .secondary)
+                                         : entry.goalDifference < 0 ? .red : Theme.textSecondary)
                     Text("\(entry.points)")
                         .frame(width: 28)
                         .fontWeight(.bold)
+                        .foregroundStyle(Theme.textPrimary)
                 }
                 .font(.system(size: 10, design: .monospaced))
                 .padding(.horizontal, 4)
                 .padding(.vertical, 2)
                 .background(entry.isQualified
-                            ? Color.accentColor.opacity(0.06)
+                            ? Theme.qualifiedTint
                             : Color.clear)
             }
         }
         .padding(10)
         .background(
             RoundedRectangle(cornerRadius: 8)
-                .fill(.regularMaterial)
+                .fill(Theme.cardBackground)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Theme.glassStroke, lineWidth: 0.5)
+                )
         )
     }
 }
@@ -836,7 +898,7 @@ private struct MenuRowHighlight: ViewModifier {
         content
             .background(
                 RoundedRectangle(cornerRadius: 6)
-                    .fill(hovering ? Color.primary.opacity(0.08) : Color.clear)
+                    .fill(hovering ? Theme.tabActiveBackground : Color.clear)
             )
             .onHover { hovering = $0 }
     }
