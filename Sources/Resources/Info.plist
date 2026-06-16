@@ -26,5 +26,7 @@
 	<!-- Sparkle auto-update: feed URL hosted on GitHub Pages (appcast.xml). -->
 	<key>SUFeedURL</key>
 	<string>https://shafiswapnil.github.io/fifawc-scores/appcast.xml</string>
+	<key>SUPublicEDKey</key>
+	<string>TfXIpCz44Ye0qq/LNlJmlarixEHLbZjb4VELsd8R85A=</string>
 </dict>
 </plist>

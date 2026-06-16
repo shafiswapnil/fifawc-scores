@@ -77,6 +77,33 @@ jobs:
           zip -r -y "FIFAWCSCORES-${{ env.VERSION }}.zip" "$APP_PATH"
           echo "ARCHIVE_PATH=${{ github.workspace }}/FIFAWCSCORES-${{ env.VERSION }}.zip" >> "$GITHUB_ENV"
 
+      # ── EdDSA sign the zip (required for Sparkle updates) ──
+      - name: Download Sparkle signing tools
+        shell: bash
+        run: |
+          curl -sL "https://github.com/sparkle-project/Sparkle/releases/download/2.6.4/Sparkle-2.6.4.tar.xz" -o /tmp/sparkle.tar.xz
+          cd /tmp && tar -xf sparkle.tar.xz ./bin/sign_update
+          chmod +x /tmp/bin/sign_update
+
+      - name: Sign update with EdDSA
+        if: env.SPARKLE_PRIVATE_KEY != ''
+        shell: bash
+        env:
+          SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          echo "$SPARKLE_PRIVATE_KEY" > /tmp/sparkle_eddsa_private.pem
+          chmod 600 /tmp/sparkle_eddsa_private.pem
+          # sign_update outputs: sparkle:edSignature="..." length="..."
+          SIGN_OUTPUT=$(/tmp/bin/sign_update --ed-key-file /tmp/sparkle_eddsa_private.pem "$ARCHIVE_PATH")
+          ED_SIGNATURE=$(echo "$SIGN_OUTPUT" | sed -n 's/.*sparkle:edSignature="\([^"]*\)".*/\1/p')
+          APP_LENGTH=$(echo "$SIGN_OUTPUT" | sed -n 's/.*length="\([^"]*\)".*/\1/p')
+          echo "ED_SIGNATURE=$ED_SIGNATURE" >> "$GITHUB_ENV"
+          echo "APP_LENGTH=$APP_LENGTH" >> "$GITHUB_ENV"
+          echo "✅ EdDSA signature: $ED_SIGNATURE"
+          echo "✅ App length: $APP_LENGTH bytes"
+          rm -f /tmp/sparkle_eddsa_private.pem
+
       # ── Code sign (conditional — only if secret is set) ──
       - name: Import signing certificate
         if: env.DEVELOPER_ID_CERTIFICATE != ''
@@ -152,9 +179,14 @@ jobs:
 
           # Build the appcast content
           BUNDLE_VERSION=$(/usr/libexec/PlistBuddy -c "Print :CFBundleVersion" "$APP_PATH/Contents/Info.plist" || echo "1")
-          APP_SIZE=$(stat -f%z "$ARCHIVE_PATH")
+          # Use EdDSA-reported length if available, otherwise stat
+          APP_SIZE="${APP_LENGTH:-$(stat -f%z "$ARCHIVE_PATH")}"
+          ED_SIG="${ED_SIGNATURE:-}"
           DOWNLOAD_URL="https://github.com/${{ github.repository }}/releases/download/${{ env.TAG }}/FIFAWCSCORES-${{ env.VERSION }}.zip"
           PUB_DATE=$(date -R)
+
+          echo "📦 App size: $APP_SIZE bytes"
+          echo "🔑 Ed signature: ${ED_SIG:-(none)}"
 
           # Write to temp location first (detached HEAD can't push)
           mkdir -p "$RUNNER_TEMP/dist"
@@ -173,7 +205,7 @@ jobs:
                   url="${DOWNLOAD_URL}"
                   length="${APP_SIZE}"
                   type="application/octet-stream"
-                  sparkle:edSignature=""
+                  sparkle:edSignature="${ED_SIG}"
                 />
               </item>
             </channel>

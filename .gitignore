@@ -1,4 +1,9 @@
 README-PERSONAL.md
+edsa/
+
+# Secrets (never commit)
+*.pem
+sparkle_eddsa_private.pem
 
 # Xcode
 *.xcodeproj/
