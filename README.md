@@ -14,10 +14,6 @@
   </p>
 </div>
 
----
-
-## Screenshot
-
 <p align="center">
   <img src="docs/assets/hero.png" alt="FIFAWC Scores — menu bar + panel with live match" width="700" />
 </p>
