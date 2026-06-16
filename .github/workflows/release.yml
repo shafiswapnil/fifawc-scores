@@ -192,6 +192,23 @@ jobs:
           git commit -m "chore: update appcast.xml for v${{ env.VERSION }}" || echo "No appcast changes"
           git push origin HEAD:main
 
+      # ── Delete existing release (if re-tagging) ──
+      - name: Delete existing release if present
+        shell: bash
+        run: |
+          set -euo pipefail
+          RELEASE_ID=$(curl -s -H "Authorization: token ${{ github.token }}" \
+            "https://api.github.com/repos/${{ github.repository }}/releases/tags/${{ env.TAG }}" \
+            | grep '"id"' | head -1 | awk '{print $2}' | tr -d ',')
+          if [ -n "$RELEASE_ID" ]; then
+            echo "Deleting existing release $RELEASE_ID for tag ${{ env.TAG }}"
+            curl -s -X DELETE \
+              -H "Authorization: token ${{ github.token }}" \
+              "https://api.github.com/repos/${{ github.repository }}/releases/$RELEASE_ID"
+          else
+            echo "No existing release found for ${{ env.TAG }}, proceeding"
+          fi
+
       # ── Create GitHub Release ──
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
