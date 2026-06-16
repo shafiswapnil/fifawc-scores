@@ -816,3 +816,24 @@ then,
 **Summary:** Fixed the release.yml CI failure. Root cause: `actions/checkout@v4` on tag trigger creates a detached HEAD — `git push` fails with `exit code 128`. Fix pattern (learned from `tareq1988/prayer-times-macos`): (1) `fetch-depth: 0` for full history, (2) save appcast to `$RUNNER_TEMP` while on detached tag, (3) `git fetch origin main && git checkout -f -B main origin/main`, (4) copy appcast to repo, commit, `git push origin HEAD:main`. Also added `set -euo pipefail` to all bash steps, and a safety step to delete existing GitHub Release before re-creating (prevents 422 on re-tags). v1.0.0 released successfully — CI built the zip, created GitHub Release, pushed appcast.xml to main. Sparkle auto-update is live. All docs updated to reflect RELEASED state.
 
 ---
+
+## Prompt 40 — Fix Dark Mode, Glass Effect, Rounded Corners, Panel Gaps (Release Build Bug)
+
+**User:** "after successful build on github: v1.0.1 > i downloaded the release from github and installed on my mac > but i am seeing a serious problem here: no glass effect, no rounded corner, the dynamic height is not working, theres gap above header and below footer."
+
+**Root cause analysis:** Investigated 4 reported issues via source code review, Apple developer forums, and a GitHub gist (stephancasas/CustomMenuBarExtraCornerMask.swift). Found 3 root causes:
+
+1. **DarkModeBridge race condition**: `DispatchQueue.main.async { view.window?.appearance = ... }` fires before the view is attached to the window → `view.window` is nil → appearance is never set → light mode in release builds (dev builds worked by luck due to different timing)
+2. **Double `.ultraThinMaterial`**: System NSPanel already provides dark material when appearance is `.darkAqua`. Stacking SwiftUI's `.ultraThinMaterial` on top caused light bleed / ghosting at the panel edges (the "gaps above header and below footer")
+3. **Dynamic height**: The `minHeight`/`maxHeight` frame modifiers work correctly but the system panel margins interacted poorly with the double material, making height changes look broken
+
+**Fix (M22 — "release-v101-dm-fix"), 2 files changed:**
+
+- `Theme.swift`: Replaced `DispatchQueue.main.async` with `viewDidMoveToWindow()` on a custom `DarkModeView` NSView subclass — guarantees the window exists before setting `.darkAqua` appearance
+- `MenuBarPanel.swift`: Removed `.background(.ultraThinMaterial, ignoresSafeAreaEdges: .all)` (system panel handles material natively in dark mode); reduced `.padding(.vertical, 12)` → `.padding(.vertical, 10)` for tighter edge fit
+
+**What changed visually:** Nothing dramatic — the panel looked correct in dev builds when the bridge happened to work; now it looks correct always, in release builds too. The glass effect, rounded corners, and dynamic height all work because dark mode is reliably forced.
+
+**All 54 tests pass.** `swiftc -parse` clean. Xcode project regenerated.
+
+---

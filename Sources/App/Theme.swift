@@ -68,16 +68,23 @@ enum Theme {
 /// Forces the hosting NSWindow to dark appearance.
 /// Works reliably inside MenuBarExtra(.window) where
 /// `.preferredColorScheme(.dark)` fails.
+///
+/// Uses `viewDidMoveToWindow()` to guarantee the window is available
+/// before setting appearance — eliminates the DispatchQueue.main.async
+/// race condition where view.window was nil.
 struct DarkModeBridge: NSViewRepresentable {
-    func makeNSView(context: Context) -> NSView {
-        let view = NSView()
-        DispatchQueue.main.async {
-            view.window?.appearance = NSAppearance(named: .darkAqua)
-        }
-        return view
+    func makeNSView(context: Context) -> DarkModeView {
+        DarkModeView()
     }
 
-    func updateNSView(_ nsView: NSView, context: Context) {}
+    func updateNSView(_ nsView: DarkModeView, context: Context) {}
+
+    final class DarkModeView: NSView {
+        override func viewDidMoveToWindow() {
+            super.viewDidMoveToWindow()
+            window?.appearance = NSAppearance(named: .darkAqua)
+        }
+    }
 }
 
 // MARK: - Hex Init

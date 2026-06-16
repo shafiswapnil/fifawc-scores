@@ -32,6 +32,7 @@
 | M19 | Full UI/UX Redesign         | ✅ Done | —       | Glass material, day pills, 12-team grid, live experience, hidden scrollbars, ±7 day schedule fetch          |
 | M20 | TRIONDA UI Redesign         | ✅ Done | —       | Dark glass panels, orange brand accent, DarkModeBridge, two-zone height, fav team pin+glow+filter, GOAL! 5s |
 | M21 | NZL Color Fix               | ✅ Done | —       | NZL primary color reversed for dark UI visibility (black → white)                                           |
+| M22 | Release v1.0.1 — DarkModeBridge fix | ✅ Done | —       | Fixed DarkModeBridge race condition (viewDidMoveToWindow), removed double-ultraThinMaterial, reduced vertical padding |
 
 ## Key Decisions Log
 
@@ -98,6 +99,9 @@
 | 2026-06-16 | CI fix: detached HEAD git push failure in release workflow   | `actions/checkout@v4` on tag trigger creates detached HEAD; switched to `git fetch+checkout -B main` before committing appcast                     |
 | 2026-06-16 | CI fix: delete existing GitHub Release before re-creating    | `softprops/action-gh-release` fails with 422 if release already exists for tag; added API call to delete first                                     |
 | 2026-06-16 | CI: appcast.xml saved to `$RUNNER_TEMP` before branch switch | Can't write to repo on detached HEAD; write to temp, then checkout main, copy, commit, push                                                        |
+| 2026-06-16 | DarkModeBridge: viewDidMoveToWindow() replaces DispatchQueue.main.async | DispatchQueue.main.async fired before view.window was assigned → window?.appearance silently nil → light mode in release builds |
+| 2026-06-16 | Removed .background(.ultraThinMaterial) from MenuBarPanel | System NSPanel already provides material; double-layer caused light bleed, ghosting above header / below footer |
+| 2026-06-16 | Panel vertical padding reduced 12→10 | Tighter fit inside system panel, reduces edge gaps when dark mode works correctly |
 
 ## Architecture Quick Reference
 

@@ -13,6 +13,13 @@
 - Sparkle for updates (adopted in M15 — was "skip in v1", now planned)
 - LSUIElement = true for no Dock icon
 
+## MenuBarExtra(.window) — Known Gotchas (v1.0.1)
+
+- **DarkModeBridge race condition**: `DispatchQueue.main.async` in `makeNSView` fires before `view.window` is assigned. Use `viewDidMoveToWindow()` instead — this is the NSView lifecycle callback that fires when the view is actually attached to the NSWindow.
+- **Double material ghosting**: `.background(.ultraThinMaterial)` on top of the system's own dark material creates visible light bleed at panel edges (gaps above header / below footer). Remove it — the system panel in `.darkAqua` mode already provides the glass effect.
+- **System panel margins**: MenuBarExtra(.window) adds ~4px internal margin top/bottom. Accept it; the system handles the corner radius. Custom corner radius requires method-swizzling the private `_cornerMask` method (see stephancasas/CustomMenuBarExtraCornerMask.swift gist).
+- **Dynamic height**: `.frame(minHeight:maxHeight:)` works for SwiftUI content layout but the NSPanel window size is largely fixed once displayed. The maxHeight approach works in practice for our content range (200-480px).
+
 ### Key Takeaways
 
 - The prayer app's tick-based approach is solid for live data

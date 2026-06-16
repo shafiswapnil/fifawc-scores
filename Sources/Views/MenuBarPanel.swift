@@ -65,11 +65,10 @@ struct MenuBarPanel: View {
             footer
         }
         .padding(.horizontal, 12)
-        .padding(.vertical, 12)
+        .padding(.vertical, 10)
         .frame(width: 380)
         .frame(minHeight: selectedTab == .settings ? 420 : nil,
                maxHeight: selectedTab == .settings ? 420 : 480)
-        .background(.ultraThinMaterial, ignoresSafeAreaEdges: .all)
         .overlay { DarkModeBridge().allowsHitTesting(false) }
         .onAppear {
             if !hasAppeared {
