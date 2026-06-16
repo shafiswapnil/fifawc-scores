@@ -16,8 +16,7 @@ jobs:
       - name: Validate version consistency
         run: |
           TAG_VERSION="${GITHUB_REF#refs/tags/v}"
-          PLIST_VERSION=$(/usr/libexec/PlistBuddy -c "Print :MARKETING_VERSION" project.yml 2>/dev/null || \
-            grep 'MARKETING_VERSION:' project.yml | sed 's/.*"\(.*\)".*/\1/')
+          PLIST_VERSION=$(grep 'MARKETING_VERSION:' project.yml | sed 's/.*"\(.*\)".*/\1/')
           if [ "$TAG_VERSION" != "$PLIST_VERSION" ]; then
             echo "::error::Tag version ($TAG_VERSION) does not match project.yml MARKETING_VERSION ($PLIST_VERSION)"
             exit 1
