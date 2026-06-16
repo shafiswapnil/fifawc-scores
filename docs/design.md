@@ -134,8 +134,8 @@ All states render as: `[soccerball]` SF Symbol + text.
 ⚽ GOAL!
 ```
 
-- Label text flips to `GOAL!` for exactly 2 seconds, then auto-reverts.
-- `triggerGoal()` on MatchStore sets `goalScored = true` + schedules 2s reset.
+- Label text flips to `GOAL!` for exactly 5 seconds, then auto-reverts.
+- `triggerGoal()` on MatchStore sets `goalScored = true` + schedules 5s reset.
 - **No icon animation** — `.symbolEffect(.bounce)`, `.scaleEffect`, offset/opacity
   overlays all fail silently inside MenuBarExtra label context.
 
@@ -200,7 +200,7 @@ All states render as: `[soccerball]` SF Symbol + text.
 
 ### Concept
 
-When a goal is detected, the menu bar label text flips to `GOAL!` for 2 seconds,
+When a goal is detected, the menu bar label text flips to `GOAL!` for 5 seconds,
 then auto-reverts to the live score. No icon animation, no sliding elements —
 text-state flip is the only approach that works in MenuBarExtra label context.
 
@@ -209,7 +209,7 @@ text-state flip is the only approach that works in MenuBarExtra label context.
 1. Score change detected in `MatchStore.detectGoals()` (compares previous scores).
 2. `triggerGoal()` sets `goalScored = true`.
 3. `MenuBarLabel` reads `store.goalScored` → text switches to `"GOAL!"`.
-4. After exactly 2 seconds, `Task.sleep(for: .seconds(2.0))` expires → `goalScored = false`.
+4. After exactly 5 seconds, `Task.sleep(for: .seconds(5.0))` expires → `goalScored = false`.
 5. Label text reverts to the normal `labelText(at:)` output.
 
 ### What Failed

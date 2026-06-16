@@ -60,8 +60,8 @@
 ### M7: Goal Animation
 
 - Score change detection via `detectGoals()` on MatchStore
-- `triggerGoal()` public method: sets `goalScored = true`, schedules 2s Task reset
-- Menu bar label text flips to `GOAL!` for 2 seconds, then auto-reverts to score
+- `triggerGoal()` public method: sets `goalScored = true`, schedules 5s Task reset
+- Menu bar label text flips to `GOAL!` for 5 seconds, then auto-reverts to score
 - Sliding emoji animation dropped — all animation modifiers (`.symbolEffect`, `.scaleEffect`, offset/opacity overlays) fail silently inside MenuBarExtra label
 
 ### M8: MenuBarPanel

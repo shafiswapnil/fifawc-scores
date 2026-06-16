@@ -12,11 +12,7 @@
 Cup 2026 match schedules, live scores, and goal animations. Menu bar agent
 (no Dock icon). All interaction happens in the menu bar — no main window.
 
-**Current status:** Phase 1 complete (M1–M14). Phase 2 complete (M15–M18). Phase 3 complete (M19 — full UI/UX redesign). **MenuBarLabel complete**: 5 states (idle/upcoming/live/HT/finished) + 60s real-time ticking via `minuteTick: Date` on MatchStore (Task.sleep loop) + `GOAL!` 2s text flash via `triggerGoal()`. SF Symbol `soccerball` icon. `TimelineView` dropped — confirmed to hang MenuBarExtra label. `allMatches` scoped to 3-day window.
-Post-phase 2 polish: tab scroll hints, Settings in footer, auto-show Settings on
-first launch, Sparkle warnings suppressed, GitHub Pages site created.
-macOS 14 compatibility fix: replaced `.scrollIndicatorsVisibility` (macOS 15+)
-with `.scrollIndicators` (macOS 10.15+). Read `status.md` for exact milestone state.
+**Current status:** All phases complete. **Release-ready v1.0.0.** TRIONDA UI redesign complete — dark glass panels, orange brand accent, `DarkModeBridge` AppKit bridge for forced dark mode in MenuBarExtra, two-zone panel height (420px settings / 480px content), favorite team pinning + orange glow highlight + Schedule tab filtering, real-time 60s ticking via `minuteTick: Date`, `GOAL!` 5s text flash. SF Symbol `soccerball` icon. Read `docs/status.md` for exact milestone state.
 
 ---
 
@@ -24,7 +20,7 @@ with `.scrollIndicators` (macOS 10.15+). Read `status.md` for exact milestone st
 
 These are non-negotiable. The user has reinforced these across every session.
 
-1. **Read `status.md` first.** Know the current stage before doing anything.
+1. **Read `docs/status.md` first.** Know the current stage before doing anything.
 2. **Don't hallucinate.** If you're unsure, say so. Don't guess file contents,
    API responses, or error messages. Read the file first.
 3. **Crosscheck before claiming done.** After building something, verify:
@@ -36,10 +32,10 @@ These are non-negotiable. The user has reinforced these across every session.
 5. **Update docs after every change.** When you complete a milestone or make
    a key decision, update ALL of these:
    - `CLAUDE.md` — update "Current status" line (phase/milestone state)
-   - `status.md` (milestone tracker + decisions log)
+   - `docs/status.md` (milestone tracker + decisions log)
    - `docs/plan.md` (if new milestone added)
    - `docs/notes.md` (if new decision or idea)
-   - `prompts.md` (log the prompt + summary)
+   - `docs/prompts.md` (log the prompt + summary)
      After a **full phase** ends, also verify CLAUDE.md architecture section
      still matches reality (new files, changed wiring, etc.).
      Do NOT maintain a Git History section — just run `git log`.
@@ -64,15 +60,17 @@ These are non-negotiable. The user has reinforced these across every session.
 
 ```
 CLAUDE.md               # This file — agent prompt framework (READ FIRST)
-status.md               # Project stage tracking (READ SECOND)
-prompts.md              # User's prompt log + summaries
 docs/
+  status.md             # Project stage tracking (READ SECOND)
+  prompts.md            # User's prompt log + summaries
   spec.md               # Implementation contract (source of truth for features)
   plan.md               # Milestones and development order
   design.md             # UI/UX design decisions, color schemes, animations
   api.md                # Data source research, API endpoints, polling strategy
   notes.md              # Raw ideas, user decisions, future features
+  index.html            # GitHub Pages landing page
   appcast.xml           # Sparkle update feed (auto-updated by CI on release)
+  assets/               # Screenshots for README and website
 project.yml             # XcodeGen project definition (app target)
 FIFAWCSCORES.xcodeproj      # GENERATED from project.yml — git-ignored, do not edit
 Sources/

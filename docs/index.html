@@ -37,7 +37,7 @@
         />
         <meta
             property="og:image"
-            content="https://shafiswapnil.github.io/fifawc-scores/og-image.png"
+            content="https://shafiswapnil.github.io/fifawc-scores/hero.png"
         />
         <meta
             property="og:image:alt"
@@ -56,7 +56,7 @@
         />
         <meta
             name="twitter:image"
-            content="https://shafiswapnil.github.io/fifawc-scores/og-image.png"
+            content="https://shafiswapnil.github.io/fifawc-scores/hero.png"
         />
 
         <link
@@ -132,8 +132,8 @@
         <style>
             :root {
                 color-scheme: light dark;
-                --brand: #c41e3a;
-                --brand-dark: #9e1830;
+                --brand: #F26622;
+                --brand-dark: #d45a1a;
                 --accent: #1a472a;
                 --gold: #d4a843;
                 --bg: #f8f9fa;
@@ -145,14 +145,14 @@
             }
             @media (prefers-color-scheme: dark) {
                 :root {
-                    --bg: #111318;
-                    --bg2: #0d0f13;
-                    --card: #1a1d23;
+                    --bg: #0a0a0c;
+                    --bg2: #08080a;
+                    --card: #1a1a1e;
                     --text: #f2f2f7;
                     --muted: #9aa3a0;
                     --border: rgba(255, 255, 255, 0.1);
-                    --brand: #e8354d;
-                    --brand-dark: #c41e3a;
+                    --brand: #F26622;
+                    --brand-dark: #d45a1a;
                     --gold: #e8bf5a;
                 }
             }
@@ -171,7 +171,7 @@
                 background:
                     radial-gradient(
                         1200px 600px at 50% -10%,
-                        rgba(196, 30, 58, 0.15),
+                        rgba(242, 102, 34, 0.12),
                         transparent 60%
                     ),
                     linear-gradient(var(--bg), var(--bg2));
@@ -194,136 +194,90 @@
             header .icon {
                 font-size: 5rem;
                 line-height: 1;
-                filter: drop-shadow(0 8px 24px rgba(196, 30, 58, 0.25));
+                filter: drop-shadow(0 8px 24px rgba(242, 102, 34, 0.25));
             }
             h1 {
                 font-size: 2.6rem;
-                margin: 0.75rem 0 0.25rem;
-                letter-spacing: -0.02em;
+                font-weight: 800;
+                letter-spacing: -0.03em;
+                margin: 0.4rem 0 0.6rem;
             }
             h1 span {
                 color: var(--brand);
             }
             .tagline {
                 color: var(--muted);
-                font-size: 1.2rem;
-                margin: 0 auto 1.75rem;
-                max-width: 34ch;
+                font-size: 1.1rem;
+                max-width: 520px;
+                margin: 0 auto 1.6rem;
             }
 
+            /* CTA buttons */
             .cta {
                 display: flex;
                 gap: 0.75rem;
                 justify-content: center;
                 flex-wrap: wrap;
-                align-items: center;
             }
             .btn {
-                display: inline-flex;
-                align-items: center;
-                gap: 0.5rem;
-                padding: 0.8rem 1.5rem;
-                border-radius: 12px;
+                display: inline-block;
+                padding: 0.7rem 1.5rem;
+                border-radius: 10px;
                 font-weight: 600;
+                font-size: 0.95rem;
                 text-decoration: none;
-                background: linear-gradient(var(--brand), var(--brand-dark));
+                background: var(--brand);
                 color: #fff;
-                box-shadow: 0 6px 18px rgba(196, 30, 58, 0.35);
-                transition:
-                    transform 0.12s ease,
-                    box-shadow 0.12s ease;
+                transition: transform 0.15s, box-shadow 0.2s;
             }
             .btn:hover {
                 transform: translateY(-1px);
-                box-shadow: 0 10px 26px rgba(196, 30, 58, 0.45);
+                box-shadow: 0 6px 20px rgba(242, 102, 34, 0.3);
             }
             .btn.secondary {
                 background: var(--card);
                 color: var(--text);
                 border: 1px solid var(--border);
-                box-shadow: none;
-                font-weight: 500;
+            }
+            .btn.secondary:hover {
+                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
             }
             .req {
                 color: var(--muted);
-                font-size: 0.9rem;
+                font-size: 0.85rem;
                 margin-top: 1rem;
             }
 
-            /* Emoji screenshot placeholder */
-            .shot {
-                margin: 2.5rem auto 1rem;
+            /* Screenshot */
+            .screenshot {
+                margin: 2.5rem auto;
                 text-align: center;
-                background: var(--card);
-                border: 1px solid var(--border);
-                border-radius: 16px;
-                padding: 2rem 1.5rem;
-                max-width: 680px;
-                box-shadow: 0 24px 60px rgba(0, 0, 0, 0.12);
             }
-            .shot .menubar {
-                display: inline-flex;
-                align-items: center;
-                gap: 0.5rem;
-                background: var(--bg2);
-                border: 1px solid var(--border);
-                border-radius: 8px;
-                padding: 0.4rem 1rem;
-                font-size: 0.95rem;
-                font-weight: 500;
-                margin-bottom: 1.25rem;
+            .screenshot img {
+                max-width: 100%;
+                border-radius: 14px;
+                box-shadow:
+                    0 2px 8px rgba(0, 0, 0, 0.1),
+                    0 12px 40px rgba(0, 0, 0, 0.15);
             }
-            .shot .panel {
-                display: flex;
-                gap: 0.5rem;
-                justify-content: center;
-                flex-wrap: wrap;
-                margin-bottom: 1rem;
-            }
-            .shot .tab {
-                padding: 0.3rem 0.7rem;
-                border-radius: 20px;
-                font-size: 0.8rem;
-                font-weight: 500;
-                background: var(--bg2);
-                color: var(--muted);
-                border: 1px solid var(--border);
-            }
-            .shot .tab.active {
-                background: var(--brand);
-                color: #fff;
-                border-color: transparent;
-            }
-            .shot .match {
-                background: var(--bg2);
-                border: 1px solid var(--border);
-                border-radius: 12px;
-                padding: 1rem 1.25rem;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                font-size: 0.95rem;
-                max-width: 340px;
-                margin: 0 auto;
-            }
-            .shot .match .teams {
-                font-weight: 600;
-            }
-            .shot .match .score {
-                font-size: 1.3rem;
-                font-weight: 700;
-                color: var(--brand);
-                font-variant-numeric: tabular-nums;
-            }
-            .shot .match .status {
-                font-size: 0.75rem;
-                color: var(--muted);
-                margin-top: 0.2rem;
-            }
-            .shot .label {
+            .screenshot .caption {
                 color: var(--muted);
                 font-size: 0.85rem;
                 margin-top: 0.75rem;
+            }
+            .screenshot-row {
+                display: flex;
+                gap: 1rem;
+                justify-content: center;
+                flex-wrap: wrap;
+                margin: 1.5rem auto;
+            }
+            .screenshot-row img {
+                max-width: 48%;
+                border-radius: 10px;
+                box-shadow:
+                    0 2px 8px rgba(0, 0, 0, 0.1),
+                    0 8px 24px rgba(0, 0, 0, 0.12);
             }
 
             /* Sections */
@@ -376,8 +330,8 @@
                     monospace;
             }
             .note {
-                background: rgba(196, 30, 58, 0.06);
-                border: 1px solid rgba(196, 30, 58, 0.2);
+                background: rgba(242, 102, 34, 0.06);
+                border: 1px solid rgba(242, 102, 34, 0.2);
                 border-radius: 12px;
                 padding: 1rem 1.1rem;
                 color: var(--muted);
@@ -405,7 +359,8 @@
                 <h1><span>FIFAWC</span> Scores</h1>
                 <p class="tagline">
                     A free, native macOS menu bar app for FIFA World Cup 2026 —
-                    live scores, schedules, and goal animations.
+                    live scores, schedules, and goal animations. Dark glass
+                    panels, orange brand accent, zero bloat.
                 </p>
                 <div class="cta">
                     <a
@@ -425,29 +380,51 @@
                 </p>
             </header>
 
-            <div class="shot">
-                <div class="menubar">
-                    ⚽ FWC &nbsp;·&nbsp; BRA 2 – 1 ARG &nbsp;·&nbsp; 67'
-                </div>
-                <div class="panel">
-                    <span class="tab active">Today</span>
-                    <span class="tab">Yesterday</span>
-                    <span class="tab">Tomorrow</span>
-                    <span class="tab">Schedule</span>
-                    <span class="tab">Standings</span>
-                    <span class="tab">⚙️</span>
-                </div>
-                <div class="match">
-                    <div>
-                        <div class="teams">
-                            🇧🇷 Brazil &nbsp;vs&nbsp; Argentina 🇦🇷
-                        </div>
-                        <div class="status">🔴 LIVE — 67'</div>
-                    </div>
-                    <div class="score">2 – 1</div>
-                </div>
-                <p class="label">
-                    ↑ Live scores in your menu bar, no Dock icon needed
+            <!-- Hero screenshot -->
+            <div class="screenshot">
+                <img
+                    src="assets/hero.png"
+                    alt="FIFAWC Scores panel showing live World Cup matches with dark glass UI"
+                />
+                <p class="caption">
+                    Dark glass panels with orange brand accent — live scores,
+                    standings, and settings in one compact view
+                </p>
+            </div>
+
+            <!-- Menu bar screenshots -->
+            <div class="screenshot-row">
+                <img
+                    src="assets/menubar.png"
+                    alt="Menu bar showing live match with team color highlights"
+                />
+                <img
+                    src="assets/menubar-GOAL.png"
+                    alt="Menu bar showing GOAL! alert animation"
+                />
+            </div>
+            <p
+                style="
+                    text-align: center;
+                    color: var(--muted);
+                    font-size: 0.85rem;
+                    margin-top: -0.5rem;
+                "
+            >
+                Menu bar label — live score with team highlights &nbsp;·&nbsp;
+                GOAL! alert flashes for 5 seconds
+            </p>
+
+            <!-- Settings screenshot -->
+            <div class="screenshot" style="margin-top: 2rem">
+                <img
+                    src="assets/settings.png"
+                    alt="Settings tab with API key input, poll interval slider, and favorite team picker"
+                    style="max-width: 420px"
+                />
+                <p class="caption">
+                    Settings — API key, poll interval, favorite team picker with
+                    12 popular nations + search
                 </p>
             </div>
 
@@ -469,32 +446,34 @@
                         <p>
                             Today, Yesterday, Tomorrow, Full Schedule,
                             Standings, and Settings — everything organized in
-                            one compact panel.
+                            one compact dark glass panel.
                         </p>
                     </div>
                     <div class="feat">
                         <div class="ic">🚨</div>
                         <h3>GOAL! alert</h3>
                         <p>
-                            The menu bar label flips to “GOAL!” for 2 seconds
+                            The menu bar label flips to "GOAL!" for 5 seconds
                             when a goal is scored, then auto-reverts to the live
                             score.
-                        </p>
-                    </div>
-                    <div class="feat">
-                        <div class="ic">🎨</div>
-                        <h3>Dynamic team colors</h3>
-                        <p>
-                            The menu bar accent adapts to the featured match's
-                            team colors in real time.
                         </p>
                     </div>
                     <div class="feat">
                         <div class="ic">⭐</div>
                         <h3>Favorite team</h3>
                         <p>
-                            Set your favorite team in Settings and it's
-                            prioritized in the menu bar when upcoming.
+                            Pin your team to the top of Today's tab with an
+                            orange glow highlight. Schedule tab filters to show
+                            only your team's matches.
+                        </p>
+                    </div>
+                    <div class="feat">
+                        <div class="ic">🎨</div>
+                        <h3>Dynamic team colors</h3>
+                        <p>
+                            Match cards are tinted with team colors. 48 World
+                            Cup nations covered. Orange TRIONDA brand accent
+                            throughout.
                         </p>
                     </div>
                     <div class="feat">

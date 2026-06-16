@@ -1,4 +1,4 @@
-1: ## Prompt 1 — Initial Idea & Research
+## Prompt 1 — Initial Idea & Research
 
 lets build an amazing menubar for macos! initial idea is: i want a menubar on macos, in which i can see match schedules (main focus is is there any match today, if yes then show team name and time (latest game first)), while game is on i want to see real time scores, when any team makes goal, a simple animation that its a goal, maybe a footbool sprints through left to right in small space in the menubar area. so the inspiration is from this app: https://github.com/tareq1988/prayer-times-macos. see the image also. this is still my initial idea. this needs more ideas with it, please question and discuss with me, lets do a research first, then lets finalize the plan then build in one go.
 
@@ -786,4 +786,22 @@ for the fav team behaviors do all:
 - Pin your team's matches to the top of the Today tab.
 - Highlight your team's matches with a special border/glow.
 - Filter the Schedule tab to only show your team.
+
+---
+
+## Prompt 38 - Finalizing
+
+okay so we can go for release now! lets gooooo! yay! thanks mimo! you are genius!
+
+now before releasing, we need to do some serious documentation and update index.html file.
+
+i got some screenshots for the readme makeover as its necessary. i pasted the screenshots inside assets folder here. so see them yourself, use in readme and index.html.
+
+then,
+- move the prompts.md, status.md file under docs/ directory.
+- update all docs, follow agent rules.
+- commit and push to github and tell me to monitor the build. if all succeeds,
+- we will move to releasing. let me signal you first.
+
+---
 
