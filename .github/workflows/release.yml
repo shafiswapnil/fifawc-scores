@@ -18,12 +18,17 @@ jobs:
     permissions:
       contents: write
     steps:
+      # Checkout the tag for building, but also fetch full history
+      # so we can later switch to main for the appcast commit.
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       # ── Validate version tag matches project.yml ──
       - name: Validate version consistency
         shell: bash
         run: |
+          set -euo pipefail
           TAG_VERSION="${GITHUB_REF#refs/tags/v}"
           PLIST_VERSION=$(grep 'MARKETING_VERSION:' project.yml | sed 's/.*"\(.*\)".*/\1/')
           if [ "$TAG_VERSION" != "$PLIST_VERSION" ]; then
@@ -31,6 +36,7 @@ jobs:
             exit 1
           fi
           echo "VERSION=$TAG_VERSION" >> "$GITHUB_ENV"
+          echo "TAG=v$TAG_VERSION" >> "$GITHUB_ENV"
 
       # ── Install XcodeGen ──
       - name: Install XcodeGen
@@ -45,6 +51,7 @@ jobs:
       - name: Build
         shell: bash
         run: |
+          set -euo pipefail
           xcodebuild -project FIFAWCSCORES.xcodeproj -scheme FIFAWCSCORES \
             -configuration Release -destination 'platform=macOS' \
             -derivedDataPath build \
@@ -54,6 +61,7 @@ jobs:
       - name: Locate .app bundle
         shell: bash
         run: |
+          set -euo pipefail
           APP_PATH=$(find build -name "FIFAWC Scores.app" -type d | head -1)
           if [ -z "$APP_PATH" ]; then
             echo "::error::Could not find .app bundle in build/"
@@ -65,7 +73,7 @@ jobs:
       - name: Create zip archive
         shell: bash
         run: |
-          # Zip using the full path — no cd, no basename escaping needed
+          set -euo pipefail
           zip -r -y "FIFAWCSCORES-${{ env.VERSION }}.zip" "$APP_PATH"
           echo "ARCHIVE_PATH=${{ github.workspace }}/FIFAWCSCORES-${{ env.VERSION }}.zip" >> "$GITHUB_ENV"
 
@@ -77,6 +85,7 @@ jobs:
           DEVELOPER_ID_CERTIFICATE: ${{ secrets.DEVELOPER_ID_CERTIFICATE }}
           CERTIFICATE_PASSWORD: ${{ secrets.CERTIFICATE_PASSWORD }}
         run: |
+          set -euo pipefail
           KEYCHAIN_PATH="$RUNNER_TEMP/signing.keychain-db"
           CERT_PATH="$RUNNER_TEMP/certificate.p12"
 
@@ -99,6 +108,7 @@ jobs:
         if: env.SIGNING_IDENTITY != ''
         shell: bash
         run: |
+          set -euo pipefail
           codesign --force --deep --sign "$SIGNING_IDENTITY" \
             --options runtime --timestamp "$APP_PATH"
 
@@ -111,6 +121,7 @@ jobs:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           NOTARIZATION_PASSWORD: ${{ secrets.NOTARIZATION_PASSWORD }}
         run: |
+          set -euo pipefail
           ditto -c -k --keepParent "$APP_PATH" "$RUNNER_TEMP/staging.zip"
           xcrun notarytool submit "$RUNNER_TEMP/staging.zip" \
             --apple-id "$APPLE_ID" \
@@ -119,7 +130,7 @@ jobs:
             --wait
           xcrun stapler staple "$APP_PATH"
 
-          # Re-zip with stapled .app (full path, no basename escaping)
+          # Re-zip with stapled .app
           rm -f "FIFAWCSCORES-${{ env.VERSION }}.zip"
           zip -r -y "FIFAWCSCORES-${{ env.VERSION }}.zip" "$APP_PATH"
           echo "ARCHIVE_PATH=${{ github.workspace }}/FIFAWCSCORES-${{ env.VERSION }}.zip" >> "$GITHUB_ENV"
@@ -130,42 +141,56 @@ jobs:
         shell: bash
         run: security delete-keychain "$RUNNER_TEMP/signing.keychain-db" 2>/dev/null || true
 
-      # ── Update appcast.xml (for Sparkle) ──
+      # ── Update appcast.xml and commit to main ──
+      # Build the appcast on the detached-tag working tree (which has the
+      # built Info.plist), save it to $RUNNER_TEMP, then switch to main,
+      # copy it in, commit, and push.
       - name: Update appcast.xml
         shell: bash
         run: |
+          set -euo pipefail
+
+          # Build the appcast content
           BUNDLE_VERSION=$(/usr/libexec/PlistBuddy -c "Print :CFBundleVersion" "$APP_PATH/Contents/Info.plist" || echo "1")
           APP_SIZE=$(stat -f%z "$ARCHIVE_PATH")
-          DOWNLOAD_URL="https://github.com/${{ github.repository }}/releases/download/v${{ env.VERSION }}/FIFAWCSCORES-${{ env.VERSION }}.zip"
+          DOWNLOAD_URL="https://github.com/${{ github.repository }}/releases/download/${{ env.TAG }}/FIFAWCSCORES-${{ env.VERSION }}.zip"
           PUB_DATE=$(date -R)
 
-          cat > docs/appcast.xml << XML
+          # Write to temp location first (detached HEAD can't push)
+          mkdir -p "$RUNNER_TEMP/dist"
+          cat > "$RUNNER_TEMP/dist/appcast.xml" <<XMLEOF
           <?xml version="1.0" standalone="yes"?>
           <rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
-              <channel>
-                  <title>FIFAWC Scores</title>
-                  <item>
-                      <title>v${{ env.VERSION }}</title>
-                      <pubDate>${PUB_DATE}</pubDate>
-                      <sparkle:version>${BUNDLE_VERSION}</sparkle:version>
-                      <sparkle:shortVersionString>${{ env.VERSION }}</sparkle:shortVersionString>
-                      <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-                      <enclosure
-                          url="${DOWNLOAD_URL}"
-                          length="${APP_SIZE}"
-                          type="application/octet-stream"
-                          sparkle:edSignature=""
-                      />
-                  </item>
-              </channel>
+            <channel>
+              <title>FIFAWC Scores</title>
+              <item>
+                <title>v${{ env.VERSION }}</title>
+                <pubDate>${PUB_DATE}</pubDate>
+                <sparkle:version>${BUNDLE_VERSION}</sparkle:version>
+                <sparkle:shortVersionString>${{ env.VERSION }}</sparkle:shortVersionString>
+                <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+                <enclosure
+                  url="${DOWNLOAD_URL}"
+                  length="${APP_SIZE}"
+                  type="application/octet-stream"
+                  sparkle:edSignature=""
+                />
+              </item>
+            </channel>
           </rss>
-          XML
+          XMLEOF
 
+          # Switch to main so we can commit and push
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git fetch origin main
+          git checkout -f -B main origin/main
+
+          mkdir -p docs
+          cp "$RUNNER_TEMP/dist/appcast.xml" docs/appcast.xml
           git add docs/appcast.xml
-          git commit -m "chore: update appcast.xml for v${{ env.VERSION }}" || true
-          git push
+          git commit -m "chore: update appcast.xml for v${{ env.VERSION }}" || echo "No appcast changes"
+          git push origin HEAD:main
 
       # ── Create GitHub Release ──
       - name: Create GitHub Release
