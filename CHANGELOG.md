@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.0.1] — 2026-06-16
+
+### Fixed
+
+- **Sparkle auto-update "Unable to Check For Updates" error on launch** —
+  EdDSA (Ed25519) signing key pair now generated and configured. Sparkle
+  requires EdDSA to verify update integrity. Without it, the updater refused
+  to start. Public key (`SUPublicEDKey`) added to Info.plist, private key
+  configured as GitHub Actions secret for CI signing.
+
+### Changed
+
+- **CI release pipeline now signs update zips with EdDSA** — `release.yml`
+  downloads Sparkle's `sign_update` tool, signs the `.zip` with the private
+  key, and embeds the signature in `appcast.xml` so Sparkle can verify
+  downloads on the client side.
+- **`.gitignore` updated** — blocks `*.pem` files to prevent accidental
+  private key commits.
+
+---
+
 ## [1.0.0] — 2026-06-16
 
 First public release.
