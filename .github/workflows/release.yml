@@ -35,6 +35,7 @@ jobs:
         run: |
           xcodebuild -project FIFAWCSCORES.xcodeproj -scheme FIFAWCSCORES \
             -configuration Release -destination 'platform=macOS' \
+            -derivedDataPath build \
             CODE_SIGNING_ALLOWED=NO build
 
       # ── Find the built .app ──
