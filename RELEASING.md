@@ -32,6 +32,7 @@ That's it. The `release.yml` workflow handles the rest.
 ### 2. Update CHANGELOG.md
 
 Add a new `## [X.Y.Z]` section at the top of `CHANGELOG.md` with:
+
 - **Added** — new features
 - **Changed** — changes to existing functionality
 - **Fixed** — bug fixes
@@ -45,6 +46,7 @@ Add a new `## [X.Y.Z]` section at the top of `CHANGELOG.md` with:
 ```
 
 This will:
+
 1. Validate semver format
 2. Ensure working tree is clean
 3. Ensure tag doesn't already exist
@@ -84,13 +86,13 @@ and watch the **Release** workflow. It will:
 
 ## Version Consistency
 
-| Location | What | Source of truth |
-|---|---|---|
-| `project.yml` | `MARKETING_VERSION` | ✅ Single source of truth |
-| Git tag | `vX.Y.Z` | Must match `MARKETING_VERSION` |
-| `CFBundleShortVersionString` | Runtime version | Derived from `MARKETING_VERSION` by Xcode |
-| `docs/appcast.xml` | Sparkle feed | Updated by CI on release |
-| `CHANGELOG.md` | Human-readable history | Manual — update before each release |
+| Location                     | What                   | Source of truth                           |
+| ---------------------------- | ---------------------- | ----------------------------------------- |
+| `project.yml`                | `MARKETING_VERSION`    | ✅ Single source of truth                 |
+| Git tag                      | `vX.Y.Z`               | Must match `MARKETING_VERSION`            |
+| `CFBundleShortVersionString` | Runtime version        | Derived from `MARKETING_VERSION` by Xcode |
+| `docs/appcast.xml`           | Sparkle feed           | Updated by CI on release                  |
+| `CHANGELOG.md`               | Human-readable history | Manual — update before each release       |
 
 Mismatch between tag and `project.yml` → CI fails immediately.
 Mismatch between tag and `MARKETING_VERSION` → false "update available" prompts via Sparkle.
@@ -99,13 +101,13 @@ Mismatch between tag and `MARKETING_VERSION` → false "update available" prompt
 
 ## Secrets Required for Code Signing & Notarization
 
-| Secret | Purpose |
-|---|---|
+| Secret                     | Purpose                                   |
+| -------------------------- | ----------------------------------------- |
 | `DEVELOPER_ID_CERTIFICATE` | Base64-encoded `.p12` signing certificate |
-| `CERTIFICATE_PASSWORD` | Password for the `.p12` file |
-| `APPLE_ID` | Apple ID for notarization |
-| `APPLE_TEAM_ID` | Apple Developer Team ID |
-| `NOTARIZATION_PASSWORD` | App-specific password for notarization |
+| `CERTIFICATE_PASSWORD`     | Password for the `.p12` file              |
+| `APPLE_ID`                 | Apple ID for notarization                 |
+| `APPLE_TEAM_ID`            | Apple Developer Team ID                   |
+| `NOTARIZATION_PASSWORD`    | App-specific password for notarization    |
 
 If these secrets are not set, the release workflow still runs — it just
 skips signing and notarization. The `.zip` will contain an unsigned build.

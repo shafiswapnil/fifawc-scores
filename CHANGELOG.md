@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 First public release.
 
 ### Added
+
 - **Dynamic menu bar label** — 5 states: Idle, Upcoming, Live (with minute counter), Half-time, Finished
 - **6 tabbed views** — Today, Yesterday, Tomorrow, Full Schedule, Standings, Settings
 - **GOAL! alert** — menu bar label flashes "GOAL!" for 5 seconds when a goal is scored
@@ -27,6 +28,7 @@ First public release.
 - **54 unit tests** covering models, services, store, and fetch logic
 
 ### Tech Stack
+
 - Swift 6 with strict concurrency
 - SwiftUI with `@Observable` (no Combine)
 - macOS 14+ deployment target, universal binary (Apple Silicon + Intel)

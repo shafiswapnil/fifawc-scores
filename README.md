@@ -251,7 +251,7 @@ git push origin main --tags
 
 ## License
 
-[MIT](LICENSE)
+[MIT](LICENSE) © Shafi Swapnil
 
 ---
 
