@@ -252,11 +252,11 @@ final class MatchStore {
         }
     }
 
-    /// Trigger goal animation. Sets goalScored = true and auto-resets after 2 s.
+    /// Trigger goal animation. Sets goalScored = true and auto-resets after 5 s.
     func triggerGoal() {
         goalScored = true
         Task { [weak self] in
-            try? await Task.sleep(for: .seconds(2.0))
+            try? await Task.sleep(for: .seconds(5.0))
             self?.goalScored = false
         }
     }

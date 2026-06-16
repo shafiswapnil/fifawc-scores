@@ -47,7 +47,7 @@ enum TeamColors {
         "ROU": TeamColor(primary: Color(red: 0.0, green: 0.224, blue: 0.663), secondary: Color(red: 1.0, green: 0.808, blue: 0.0)),  // Blue/Yellow
         "HUN": TeamColor(primary: Color(red: 0.804, green: 0.067, blue: 0.165), secondary: Color(red: 0.0, green: 0.533, blue: 0.267)),  // Red/Green
         "GRE": TeamColor(primary: Color(red: 0.0, green: 0.314, blue: 0.686), secondary: .white),  // Blue/White
-        "NZL": TeamColor(primary: .black, secondary: .white),  // Black/White
+        "NZL": TeamColor(primary: .white, secondary: .black),  // All Whites — reversed for dark UI visibility
         "CAN": TeamColor(primary: Color(red: 0.863, green: 0.078, blue: 0.235), secondary: .white),  // Red/White
         "USA": TeamColor(primary: Color(red: 0.235, green: 0.231, blue: 0.431), secondary: Color(red: 0.741, green: 0.133, blue: 0.208)),  // Navy/Red
     ]
