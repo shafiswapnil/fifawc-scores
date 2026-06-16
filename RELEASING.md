@@ -71,9 +71,53 @@ and watch the **Release** workflow. It will:
 3. Build in Release configuration
 4. Create `.zip` archive
 5. Code sign (if `DEVELOPER_ID_CERTIFICATE` secret is set)
-6. Notarize with Apple (if `APPLE_ID` secret is set)
-7. Create GitHub Release with the `.zip` attached
-8. Update `docs/appcast.xml` for Sparkle auto-updates
+6. **EdDSA sign the zip** (if `SPARKLE_PRIVATE_KEY` secret is set — **required for Sparkle**)
+7. Notarize with Apple (if `APPLE_ID` secret is set)
+8. Create GitHub Release with the `.zip` attached
+9. Update `docs/appcast.xml` with EdDSA signature for Sparkle auto-updates
+
+### Required GitHub Secrets for Sparkle
+
+EdDSA signing requires a one-time key setup and a GitHub repository secret.
+
+#### One-time: Generate the EdDSA key pair (already done)
+
+```bash
+# 1. Download Sparkle signing tools (not installed permanently — just binaries)
+curl -sL "https://github.com/sparkle-project/Sparkle/releases/download/2.6.4/Sparkle-2.6.4.tar.xz" -o /tmp/sparkle.tar.xz
+cd /tmp && tar -xf sparkle.tar.xz ./bin/generate_keys
+chmod +x /tmp/bin/generate_keys
+
+# 2. Generate keys — stores private key in macOS Keychain, prints public key
+/tmp/bin/generate_keys
+
+# 3. Export private key from Keychain to a file
+/tmp/bin/generate_keys -x /tmp/sparkle_private.pem
+cat /tmp/sparkle_private.pem    # <-- copy this to GitHub secret
+rm /tmp/sparkle_private.pem     # <-- delete after copying
+rm /tmp/sparkle.tar.xz          # <-- clean up archive
+```
+
+The public key goes into `Info.plist` as `SUPublicEDKey`
+(added automatically — value: `TfXIpCz44Ye0qq/LNlJmlarixEHLbZjb4VELsd8R85A=`).
+
+#### One-time: Add private key as GitHub repository secret
+
+1. Go to your repo on GitHub
+2. Click **Settings** (top tab bar)
+3. In the left sidebar, under **Security**, click **Secrets and variables**
+4. Click **Actions**
+5. Click the **Secrets** tab (should already be selected)
+6. Click **New repository secret**
+7. **Name** field: `SPARKLE_PRIVATE_KEY`
+8. **Secret** field: paste the private key contents (from step 3 above)
+9. Click **Add secret**
+
+> **Note:** Do NOT use the **Environments** section for this. Use the
+> **Repository secrets** section on the same page. Environments are
+> for deployment protection rules — not what we need here.
+>
+> Reference: [GitHub Docs — Using secrets in GitHub Actions](https://docs.github.com/en/actions/security-for-github-actions/security-guides/using-secrets-in-github-actions#creating-secrets-for-a-repository)
 
 ### 6. Verify
 

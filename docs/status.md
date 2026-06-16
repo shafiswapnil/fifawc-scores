@@ -5,7 +5,7 @@
 
 ## Current Stage
 
-**RELEASED v1.0.0.** ✅ First release published on GitHub. All phases complete (M1–M21). TRIONDA UI redesign complete — dark glass panels, orange brand accent (#F26622), `DarkModeBridge` AppKit bridge for forced dark mode in MenuBarExtra, two-zone panel height (420px settings / 480px content), favorite team pinning + orange glow highlight + Schedule tab filtering, real-time 60s ticking via `minuteTick: Date`, `GOAL!` 5s text flash. SF Symbol `soccerball` icon. 54 unit tests passing. CI/CD pipeline verified — tag push triggers build, zip, GitHub Release, appcast.xml update. Sparkle auto-update live.
+**RELEASED v1.0.0.** ✅ First release published on GitHub. All phases complete (M1–M21). TRIONDA UI redesign complete — dark glass panels, orange brand accent (#F26622), `DarkModeBridge` AppKit bridge for forced dark mode in MenuBarExtra, two-zone panel height (420px settings / 480px content), favorite team pinning + orange glow highlight + Schedule tab filtering, real-time 60s ticking via `minuteTick: Date`, `GOAL!` 5s text flash. SF Symbol `soccerball` icon. 54 unit tests passing. CI/CD pipeline verified — tag push triggers build, sign, zip, GitHub Release, appcast.xml update. Sparkle auto-update live with EdDSA signing (`SUPublicEDKey` + `SPARKLE_PRIVATE_KEY` secret).
 
 ## Milestone Tracker
 

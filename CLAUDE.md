@@ -12,7 +12,7 @@
 Cup 2026 match schedules, live scores, and goal animations. Menu bar agent
 (no Dock icon). All interaction happens in the menu bar — no main window.
 
-**Current status:** **RELEASED v1.0.0.** ✅ First release published on GitHub (2026-06-16). CI/CD pipeline verified end-to-end — tag push triggers build, zip, GitHub Release, appcast.xml update. Sparkle auto-update live. TRIONDA UI redesign complete — dark glass panels, orange brand accent, `DarkModeBridge` AppKit bridge for forced dark mode in MenuBarExtra, two-zone panel height (420px settings / 480px content), favorite team pinning + orange glow highlight + Schedule tab filtering, real-time 60s ticking via `minuteTick: Date`, `GOAL!` 5s text flash. SF Symbol `soccerball` icon. Read `docs/status.md` for exact milestone state.
+**Current status:** **RELEASED v1.0.0.** ✅ First release published on GitHub (2026-06-16). CI/CD pipeline verified end-to-end — tag push triggers build, zip, GitHub Release, appcast.xml update. Sparkle auto-update live with EdDSA signing (`SUPublicEDKey` in Info.plist, `SPARKLE_PRIVATE_KEY` GitHub secret). TRIONDA UI redesign complete — dark glass panels, orange brand accent, `DarkModeBridge` AppKit bridge for forced dark mode in MenuBarExtra, two-zone panel height (420px settings / 480px content), favorite team pinning + orange glow highlight + Schedule tab filtering, real-time 60s ticking via `minuteTick: Date`, `GOAL!` 5s text flash. SF Symbol `soccerball` icon. Read `docs/status.md` for exact milestone state.
 
 ---
 
