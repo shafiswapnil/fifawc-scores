@@ -68,6 +68,28 @@ enum Theme {
     static let favBorder = Color(hex: "F26622").opacity(0.35)
 }
 
+// MARK: - Dark Mode Bridge
+
+/// Forces the hosting NSWindow to dark appearance.
+/// Required because `.preferredColorScheme(.dark)` does NOT work in
+/// `MenuBarExtra(.window)` — a confirmed SwiftUI limitation on macOS 14+.
+/// This is a legitimate AppKit lifecycle callback (viewDidMoveToWindow),
+/// NOT a race condition. Safe in Debug and Release builds.
+struct DarkModeBridge: NSViewRepresentable {
+    func makeNSView(context: Context) -> DarkModeView {
+        DarkModeView()
+    }
+
+    func updateNSView(_ nsView: DarkModeView, context: Context) {}
+
+    final class DarkModeView: NSView {
+        override func viewDidMoveToWindow() {
+            super.viewDidMoveToWindow()
+            window?.appearance = NSAppearance(named: .darkAqua)
+        }
+    }
+}
+
 // MARK: - Hex Init
 
 extension Color {
