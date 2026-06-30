@@ -3,16 +3,16 @@
   <channel>
     <title>FIFAWC Scores</title>
     <item>
-      <title>v1.0.2</title>
-      <pubDate>Tue, 16 Jun 2026 12:36:12 +0000</pubDate>
+      <title>v1.1.0</title>
+      <pubDate>Tue, 30 Jun 2026 11:05:02 +0000</pubDate>
       <sparkle:version>1</sparkle:version>
-      <sparkle:shortVersionString>1.0.2</sparkle:shortVersionString>
+      <sparkle:shortVersionString>1.1.0</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
       <enclosure
-        url="https://github.com/shafiswapnil/fifawc-scores/releases/download/v1.0.2/FIFAWCSCORES-1.0.2.zip"
-        length="4516252"
+        url="https://github.com/shafiswapnil/fifawc-scores/releases/download/v1.1.0/FIFAWCSCORES-1.1.0.zip"
+        length="4516131"
         type="application/octet-stream"
-        sparkle:edSignature="OQqMFuVqzTethMyFWIQeopc5rhjSoZOUyPeXqel9twt9VN/LV8VDklUDewjTORz6Y4ono836BcdAkyTkIbD4DQ=="
+        sparkle:edSignature="kRAynx12eDSD1hH5t/xshjTlUHipkMEWmW+kc8NRp2XO3mkqG+OCXpHsCfb+e7YhvZyv4LST43mwlVhUjsPtDg=="
       />
     </item>
   </channel>
