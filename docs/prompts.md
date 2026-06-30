@@ -837,3 +837,34 @@ then,
 **All 54 tests pass.** `swiftc -parse` clean. Xcode project regenerated.
 
 ---
+
+## Prompt 41
+
+The Critical Problem: The panel UI looks perfect in Xcode Debug builds but breaks completely in Release builds / distributed .app files.
+
+Dev Build (what it SHOULD look like)
+
+- Dark glass material (frosted, translucent)
+- Orange brand accent on active tabs, live indicators, favorite team
+- Clean rounded corners, tight edges, no gaps
+- Dynamic height (shrinks for short content, caps at 480px)
+- Everything looks polished and professional
+
+### Release Build (what actually ships)
+
+- Dark mode fails — light system background shows through
+- Glass/frosted material disappears — looks flat and opaque
+- ~4px gaps above header and below footer (system panel margins visible)
+- Dynamic height appears broken (panel doesn't resize properly)
+- The panel looks like a completely different, unfinished app
+
+We have screenshots of both states. Dev build: `docs/assets/hero.png`. Production build screenshots show light bleed, no dark mode, visible system margins. See album: https://imgur.com/a/fifawc-app-dev-build-vs-prod-build-iNylxl5
+
+to deal with this bug: i am thinking redesigning the whole PANEL! the tabs, things will be same. but as the designs, rounded corners, dark/light mode handling - are are maybe making a conflict and making all ruined. so its better to make the previous panel outdated and rename it as outdated. and make new panel code file with new native things. so that it runs both in dev and prod environment. first of all, learn that what actually works in prod, we will respect prod first then make decisions. so,
+- first learn how and what works in prod.
+- respecting prod, see what features we have in panel.
+- we will recode all in new panel keeping the bare minimum fundamental.
+- so ask me for all new native design decisions.
+- code in latest, this is june 2026 era. do not use older non working codes or experience building this.
+- by making new decisions meaning, you will ask me, like in todays tab we see this this? should we keep? if we keep, how you want to show it to users, what we can keep from previous and what can we do in new one, so that none breaks in dev and prod. no fancies, no fancy animations, just an amazingly working app. i really like some design that are coded now, like the calender tab: the dates are shown so nicely, fav team selection, there are multiple things that i like. mainly the height, breaking glass, dark light themeing problem they are main culprit.
+- so discuss with me, plan then execute in one go. obviously the whole codebase.

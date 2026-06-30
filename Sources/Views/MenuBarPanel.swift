@@ -1,7 +1,8 @@
 import SwiftUI
 
 /// The `.window`-style panel shown when the menu bar item is clicked.
-/// TRIONDA redesign — dark glass material with orange/violet brand accents.
+/// v2 — Production-safe redesign. No NSAppearance hacks, no material overlays.
+/// Uses solid dark background that works identically in Debug AND Release builds.
 struct MenuBarPanel: View {
     @Environment(MatchStore.self) private var store
 
@@ -66,10 +67,11 @@ struct MenuBarPanel: View {
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 10)
-        .frame(width: 380)
-        .frame(minHeight: selectedTab == .settings ? 420 : nil,
-               maxHeight: selectedTab == .settings ? 420 : 480)
-        .overlay { DarkModeBridge().allowsHitTesting(false) }
+        .frame(width: 380, height: 480)
+        // Production-safe dark background — no system appearance hacks needed.
+        // This solid dark fill works identically in Debug and Release builds.
+        .background(Theme.panelBackground)
+        .preferredColorScheme(.dark)
         .onAppear {
             if !hasAppeared {
                 hasAppeared = true
@@ -686,8 +688,8 @@ struct MenuBarPanel: View {
 
 // MARK: - Match Card
 
-/// A glass card showing one match with flags, scores, status, and group.
-/// TRIONDA: dark charcoal fill, 1px glass stroke, orange live indicators.
+/// A card showing one match with flags, scores, status, and group.
+/// Production-safe: solid dark fill, no material/glass assumptions.
 struct MatchCard: View {
     let match: Match
     let isLiveHighlight: Bool
@@ -799,7 +801,7 @@ struct MatchCard: View {
 // MARK: - Group Standing Card
 
 /// A mini group table showing team positions, points, and goal difference.
-/// TRIONDA: dark card with glass stroke border.
+/// Production-safe: solid dark card, no material/glass assumptions.
 struct GroupStandingCard: View {
     let group: GroupStanding
 
@@ -907,11 +909,4 @@ extension View {
     func menuRowHighlight() -> some View {
         modifier(MenuRowHighlight())
     }
-}
-
-// MARK: - Preview
-
-#Preview {
-    MenuBarPanel()
-        .environment(MatchStore())
 }

@@ -28,6 +28,11 @@ enum Theme {
 
     // MARK: - Surface Colors
 
+    /// Panel background — solid dark fill that works in both Debug and Release.
+    /// This is the foundation of production-safe dark mode: we control the bg
+    /// instead of relying on system appearance hacks.
+    static let panelBackground = Color(white: 0.11)
+
     /// Dark charcoal — card background fill.
     static let cardBackground = Color(hex: "242429")
 
@@ -61,30 +66,6 @@ enum Theme {
 
     /// Favorite team border — visible orange stroke.
     static let favBorder = Color(hex: "F26622").opacity(0.35)
-}
-
-// MARK: - Dark Mode Bridge
-
-/// Forces the hosting NSWindow to dark appearance.
-/// Works reliably inside MenuBarExtra(.window) where
-/// `.preferredColorScheme(.dark)` fails.
-///
-/// Uses `viewDidMoveToWindow()` to guarantee the window is available
-/// before setting appearance — eliminates the DispatchQueue.main.async
-/// race condition where view.window was nil.
-struct DarkModeBridge: NSViewRepresentable {
-    func makeNSView(context: Context) -> DarkModeView {
-        DarkModeView()
-    }
-
-    func updateNSView(_ nsView: DarkModeView, context: Context) {}
-
-    final class DarkModeView: NSView {
-        override func viewDidMoveToWindow() {
-            super.viewDidMoveToWindow()
-            window?.appearance = NSAppearance(named: .darkAqua)
-        }
-    }
 }
 
 // MARK: - Hex Init
