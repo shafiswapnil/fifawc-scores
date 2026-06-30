@@ -33,8 +33,8 @@
 | M20 | TRIONDA UI Redesign                 | ✅ Done | —       | Dark glass panels, orange brand accent, DarkModeBridge, two-zone height, fav team pin+glow+filter, GOAL! 5s           |
 | M21 | NZL Color Fix                       | ✅ Done | —       | NZL primary color reversed for dark UI visibility (black → white)                                                     |
 | M22 | Release v1.0.1 — DarkModeBridge fix | ✅ Done | —       | Fixed DarkModeBridge race condition (viewDidMoveToWindow), removed double-ultraThinMaterial, reduced vertical padding |
-| M23 | Panel v2 Production-Safe Rewrite    | ✅ Done | 7a8b78b | Solid dark bg, fixed 480px height, zero material overlays, old panel deleted                                       |
-| M24 | DarkModeBridge Restore + Spacing    | ✅ Done | 2e4870e | Restored DarkModeBridge, asymmetric corner padding, content top-alignment, ⚙️ clipping fix                        |
+| M23 | Panel v2 Production-Safe Rewrite    | ✅ Done | 7a8b78b | Solid dark bg, fixed 480px height, zero material overlays, old panel deleted                                          |
+| M24 | DarkModeBridge Restore + Spacing    | ✅ Done | 2e4870e | Restored DarkModeBridge, asymmetric corner padding, content top-alignment, ⚙️ clipping fix                            |
 
 ## Key Decisions Log
 
