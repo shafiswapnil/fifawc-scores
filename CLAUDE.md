@@ -12,7 +12,7 @@
 Cup 2026 match schedules, live scores, and goal animations. Menu bar agent
 (no Dock icon). All interaction happens in the menu bar — no main window.
 
-**Current status:** **Panel v2 Production-Safe Rewrite.** ✅ Removed `DarkModeBridge` (NSAppearance hack that failed in Release builds). Panel uses solid `Theme.panelBackground` dark fill — identical in Debug and Release. Fixed 480px height all tabs. Zero material overlays. `.preferredColorScheme(.dark)` belt-and-suspenders. All features preserved. Old panel → `MenuBarPanelLegacy.swift` (excluded from build). TRIONDA orange accent (#F26622), fav team glow, Schedule filtering, `minuteTick: Date`, `GOAL!` 5s flash. SF Symbol `soccerball`. CI/CD verified. Sparkle auto-update live. Read `docs/status.md` for exact milestone state.
+**Current status:** **v1.1.0 released.** ✅ Panel v2 production-safe rewrite: solid `Theme.panelBackground` dark fill + DarkModeBridge. Content anchored to top, asymmetric padding clears system rounded corners, ⚙️ icon no longer clipped. Zero material overlays. All features preserved. TRIONDA orange accent (#F26622), fav team glow, Schedule filtering, `minuteTick: Date`, `GOAL!` 5s flash. SF Symbol `soccerball`. CI/CD verified. Sparkle auto-update live. Read `docs/status.md` for exact milestone state.
 
 ---
 

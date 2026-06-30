@@ -5,7 +5,7 @@
 
 ## Current Stage
 
-**PANEL v2 REWRITE COMPLETE.** ✅ Production-safe panel redesign — removed `DarkModeBridge` (NSAppearance hack that failed in Release builds), replaced with solid `Theme.panelBackground` dark fill that works identically in Debug and Release. Fixed 480px height for all tabs (eliminates window resize glitches). Zero material overlays — system panel's own dark material shows through naturally. `.preferredColorScheme(.dark)` as belt-and-suspenders. All features preserved: 6 tabs, MatchCards, GroupStandingCards, Settings with fav team grid, day pills schedule, footer with Settings/Sync/Quit. Old panel renamed to `MenuBarPanelLegacy.swift` (excluded from build). M1–M22 complete.
+**v1.1.0 RELEASED.** ✅ Panel v2 production-safe rewrite complete: solid `Theme.panelBackground` dark fill + DarkModeBridge (restored). Content anchored to top, asymmetric padding clears system rounded corners (10px header top, 10px footer bottom), ⚙️ gear icon no longer clipped. Zero material overlays. All features preserved: 6 tabs, MatchCards, GroupStandingCards, Settings with fav team grid, day pills schedule, footer with Settings/Sync/Quit. M1–M24 complete.
 
 ## Milestone Tracker
 
@@ -33,7 +33,8 @@
 | M20 | TRIONDA UI Redesign                 | ✅ Done | —       | Dark glass panels, orange brand accent, DarkModeBridge, two-zone height, fav team pin+glow+filter, GOAL! 5s           |
 | M21 | NZL Color Fix                       | ✅ Done | —       | NZL primary color reversed for dark UI visibility (black → white)                                                     |
 | M22 | Release v1.0.1 — DarkModeBridge fix | ✅ Done | —       | Fixed DarkModeBridge race condition (viewDidMoveToWindow), removed double-ultraThinMaterial, reduced vertical padding |
-| M23 | Panel v2 Production-Safe Rewrite    | ✅ Done | —       | Removed DarkModeBridge, solid dark bg, fixed 480px height, zero material overlays, old panel → Legacy                 |
+| M23 | Panel v2 Production-Safe Rewrite    | ✅ Done | 7a8b78b | Solid dark bg, fixed 480px height, zero material overlays, old panel deleted                                       |
+| M24 | DarkModeBridge Restore + Spacing    | ✅ Done | 2e4870e | Restored DarkModeBridge, asymmetric corner padding, content top-alignment, ⚙️ clipping fix                        |
 
 ## Key Decisions Log
 

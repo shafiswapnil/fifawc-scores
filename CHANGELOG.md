@@ -7,6 +7,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.1.0] — 2026-06-30
+
+### Changed
+
+- **Panel v2 production-safe rewrite** — rebuilt MenuBarPanel from scratch.
+  Solid `Theme.panelBackground` dark fill (no material overlays) works
+  identically in Debug and Release builds.
+- **DarkModeBridge restored** — AppKit `NSViewRepresentable` that forces
+  `darkAqua` appearance on the hosting window. Confirmed safe when no
+  material/glass overlays are present (the previous failures were caused
+  by `.ultraThinMaterial` conflicts, not the bridge itself).
+- **Panel spacing restructured for macOS rounded corners** — asymmetric
+  padding (10px header top, 10px footer bottom, 14px tab trailing) to
+  clear the system window's ~10px corner radius without wasting space.
+- **Content alignment** — content now anchors to the top of the panel
+  (was previously centered due to `.layoutPriority(-1)`).
+
+### Removed
+
+- **`MenuBarPanelLegacy.swift`** — old panel code deleted.
+- **Material overlays** — zero `.ultraThinMaterial` / `.glassEffect` usage
+  in the panel. Solid colors only for production safety.
+- **`.preferredColorScheme(.dark)` on panel** — confirmed non-functional in
+  `MenuBarExtra(.window)`. DarkModeBridge is the sole dark-mode mechanism.
+
+### Fixed
+
+- **TextField dark mode in Settings** — search field and API key input now
+  render with correct light-on-dark text (was broken when DarkModeBridge
+  was removed).
+- **⚙️ gear icon clipping** — tab row trailing padding prevents the settings
+  icon from being cut off by the ScrollView edge.
+- **Blank space above/below panel content** — system menu bar margins no
+  longer create visual gaps.
+
+[1.1.0]: https://github.com/shafiswapnil/fifawc-scores/compare/v1.0.2...v1.1.0
+
 ## [1.0.1] — 2026-06-16
 
 ### Fixed
