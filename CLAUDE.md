@@ -12,7 +12,7 @@
 Cup 2026 match schedules, live scores, and goal animations. Menu bar agent
 (no Dock icon). All interaction happens in the menu bar — no main window.
 
-**Current status:** **RELEASED v1.0.1.** ✅ DarkModeBridge race condition fixed — `viewDidMoveToWindow()` guarantees dark mode in all release builds. Removed double `.ultraThinMaterial` (system panel handles glass natively). Reduced vertical padding (12→10) for tighter fit. CI/CD pipeline verified end-to-end — tag push triggers build, zip, GitHub Release, appcast.xml update. Sparkle auto-update live with EdDSA signing (`SUPublicEDKey` in Info.plist, `SPARKLE_PRIVATE_KEY` GitHub secret). TRIONDA UI redesign complete — dark glass panels, orange brand accent, two-zone panel height (420px settings / 480px content), favorite team pinning + orange glow highlight + Schedule tab filtering, real-time 60s ticking via `minuteTick: Date`, `GOAL!` 5s text flash. SF Symbol `soccerball` icon. Read `docs/status.md` for exact milestone state.
+**Current status:** **Panel v2 Production-Safe Rewrite.** ✅ Removed `DarkModeBridge` (NSAppearance hack that failed in Release builds). Panel uses solid `Theme.panelBackground` dark fill — identical in Debug and Release. Fixed 480px height all tabs. Zero material overlays. `.preferredColorScheme(.dark)` belt-and-suspenders. All features preserved. Old panel → `MenuBarPanelLegacy.swift` (excluded from build). TRIONDA orange accent (#F26622), fav team glow, Schedule filtering, `minuteTick: Date`, `GOAL!` 5s flash. SF Symbol `soccerball`. CI/CD verified. Sparkle auto-update live. Read `docs/status.md` for exact milestone state.
 
 ---
 

@@ -5,7 +5,7 @@
 
 ## Current Stage
 
-**RELEASED v1.0.0.** ✅ First release published on GitHub. All phases complete (M1–M21). TRIONDA UI redesign complete — dark glass panels, orange brand accent (#F26622), `DarkModeBridge` AppKit bridge for forced dark mode in MenuBarExtra, two-zone panel height (420px settings / 480px content), favorite team pinning + orange glow highlight + Schedule tab filtering, real-time 60s ticking via `minuteTick: Date`, `GOAL!` 5s text flash. SF Symbol `soccerball` icon. 54 unit tests passing. CI/CD pipeline verified — tag push triggers build, sign, zip, GitHub Release, appcast.xml update. Sparkle auto-update live with EdDSA signing (`SUPublicEDKey` + `SPARKLE_PRIVATE_KEY` secret).
+**PANEL v2 REWRITE COMPLETE.** ✅ Production-safe panel redesign — removed `DarkModeBridge` (NSAppearance hack that failed in Release builds), replaced with solid `Theme.panelBackground` dark fill that works identically in Debug and Release. Fixed 480px height for all tabs (eliminates window resize glitches). Zero material overlays — system panel's own dark material shows through naturally. `.preferredColorScheme(.dark)` as belt-and-suspenders. All features preserved: 6 tabs, MatchCards, GroupStandingCards, Settings with fav team grid, day pills schedule, footer with Settings/Sync/Quit. Old panel renamed to `MenuBarPanelLegacy.swift` (excluded from build). M1–M22 complete.
 
 ## Milestone Tracker
 
@@ -33,6 +33,7 @@
 | M20 | TRIONDA UI Redesign                 | ✅ Done | —       | Dark glass panels, orange brand accent, DarkModeBridge, two-zone height, fav team pin+glow+filter, GOAL! 5s           |
 | M21 | NZL Color Fix                       | ✅ Done | —       | NZL primary color reversed for dark UI visibility (black → white)                                                     |
 | M22 | Release v1.0.1 — DarkModeBridge fix | ✅ Done | —       | Fixed DarkModeBridge race condition (viewDidMoveToWindow), removed double-ultraThinMaterial, reduced vertical padding |
+| M23 | Panel v2 Production-Safe Rewrite    | ✅ Done | —       | Removed DarkModeBridge, solid dark bg, fixed 480px height, zero material overlays, old panel → Legacy                 |
 
 ## Key Decisions Log
 
