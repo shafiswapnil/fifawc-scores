@@ -1,8 +1,9 @@
 import SwiftUI
 
 /// The `.window`-style panel shown when the menu bar item is clicked.
-/// v2 — Production-safe redesign. No NSAppearance hacks, no material overlays.
-/// Uses solid dark background that works identically in Debug AND Release builds.
+/// v2 — Production-safe panel. Solid dark bg + DarkModeBridge for dark mode.
+/// DarkModeBridge is safe here because there are NO material overlays —
+/// just solid colors that work identically in Debug and Release builds.
 struct MenuBarPanel: View {
     @Environment(MatchStore.self) private var store
 
@@ -61,17 +62,16 @@ struct MenuBarPanel: View {
             tabRow
             Divider().opacity(0.15)
             content
-                .layoutPriority(-1)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             Divider().opacity(0.2)
             footer
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 10)
+        .padding(.horizontal, 4)
+        .padding(.top, 6)
+        .padding(.bottom, 4)
         .frame(width: 380, height: 480)
-        // Production-safe dark background — no system appearance hacks needed.
-        // This solid dark fill works identically in Debug and Release builds.
         .background(Theme.panelBackground)
-        .preferredColorScheme(.dark)
+        .overlay(DarkModeBridge().allowsHitTesting(false))
         .onAppear {
             if !hasAppeared {
                 hasAppeared = true
@@ -131,6 +131,7 @@ struct MenuBarPanel: View {
             Spacer()
         }
         .padding(.horizontal, 8)
+        .padding(.top, 10)
         .padding(.bottom, 8)
     }
 
@@ -162,7 +163,8 @@ struct MenuBarPanel: View {
                     .buttonStyle(.plain)
                 }
             }
-            .padding(.horizontal, 8)
+            .padding(.leading, 8)
+            .padding(.trailing, 14)
             .padding(.vertical, 6)
         }
         .scrollIndicators(.hidden)
@@ -383,7 +385,6 @@ struct MenuBarPanel: View {
                         TextField("Search team (e.g. KOR, MEX)…", text: $favoriteTeamSearch)
                             .textFieldStyle(.plain)
                             .font(.caption2)
-                            .foregroundStyle(Theme.textPrimary)
                         if !favoriteTeamSearch.isEmpty {
                             Button {
                                 favoriteTeamSearch = ""
@@ -674,6 +675,7 @@ struct MenuBarPanel: View {
             .menuRowHighlight()
         }
         .padding(.top, 4)
+        .padding(.bottom, 10)
     }
 
     // MARK: - Date Helpers
